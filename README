@@ -1,1 +1,7 @@
-OT project, lulz
+Concurrency Control Framework (CCF)
+
+Installing and compiling:
+
+  ./sbt update
+  ./sbt test
+  ./sbt package
