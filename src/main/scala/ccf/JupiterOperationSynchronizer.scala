@@ -23,7 +23,7 @@ class JupiterOperationSynchronizer[T <: Operation](val isPrimary: Boolean, trans
 
   def receiveRemoteOperation(remoteMessage: ConcurrentOperationMessage[T]): T = {
     if (remoteMessage.localMessage < expectedRemoteMessage)
-      transformer.createNoOp
+      return transformer.createNoOp
     discardAcknowledgedMessages(remoteMessage.expectedRemoteMessage)
 
     if (remoteMessage.localMessage != expectedRemoteMessage)

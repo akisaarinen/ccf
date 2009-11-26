@@ -7,12 +7,14 @@ import org.specs.mock.Mockito
 
 case class TestOperation() extends Operation()
 case class TestNoOperation() extends TestOperation()
+case class AnotherOperation() extends TestOperation()
 
 object JupiterOperationSynchronizerSpec extends Specification with Mockito {
   val transformer = mock[JupiterTransformer[TestOperation]]
+  transformer.createNoOp returns TestNoOperation()
   val synchronizer = new JupiterOperationSynchronizer(true, transformer)
 
-  "Any Jupiter operation synchronizer" should {
+  "Any JupiterOperationSynchronizer" should {
     "start indexing operations from zero" in {
       val msg = synchronizer.createLocalOperation(TestNoOperation())
       msg.localMessage must equalTo(0)
@@ -38,4 +40,26 @@ object JupiterOperationSynchronizerSpec extends Specification with Mockito {
       synchronizer.expectedRemoteMessage must equalTo(3)
     }
   }
+
+  "Jupiter operation synchronizer after two messages have been received" should {
+    val msg1 = ConcurrentOperationMessage[TestOperation](TestNoOperation(), 0, 0)
+    val msg2 = ConcurrentOperationMessage[TestOperation](AnotherOperation(), 1, 0)
+
+    synchronizer.receiveRemoteOperation(msg1)
+    synchronizer.receiveRemoteOperation(msg2)
+
+    "accept the subsequent message" in {
+      val msg = ConcurrentOperationMessage[TestOperation](AnotherOperation(), 2, 0)
+      synchronizer.receiveRemoteOperation(msg) must equalTo(AnotherOperation())
+    }
+
+    "reject message if messages are missing from the sequence" in {
+      val msg = ConcurrentOperationMessage[TestOperation](AnotherOperation(), 3, 0)
+      synchronizer.receiveRemoteOperation(msg) must throwA[RuntimeException]
+    }
+
+    "transform operation to no-op in case of duplicate message" in {
+      synchronizer.receiveRemoteOperation(msg2) must equalTo(TestNoOperation())
+    }
+  } 
 }
