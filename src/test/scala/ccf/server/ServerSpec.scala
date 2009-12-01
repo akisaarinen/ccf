@@ -17,7 +17,7 @@ object ServerSpec extends Specification with Mockito {
   val interceptor = mock[ServerOperationInterceptor[Operation]]
   interceptor.operationsForCreatingClient(anyObject[Operation]) returns List()
   interceptor.operationsForAllClients(anyObject[Operation]) returns List()
-  val server = new Server(transport, factory, interceptor)
+  val server = new Server(factory, interceptor)
 
   "Server with no clients" should {
     "accept a client" in {
@@ -71,13 +71,13 @@ object ServerSpec extends Specification with Mockito {
     }
 
     "propagate messages from a client to others in same channel" in {
-      server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(client2, channel, msg) was called
+      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
+      transport ! Event.Msg(server, client2, channel, msg) was called
       transport had noMoreCalls
     }
 
     "not accept message if client has not joined the channel" in {
-      server !? Event.Msg(clientInOtherChannel, channel, msg) must equalTo(Event.Error())
+      server !? Event.Msg(transport, clientInOtherChannel, channel, msg) must equalTo(Event.Error())
     }
 
     "propagate operations for creating client" in {
@@ -87,8 +87,8 @@ object ServerSpec extends Specification with Mockito {
       synchronizer.createLocalOperation(creationOp) returns creationMsg
       interceptor.operationsForCreatingClient(op) returns List(creationOp, creationOp)
       
-      server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(client1, channel, creationMsg) was called.twice
+      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
+      transport ! Event.Msg(server, client1, channel, creationMsg) was called.twice
       interceptor.applyOperation(op) was called
     }
 
@@ -99,9 +99,9 @@ object ServerSpec extends Specification with Mockito {
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
       interceptor.operationsForAllClients(op) returns List(forAllOp, forAllOp)
       
-      server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(client1, channel, forAllMsg) was called.twice
-      transport ! Event.Msg(client2, channel, forAllMsg) was called.twice
+      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
+      transport ! Event.Msg(server, client1, channel, forAllMsg) was called.twice
+      transport ! Event.Msg(server, client2, channel, forAllMsg) was called.twice
       interceptor.applyOperation(op) was called
       interceptor.applyOperation(forAllOp) was called.twice
     }

@@ -16,8 +16,7 @@ trait ServerOperationInterceptor[T <: Operation] {
   def operationsForAllClients(op: T): List[T]
 }
 
-class Server[T <: Operation](transport: TransportActor, 
-                             factory: OperationSynchronizerFactory[T],
+class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
                              interceptor: ServerOperationInterceptor[T]) extends TransportActor {
   val clients = new HashMap[ClientId, ClientState[T]]
   start
@@ -39,7 +38,7 @@ class Server[T <: Operation](transport: TransportActor,
         reply(Event.Ok())
       }
     }
-    case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {
+    case Event.Msg(transport, clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error())
       case Some(state) if (state.channel != channelId) => reply(Event.Error())
       case Some(state) => {
@@ -49,13 +48,13 @@ class Server[T <: Operation](transport: TransportActor,
         val others = otherClientsFor(clientId)
         others.foreach { otherClientId => 
           val msgForOther = clients(otherClientId).send(op)   
-          transport ! Event.Msg(otherClientId, channelId, msgForOther)
+          transport ! Event.Msg(this, otherClientId, channelId, msgForOther)
         }
 
         val opsForCreator = interceptor.operationsForCreatingClient(op)
         opsForCreator.foreach { opForCreator => 
           val msgForCreator = clients(clientId).send(opForCreator)
-          transport ! Event.Msg(clientId, channelId, msgForCreator)
+          transport ! Event.Msg(this, clientId, channelId, msgForCreator)
         }
 
         val opsForAll = interceptor.operationsForAllClients(op)
@@ -63,7 +62,7 @@ class Server[T <: Operation](transport: TransportActor,
           interceptor.applyOperation(opForAll)
           clientsForChannel(channelId).foreach { clientInChannel =>
             val msgForClient = clients(clientInChannel).send(opForAll)
-            transport ! Event.Msg(clientInChannel, channelId, msgForClient)
+            transport ! Event.Msg(this, clientInChannel, channelId, msgForClient)
           }
         }
 
