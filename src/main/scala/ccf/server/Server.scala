@@ -11,6 +11,7 @@ import scala.actors.Actor._
 import collection.mutable.HashMap
 
 trait ServerOperationInterceptor[T <: Operation] {
+  def currentStateFor(channelId: ChannelId): Any
   def applyOperation(op: T): Unit
   def operationsForCreatingClient(op: T): List[T]
   def operationsForAllClients(op: T): List[T]
@@ -27,7 +28,8 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case None => {
         val synchronizer = factory.createSynchronizer
         clients(clientId) = new ClientState(channelId, synchronizer)
-        reply(Event.Ok())
+        val currentState = interceptor.currentStateFor(channelId)
+        reply(Event.State(clientId, channelId, currentState))
       }
     }
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {

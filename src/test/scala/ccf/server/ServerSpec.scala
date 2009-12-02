@@ -20,10 +20,13 @@ object ServerSpec extends Specification with Mockito {
   val server = new Server(factory, interceptor)
 
   "Server with no clients" should {
-    "accept a client" in {
+    "accept a client and return current state" in {
       val client = ClientId.randomId
       val channel = ChannelId.randomId
-      server !? Event.Join(client, channel) must equalTo(Event.Ok())
+      case class MyStateClass(i: Int)
+      val myState = MyStateClass(123)
+      interceptor.currentStateFor(channel) returns myState
+      server !? Event.Join(client, channel) must equalTo(Event.State(client, channel, myState))
       server.clients.contains(client) must equalTo(true)
     }
   }
