@@ -15,8 +15,8 @@ object ServerSpec extends Specification with Mockito {
   val factory = mock[OperationSynchronizerFactory[Operation]]
   factory.createSynchronizer returns synchronizer
   val interceptor = mock[ServerOperationInterceptor[Operation]]
-  interceptor.operationsForCreatingClient(anyObject[Operation]) returns List()
-  interceptor.operationsForAllClients(anyObject[Operation]) returns List()
+  interceptor.operationsForCreatingClient(anyObject[ChannelId], anyObject[Operation]) returns List()
+  interceptor.operationsForAllClients(anyObject[ChannelId], anyObject[Operation]) returns List()
   val server = new Server(factory, interceptor)
 
   "Server with no clients" should {
@@ -88,11 +88,11 @@ object ServerSpec extends Specification with Mockito {
       val creationMsg = mock[ConcurrentOperationMessage[Operation]]
       synchronizer.receiveRemoteOperation(creationMsg) returns creationOp
       synchronizer.createLocalOperation(creationOp) returns creationMsg
-      interceptor.operationsForCreatingClient(op) returns List(creationOp, creationOp)
+      interceptor.operationsForCreatingClient(channel, op) returns List(creationOp, creationOp)
       
       server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
       transport ! Event.Msg(server, client1, channel, creationMsg) was called.twice
-      interceptor.applyOperation(op) was called
+      interceptor.applyOperation(channel, op) was called
     }
 
     "propagate operations for all clients" in {
@@ -100,13 +100,13 @@ object ServerSpec extends Specification with Mockito {
       val forAllMsg = mock[ConcurrentOperationMessage[Operation]]
       synchronizer.receiveRemoteOperation(forAllMsg) returns forAllOp
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
-      interceptor.operationsForAllClients(op) returns List(forAllOp, forAllOp)
+      interceptor.operationsForAllClients(channel, op) returns List(forAllOp, forAllOp)
       
       server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
       transport ! Event.Msg(server, client1, channel, forAllMsg) was called.twice
       transport ! Event.Msg(server, client2, channel, forAllMsg) was called.twice
-      interceptor.applyOperation(op) was called
-      interceptor.applyOperation(forAllOp) was called.twice
+      interceptor.applyOperation(channel, op) was called
+      interceptor.applyOperation(channel, forAllOp) was called.twice
     }
   }
 }
