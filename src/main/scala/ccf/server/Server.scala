@@ -24,7 +24,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
 
   def act = loop { react {
     case Event.Join(clientId, channelId) => clients.get(clientId) match {
-      case Some(state) => reply(Event.Error())
+      case Some(state) => reply(Event.Error("Already joined"))
       case None => {
         val synchronizer = factory.createSynchronizer
         clients(clientId) = new ClientState(channelId, synchronizer)
@@ -32,21 +32,21 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
           val currentState = interceptor.currentStateFor(channelId)
           reply(Event.State(clientId, channelId, currentState))
         } catch {
-          case _ => reply(Event.Error())
+          case e => reply(Event.Error(e.toString))
         }
       }
     }
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {
-      case None => reply(Event.Error())
-      case Some(state) if (state.channel != channelId) => reply(Event.Error())
+      case None => reply(Event.Error("Not joined, unable to quit"))
+      case Some(state) if (state.channel != channelId) => reply(Event.Error("Not in that channel"))
       case Some(state) => {
         clients -= clientId
         reply(Event.Ok())
       }
     }
     case Event.Msg(transport, clientId, channelId, msg) => clients.get(clientId) match {
-      case None => reply(Event.Error())
-      case Some(state) if (state.channel != channelId) => reply(Event.Error())
+      case None => reply(Event.Error("Not joined to any channel"))
+      case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
       case Some(state) => {
         val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
         try {
@@ -75,11 +75,10 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
 
           reply(Event.Ok())
         } catch {
-          case _ => reply(Event.Error())
+          case e => reply(Event.Error(e.toString))
         }
       }
     }
-    case _ => reply(Event.Error())
   }}
 
   private def clientsForChannel(channelId: ChannelId): List[ClientId] = {

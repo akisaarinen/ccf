@@ -30,7 +30,7 @@ class ExampleTransport(listener: ExampleTransportListener) extends TransportActo
       listener.onMsg(client, channel, msg)
       reply(Event.Ok())
     }
-    case _ => reply(Event.Error())
+    case _ => reply(Event.Error("Unknown message"))
   }}
 
 }

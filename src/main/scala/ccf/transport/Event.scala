@@ -5,7 +5,7 @@ import ccf.messaging.ConcurrentOperationMessage
 
 object Event {
   case class Ok()
-  case class Error()
+  case class Error(reason: String)
 
   case class Join(clientId: ClientId, channelId: ChannelId)
   case class State[T](clientId: ClientId, channelId: ChannelId, state: T)

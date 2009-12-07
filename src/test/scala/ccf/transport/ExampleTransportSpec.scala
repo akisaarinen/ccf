@@ -37,7 +37,7 @@ object ExampleTransportSpec extends Specification with Mockito {
 
     "return Event.Error() on unknown message" in {
       case class UnknownMsg()
-      t !? UnknownMsg() must equalTo(Event.Error())
+      t !? UnknownMsg() must haveClass[Event.Error]
     }
   }
 }

@@ -49,16 +49,16 @@ object ServerSpec extends Specification with Mockito {
     }
 
     "not quit an unknown client" in {
-      server !? Event.Quit(ClientId.randomId, channel) must equalTo(Event.Error())
+      server !? Event.Quit(ClientId.randomId, channel) must haveClass[Event.Error]
     }
 
     "not allow a client to join another channel before quitting" in {
-      server !? Event.Join(client1, ChannelId.randomId) must equalTo(Event.Error())
+      server !? Event.Join(client1, ChannelId.randomId) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception" in {
       interceptor.currentStateFor(channel) throws new RuntimeException("")
-      server !? Event.Join(client1, channel) must equalTo(Event.Error())
+      server !? Event.Join(client1, channel) must haveClass[Event.Error]
     }
   }
 
@@ -85,7 +85,7 @@ object ServerSpec extends Specification with Mockito {
     }
 
     "not accept message if client has not joined the channel" in {
-      server !? Event.Msg(transport, clientInOtherChannel, channel, msg) must equalTo(Event.Error())
+      server !? Event.Msg(transport, clientInOtherChannel, channel, msg) must haveClass[Event.Error]
     }
 
     "propagate operations for creating client" in {
@@ -116,17 +116,17 @@ object ServerSpec extends Specification with Mockito {
 
     "return error if interceptor throws an exception on operation applying" in {
       interceptor.applyOperation(channel, op) throws new RuntimeException("")
-      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Error())
+      server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception when generating operations for creating client" in {
       interceptor.operationsForCreatingClient(channel, op) throws new RuntimeException("")
-      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Error())
+      server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception when generating operations for all clients" in {
       interceptor.operationsForAllClients(channel, op) throws new RuntimeException("")
-      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Error())
+      server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
   }
 }
