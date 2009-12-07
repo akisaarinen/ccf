@@ -28,8 +28,12 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case None => {
         val synchronizer = factory.createSynchronizer
         clients(clientId) = new ClientState(channelId, synchronizer)
-        val currentState = interceptor.currentStateFor(channelId)
-        reply(Event.State(clientId, channelId, currentState))
+        try {
+          val currentState = interceptor.currentStateFor(channelId)
+          reply(Event.State(clientId, channelId, currentState))
+        } catch {
+          case _ => reply(Event.Error())
+        }
       }
     }
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {

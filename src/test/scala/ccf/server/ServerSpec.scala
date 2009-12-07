@@ -55,6 +55,11 @@ object ServerSpec extends Specification with Mockito {
     "not allow a client to join another channel before quitting" in {
       server !? Event.Join(client1, ChannelId.randomId) must equalTo(Event.Error())
     }
+
+    "return error if interceptor throws an exception" in {
+      interceptor.currentStateFor(channel) throws new RuntimeException("")
+      server !? Event.Join(client1, channel) must equalTo(Event.Error())
+    }
   }
 
   "Server with registered clients on two channels" should {
