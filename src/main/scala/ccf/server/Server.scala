@@ -12,9 +12,9 @@ import collection.mutable.HashMap
 
 trait ServerOperationInterceptor[T <: Operation] {
   def currentStateFor(channelId: ChannelId): Any
-  def applyOperation(channelId: ChannelId, op: T): Unit
-  def operationsForCreatingClient(channelId: ChannelId, op: T): List[T]
-  def operationsForAllClients(channelId: ChannelId, op: T): List[T]
+  def applyOperation(clientId: ClientId, channelId: ChannelId, op: T): Unit
+  def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: T): List[T]
+  def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: T): List[T]
 }
 
 class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
@@ -50,7 +50,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case Some(state) => {
         val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
         try {
-          interceptor.applyOperation(channelId, op)
+          interceptor.applyOperation(clientId, channelId, op)
 
           val others = otherClientsFor(clientId)
           others.foreach { otherClientId =>
@@ -58,15 +58,15 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
             transport ! Event.Msg(this, otherClientId, channelId, msgForOther)
           }
 
-          val opsForCreator = interceptor.operationsForCreatingClient(channelId, op)
+          val opsForCreator = interceptor.operationsForCreatingClient(clientId, channelId, op)
           opsForCreator.foreach { opForCreator =>
             val msgForCreator = clients(clientId).send(opForCreator)
             transport ! Event.Msg(this, clientId, channelId, msgForCreator)
           }
 
-          val opsForAll = interceptor.operationsForAllClients(channelId, op)
+          val opsForAll = interceptor.operationsForAllClients(clientId, channelId, op)
           opsForAll.foreach { opForAll =>
-            interceptor.applyOperation(channelId, opForAll)
+            interceptor.applyOperation(clientId, channelId, opForAll)
             clientsForChannel(channelId).foreach { clientInChannel =>
               val msgForClient = clients(clientInChannel).send(opForAll)
               transport ! Event.Msg(this, clientInChannel, channelId, msgForClient)

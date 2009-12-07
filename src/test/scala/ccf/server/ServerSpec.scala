@@ -15,8 +15,8 @@ object ServerSpec extends Specification with Mockito {
   val factory = mock[OperationSynchronizerFactory[Operation]]
   factory.createSynchronizer returns synchronizer
   val interceptor = mock[ServerOperationInterceptor[Operation]]
-  interceptor.operationsForCreatingClient(anyObject[ChannelId], anyObject[Operation]) returns List()
-  interceptor.operationsForAllClients(anyObject[ChannelId], anyObject[Operation]) returns List()
+  interceptor.operationsForCreatingClient(anyObject[ClientId], anyObject[ChannelId], anyObject[Operation]) returns List()
+  interceptor.operationsForAllClients(anyObject[ClientId], anyObject[ChannelId], anyObject[Operation]) returns List()
   val server = new Server(factory, interceptor)
 
   "Server with no clients" should {
@@ -93,11 +93,11 @@ object ServerSpec extends Specification with Mockito {
       val creationMsg = mock[ConcurrentOperationMessage[Operation]]
       synchronizer.receiveRemoteOperation(creationMsg) returns creationOp
       synchronizer.createLocalOperation(creationOp) returns creationMsg
-      interceptor.operationsForCreatingClient(channel, op) returns List(creationOp, creationOp)
+      interceptor.operationsForCreatingClient(client1, channel, op) returns List(creationOp, creationOp)
       
       server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
       transport ! Event.Msg(server, client1, channel, creationMsg) was called.twice
-      interceptor.applyOperation(channel, op) was called
+      interceptor.applyOperation(client1, channel, op) was called
     }
 
     "propagate operations for all clients" in {
@@ -105,27 +105,27 @@ object ServerSpec extends Specification with Mockito {
       val forAllMsg = mock[ConcurrentOperationMessage[Operation]]
       synchronizer.receiveRemoteOperation(forAllMsg) returns forAllOp
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
-      interceptor.operationsForAllClients(channel, op) returns List(forAllOp, forAllOp)
+      interceptor.operationsForAllClients(client1, channel, op) returns List(forAllOp, forAllOp)
       
       server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
       transport ! Event.Msg(server, client1, channel, forAllMsg) was called.twice
       transport ! Event.Msg(server, client2, channel, forAllMsg) was called.twice
-      interceptor.applyOperation(channel, op) was called
-      interceptor.applyOperation(channel, forAllOp) was called.twice
+      interceptor.applyOperation(client1, channel, op) was called
+      interceptor.applyOperation(client1, channel, forAllOp) was called.twice
     }
 
     "return error if interceptor throws an exception on operation applying" in {
-      interceptor.applyOperation(channel, op) throws new RuntimeException("")
+      interceptor.applyOperation(client1, channel, op) throws new RuntimeException("")
       server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception when generating operations for creating client" in {
-      interceptor.operationsForCreatingClient(channel, op) throws new RuntimeException("")
+      interceptor.operationsForCreatingClient(client1, channel, op) throws new RuntimeException("")
       server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception when generating operations for all clients" in {
-      interceptor.operationsForAllClients(channel, op) throws new RuntimeException("")
+      interceptor.operationsForAllClients(client1, channel, op) throws new RuntimeException("")
       server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
   }
