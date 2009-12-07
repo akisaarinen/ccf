@@ -49,30 +49,34 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case Some(state) if (state.channel != channelId) => reply(Event.Error())
       case Some(state) => {
         val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
-        interceptor.applyOperation(channelId, op)
-        
-        val others = otherClientsFor(clientId)
-        others.foreach { otherClientId => 
-          val msgForOther = clients(otherClientId).send(op)   
-          transport ! Event.Msg(this, otherClientId, channelId, msgForOther)
-        }
+        try {
+          interceptor.applyOperation(channelId, op)
 
-        val opsForCreator = interceptor.operationsForCreatingClient(channelId, op)
-        opsForCreator.foreach { opForCreator => 
-          val msgForCreator = clients(clientId).send(opForCreator)
-          transport ! Event.Msg(this, clientId, channelId, msgForCreator)
-        }
-
-        val opsForAll = interceptor.operationsForAllClients(channelId, op)
-        opsForAll.foreach { opForAll => 
-          interceptor.applyOperation(channelId, opForAll)
-          clientsForChannel(channelId).foreach { clientInChannel =>
-            val msgForClient = clients(clientInChannel).send(opForAll)
-            transport ! Event.Msg(this, clientInChannel, channelId, msgForClient)
+          val others = otherClientsFor(clientId)
+          others.foreach { otherClientId =>
+            val msgForOther = clients(otherClientId).send(op)
+            transport ! Event.Msg(this, otherClientId, channelId, msgForOther)
           }
-        }
 
-        reply(Event.Ok())
+          val opsForCreator = interceptor.operationsForCreatingClient(channelId, op)
+          opsForCreator.foreach { opForCreator =>
+            val msgForCreator = clients(clientId).send(opForCreator)
+            transport ! Event.Msg(this, clientId, channelId, msgForCreator)
+          }
+
+          val opsForAll = interceptor.operationsForAllClients(channelId, op)
+          opsForAll.foreach { opForAll =>
+            interceptor.applyOperation(channelId, opForAll)
+            clientsForChannel(channelId).foreach { clientInChannel =>
+              val msgForClient = clients(clientInChannel).send(opForAll)
+              transport ! Event.Msg(this, clientInChannel, channelId, msgForClient)
+            }
+          }
+
+          reply(Event.Ok())
+        } catch {
+          case _ => reply(Event.Error())
+        }
       }
     }
     case _ => reply(Event.Error())

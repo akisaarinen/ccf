@@ -113,5 +113,20 @@ object ServerSpec extends Specification with Mockito {
       interceptor.applyOperation(channel, op) was called
       interceptor.applyOperation(channel, forAllOp) was called.twice
     }
+
+    "return error if interceptor throws an exception on operation applying" in {
+      interceptor.applyOperation(channel, op) throws new RuntimeException("")
+      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Error())
+    }
+
+    "return error if interceptor throws an exception when generating operations for creating client" in {
+      interceptor.operationsForCreatingClient(channel, op) throws new RuntimeException("")
+      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Error())
+    }
+
+    "return error if interceptor throws an exception when generating operations for all clients" in {
+      interceptor.operationsForAllClients(channel, op) throws new RuntimeException("")
+      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Error())
+    }
   }
 }
