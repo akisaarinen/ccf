@@ -7,6 +7,7 @@ import ccf.tree.JupiterTreeTransformation
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation._
 
+import java.io.{StringWriter, PrintWriter}
 import scala.actors.Actor._
 import collection.mutable.HashMap
 
@@ -32,7 +33,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
           val currentState = interceptor.currentStateFor(channelId)
           reply(Event.State(clientId, channelId, currentState))
         } catch {
-          case e => reply(Event.Error(e.toString))
+          case e => reply(Event.Error(stackTraceToString(e)))
         }
       }
     }
@@ -75,7 +76,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
 
           reply(Event.Ok())
         } catch {
-          case e => reply(Event.Error(e.toString))
+          case e => reply(Event.Error(stackTraceToString(e)))
         }
       }
     }
@@ -90,5 +91,12 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case Some(state) => clientsForChannel(state.channel).filter(_ != clientId)
       case None => List()
     }
+  }
+
+  private def stackTraceToString(e: Throwable): String = {
+    val result = new StringWriter
+    val writer = new PrintWriter(result)
+    e.printStackTrace(writer)
+    result.toString
   }
 }
