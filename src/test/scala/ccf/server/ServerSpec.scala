@@ -29,6 +29,10 @@ object ServerSpec extends Specification with Mockito {
       server !? Event.Join(client, channel) must equalTo(Event.State(client, channel, myState))
       server.clients.contains(client) must equalTo(true)
     }
+    "reply with error to unknown message" in {
+      case class MyMessage()
+      server !? MyMessage() must haveClass[Event.Error]
+    }
   }
 
   "Server with registered clients on one channel" should {

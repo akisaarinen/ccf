@@ -80,6 +80,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
         }
       }
     }
+    case m => reply(Event.Error("Unknown message %s".format(m)))
   }}
 
   private def clientsForChannel(channelId: ChannelId): List[ClientId] = {
