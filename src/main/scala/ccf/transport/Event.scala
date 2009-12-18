@@ -10,6 +10,7 @@ object Event {
   case class Join(clientId: ClientId, channelId: ChannelId)
   case class State[T](clientId: ClientId, channelId: ChannelId, state: T)
   case class Quit(clientId: ClientId, channelId: ChannelId)
+  case class ShutdownChannel(channelId: ChannelId, reason: String)
   case class Sync(transport: TransportActor, clientId: ClientId, channelId: ChannelId)
   case class Msg[T <: Operation](transport: TransportActor, clientId: ClientId, channelId: ChannelId, msg: ConcurrentOperationMessage[T])
 }

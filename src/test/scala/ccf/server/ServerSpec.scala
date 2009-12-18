@@ -70,6 +70,7 @@ object ServerSpec extends Specification with Mockito {
     val channel = ChannelId.randomId
     val client1 = ClientId.randomId
     val client2 = ClientId.randomId
+    val otherChannel = ChannelId.randomId
     val clientInOtherChannel = ClientId.randomId
     val msg = mock[ConcurrentOperationMessage[Operation]]
     val op = mock[Operation]
@@ -79,7 +80,7 @@ object ServerSpec extends Specification with Mockito {
     doBefore {
       server !? Event.Join(client1, channel)
       server !? Event.Join(client2, channel)
-      server !? Event.Join(clientInOtherChannel, ChannelId.randomId)
+      server !? Event.Join(clientInOtherChannel, otherChannel)
     }
 
     "propagate messages from a client to others in same channel" in {
@@ -131,6 +132,13 @@ object ServerSpec extends Specification with Mockito {
     "return error if interceptor throws an exception when generating operations for all clients" in {
       interceptor.operationsForAllClients(client1, channel, op) throws new RuntimeException("")
       server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
+    }
+
+    "quit all clients from specified channel" in {
+      server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())
+      server.clients.contains(client1) must equalTo(false)
+      server.clients.contains(client2) must equalTo(false)
+      server.clients.contains(clientInOtherChannel) must equalTo(true)
     }
   }
 }

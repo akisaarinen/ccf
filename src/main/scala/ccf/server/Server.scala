@@ -45,6 +45,10 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
         reply(Event.Ok())
       }
     }
+    case Event.ShutdownChannel(channelId, reason) => {
+      clientsForChannel(channelId).foreach(clients -= _)
+      reply(Event.Ok())
+    }
     case Event.Msg(transport, clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined to any channel"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
