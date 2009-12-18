@@ -13,7 +13,7 @@ import collection.mutable.HashMap
 
 trait ServerOperationInterceptor[T <: Operation] {
   def currentStateFor(channelId: ChannelId): Any
-  def applyOperation(clientId: ClientId, channelId: ChannelId, op: T): Unit
+  def applyOperation(server: Server[T], clientId: ClientId, channelId: ChannelId, op: T): Unit
   def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: T): List[T]
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: T): List[T]
 }
@@ -51,7 +51,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case Some(state) => {
         val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
         try {
-          interceptor.applyOperation(clientId, channelId, op)
+          interceptor.applyOperation(this, clientId, channelId, op)
 
           val others = otherClientsFor(clientId)
           others.foreach { otherClientId =>
@@ -67,7 +67,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
 
           val opsForAll = interceptor.operationsForAllClients(clientId, channelId, op)
           opsForAll.foreach { opForAll =>
-            interceptor.applyOperation(clientId, channelId, opForAll)
+            interceptor.applyOperation(this, clientId, channelId, opForAll)
             clientsForChannel(channelId).foreach { clientInChannel =>
               val msgForClient = clients(clientInChannel).send(opForAll)
               transport ! Event.Msg(this, clientInChannel, channelId, msgForClient)

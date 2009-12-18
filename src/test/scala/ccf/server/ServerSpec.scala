@@ -101,7 +101,7 @@ object ServerSpec extends Specification with Mockito {
       
       server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
       transport ! Event.Msg(server, client1, channel, creationMsg) was called.twice
-      interceptor.applyOperation(client1, channel, op) was called
+      interceptor.applyOperation(server, client1, channel, op) was called
     }
 
     "propagate operations for all clients" in {
@@ -114,12 +114,12 @@ object ServerSpec extends Specification with Mockito {
       server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
       transport ! Event.Msg(server, client1, channel, forAllMsg) was called.twice
       transport ! Event.Msg(server, client2, channel, forAllMsg) was called.twice
-      interceptor.applyOperation(client1, channel, op) was called
-      interceptor.applyOperation(client1, channel, forAllOp) was called.twice
+      interceptor.applyOperation(server, client1, channel, op) was called
+      interceptor.applyOperation(server, client1, channel, forAllOp) was called.twice
     }
 
     "return error if interceptor throws an exception on operation applying" in {
-      interceptor.applyOperation(client1, channel, op) throws new RuntimeException("")
+      interceptor.applyOperation(server, client1, channel, op) throws new RuntimeException("")
       server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
     }
 
