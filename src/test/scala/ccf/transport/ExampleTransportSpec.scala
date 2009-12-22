@@ -25,13 +25,13 @@ object ExampleTransportSpec extends Specification with Mockito {
     }
 
     "request sync" in {
-      t !? Event.Sync(transport, clientId, channelId) must equalTo(Event.Ok())
+      t !? Event.Sync(clientId, channelId) must equalTo(Event.Ok())
       listener.onSync(clientId, channelId) was called
     }
 
     "pass a message" in {
       val msg = mock[ConcurrentOperationMessage[Operation]]
-      t !? Event.Msg(transport, clientId, channelId, msg) must equalTo(Event.Ok())
+      t !? Event.Msg(clientId, channelId, msg) must equalTo(Event.Ok())
       listener.onMsg(clientId, channelId, msg) was called
     }
 

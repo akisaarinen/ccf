@@ -49,7 +49,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       clientsForChannel(channelId).foreach(clients -= _)
       reply(Event.Ok())
     }
-    case Event.Msg(_, clientId, channelId, msg) => clients.get(clientId) match {
+    case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined to any channel"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
       case Some(state) => {
@@ -61,13 +61,13 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
           val others = otherClientsFor(clientId)
           others.foreach { otherClientId =>
             val msgForOther = clients(otherClientId).send(op)
-            transport ! Event.Msg(this, otherClientId, channelId, msgForOther)
+            transport ! Event.Msg(otherClientId, channelId, msgForOther)
           }
 
           val opsForCreator = interceptor.operationsForCreatingClient(clientId, channelId, op)
           opsForCreator.foreach { opForCreator =>
             val msgForCreator = clients(clientId).send(opForCreator)
-            transport ! Event.Msg(this, clientId, channelId, msgForCreator)
+            transport ! Event.Msg(clientId, channelId, msgForCreator)
           }
 
           val opsForAll = interceptor.operationsForAllClients(clientId, channelId, op)
@@ -75,7 +75,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
             interceptor.applyOperation(this, clientId, channelId, opForAll)
             clientsForChannel(channelId).foreach { clientInChannel =>
               val msgForClient = clients(clientInChannel).send(opForAll)
-              transport ! Event.Msg(this, clientInChannel, channelId, msgForClient)
+              transport ! Event.Msg(clientInChannel, channelId, msgForClient)
             }
           }
 

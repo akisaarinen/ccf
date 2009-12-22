@@ -22,11 +22,11 @@ class ExampleTransport(listener: ExampleTransportListener) extends TransportActo
       listener.onQuit(client, channel)
       reply(Event.Ok())
     }
-    case Event.Sync(_, client, channel) => {
+    case Event.Sync(client, channel) => {
       listener.onSync(client, channel)
       reply(Event.Ok())
     }
-    case Event.Msg(_, client, channel, msg) => {
+    case Event.Msg(client, channel, msg) => {
       listener.onMsg(client, channel, msg)
       reply(Event.Ok())
     }

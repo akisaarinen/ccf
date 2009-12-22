@@ -84,13 +84,13 @@ object ServerSpec extends Specification with Mockito {
     }
 
     "propagate messages from a client to others in same channel" in {
-      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(server, client2, channel, msg) was called
+      server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
+      transport ! Event.Msg(client2, channel, msg) was called
       transport had noMoreCalls
     }
 
     "not accept message if client has not joined the channel" in {
-      server !? Event.Msg(transport, clientInOtherChannel, channel, msg) must haveClass[Event.Error]
+      server !? Event.Msg(clientInOtherChannel, channel, msg) must haveClass[Event.Error]
     }
 
     "propagate operations for creating client" in {
@@ -100,8 +100,8 @@ object ServerSpec extends Specification with Mockito {
       synchronizer.createLocalOperation(creationOp) returns creationMsg
       interceptor.operationsForCreatingClient(client1, channel, op) returns List(creationOp, creationOp)
       
-      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(server, client1, channel, creationMsg) was called.twice
+      server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
+      transport ! Event.Msg(client1, channel, creationMsg) was called.twice
       interceptor.applyOperation(server, client1, channel, op) was called
     }
 
@@ -112,26 +112,26 @@ object ServerSpec extends Specification with Mockito {
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
       interceptor.operationsForAllClients(client1, channel, op) returns List(forAllOp, forAllOp)
       
-      server !? Event.Msg(transport, client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(server, client1, channel, forAllMsg) was called.twice
-      transport ! Event.Msg(server, client2, channel, forAllMsg) was called.twice
+      server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
+      transport ! Event.Msg(client1, channel, forAllMsg) was called.twice
+      transport ! Event.Msg(client2, channel, forAllMsg) was called.twice
       interceptor.applyOperation(server, client1, channel, op) was called
       interceptor.applyOperation(server, client1, channel, forAllOp) was called.twice
     }
 
     "return error if interceptor throws an exception on operation applying" in {
       interceptor.applyOperation(server, client1, channel, op) throws new RuntimeException("")
-      server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
+      server !? Event.Msg(client1, channel, msg) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception when generating operations for creating client" in {
       interceptor.operationsForCreatingClient(client1, channel, op) throws new RuntimeException("")
-      server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
+      server !? Event.Msg(client1, channel, msg) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception when generating operations for all clients" in {
       interceptor.operationsForAllClients(client1, channel, op) throws new RuntimeException("")
-      server !? Event.Msg(transport, client1, channel, msg) must haveClass[Event.Error]
+      server !? Event.Msg(client1, channel, msg) must haveClass[Event.Error]
     }
 
     "quit all clients from specified channel" in {
