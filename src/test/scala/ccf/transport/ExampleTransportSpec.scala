@@ -1,7 +1,7 @@
 package ccf.transport
 
 import ccf.operation.Operation
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.Message
 import org.specs.Specification
 import org.specs.mock.Mockito
 
@@ -30,7 +30,7 @@ object ExampleTransportSpec extends Specification with Mockito {
     }
 
     "pass a message" in {
-      val msg = mock[ConcurrentOperationMessage[Operation]]
+      val msg = mock[Message[Operation]]
       t !? Event.Msg(clientId, channelId, msg) must equalTo(Event.Ok())
       listener.onMsg(clientId, channelId, msg) was called
     }

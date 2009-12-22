@@ -1,14 +1,14 @@
 package ccf.transport
 
 import ccf.operation.Operation
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.Message
 import scala.actors.Actor._
 
 trait ExampleTransportListener {
   def onJoin(clientId: ClientId, channelId: ChannelId): Any
   def onQuit(clientId: ClientId, channelId: ChannelId): Unit
   def onSync(clientId: ClientId, channelId: ChannelId): Unit
-  def onMsg(clientId: ClientId, channelId: ChannelId, msg: ConcurrentOperationMessage[Operation]): Unit
+  def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[Operation]): Unit
 }
 
 class ExampleTransport(listener: ExampleTransportListener) extends TransportActor {

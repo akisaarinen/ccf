@@ -1,7 +1,7 @@
 package ccf.transport
 
 import ccf.operation.Operation
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.Message
 
 object Event {
   case class Ok()
@@ -12,5 +12,5 @@ object Event {
   case class Quit(clientId: ClientId, channelId: ChannelId)
   case class ShutdownChannel(channelId: ChannelId, reason: String)
   case class Sync(clientId: ClientId, channelId: ChannelId)
-  case class Msg[T <: Operation](clientId: ClientId, channelId: ChannelId, msg: ConcurrentOperationMessage[T])
+  case class Msg[T <: Operation](clientId: ClientId, channelId: ChannelId, msg: Message[T])
 }
