@@ -28,7 +28,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case Some(state) => reply(Event.Error("Already joined"))
       case None => {
         val synchronizer = factory.createSynchronizer
-        clients(clientId) = new ClientState(channelId, synchronizer)
+        clients(clientId) = new ClientState(channelId, transport, synchronizer)
         try {
           val currentState = interceptor.currentStateFor(channelId)
           reply(Event.State(clientId, channelId, currentState))
@@ -49,11 +49,12 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       clientsForChannel(channelId).foreach(clients -= _)
       reply(Event.Ok())
     }
-    case Event.Msg(transport, clientId, channelId, msg) => clients.get(clientId) match {
+    case Event.Msg(_, clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined to any channel"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
       case Some(state) => {
         val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
+        val transport = state.transport
         try {
           interceptor.applyOperation(this, clientId, channelId, op)
 
