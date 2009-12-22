@@ -1,6 +1,6 @@
 package ccf.server
 
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
 import ccf.operation.Operation
 import ccf.transport.{TransportActor, ClientId, ChannelId, Event}
 import ccf.tree.JupiterTreeTransformation
@@ -46,7 +46,13 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       }
     }
     case Event.ShutdownChannel(channelId, reason) => {
-      clientsForChannel(channelId).foreach(clients -= _)
+      val shutdownMsg = ChannelShutdown[T](reason)
+      clientsForChannel(channelId).foreach { clientId =>
+        clients.get(clientId).foreach { state =>
+          state.transport ! Event.Msg(clientId, channelId, shutdownMsg)
+        }
+        clients -= clientId
+      }
       reply(Event.Ok())
     }
     case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {

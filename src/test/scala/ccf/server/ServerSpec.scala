@@ -1,6 +1,6 @@
 package ccf.server
 
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
 import ccf.transport.{ClientId, ChannelId, Event}
 import ccf.operation.Operation
 import ccf.transport.TransportActor
@@ -139,6 +139,13 @@ object ServerSpec extends Specification with Mockito {
       server.clients.contains(client1) must equalTo(false)
       server.clients.contains(client2) must equalTo(false)
       server.clients.contains(clientInOtherChannel) must equalTo(true)
+    }
+
+    "inform all clients in channel when channel has been shutdown" in {
+      server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())
+      transport ! Event.Msg(client1, channel, ChannelShutdown("any reason")) was called
+      transport ! Event.Msg(client2, channel, ChannelShutdown("any reason")) was called
+      transport ! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason")) wasnt called
     }
   }
 }
