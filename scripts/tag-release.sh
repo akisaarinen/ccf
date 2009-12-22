@@ -33,7 +33,7 @@ git push origin master
 git tag "v${VERSION}"
 git push --tags origin master
 
-sed -i "s/^project.version=.*$/${NEXT_VERSION}/" $BUILD_FILE
+sed -i "s/^project.version=.*$/project.version=${NEXT_VERSION}/" $BUILD_FILE
 git add project/build.properties
 git commit -s -m "Update project version back to development snapshot"
 git push origin master
