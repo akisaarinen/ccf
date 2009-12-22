@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Configurations._
 
-class OtProject(info: ProjectInfo) extends DefaultProject(info) {
+class CcfProject(info: ProjectInfo) extends DefaultProject(info) {
   override def testFrameworks = ScalaCheckFramework :: SpecsFramework :: Nil
   override def mainClass = Some("TestMain")
 
