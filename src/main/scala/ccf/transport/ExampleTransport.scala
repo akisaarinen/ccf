@@ -14,7 +14,7 @@ trait ExampleTransportListener {
 class ExampleTransport(listener: ExampleTransportListener) extends TransportActor {
   start
   def act() = loop { react {
-    case Event.Join(client, channel) => {
+    case Event.Join(_, client, channel) => {
       val state = listener.onJoin(client, channel)
       reply(Event.State(client, channel, state))
     }

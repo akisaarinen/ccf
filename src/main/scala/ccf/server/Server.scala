@@ -24,7 +24,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   start
 
   def act = loop { react {
-    case Event.Join(clientId, channelId) => clients.get(clientId) match {
+    case Event.Join(transport, clientId, channelId) => clients.get(clientId) match {
       case Some(state) => reply(Event.Error("Already joined"))
       case None => {
         val synchronizer = factory.createSynchronizer
