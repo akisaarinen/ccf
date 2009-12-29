@@ -2,8 +2,8 @@ import sbt._
 import sbt.Configurations._
 
 class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
-  
   lazy val lib = project("ccf", "ccf", new CcfLibraryProject(_))
+  lazy val app = project("app", "app", new TextAppProject(_), lib)
 
   class CcfLibraryProject(info: ProjectInfo) extends DefaultProject(info) {
     override def testFrameworks = ScalaCheckFramework :: SpecsFramework :: Nil
@@ -13,5 +13,18 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val mockito = "org.mockito" % "mockito-core" % "1.8.0"
     val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5"
     override def libraryDependencies = Set(specs, mockito, scalacheck)
+  }
+
+  class TextAppProject(info: ProjectInfo) extends DefaultProject(info) {
+    override def testFrameworks = Nil
+    override def mainClass = Some("textapp.TextAppMain")
+
+    val databinder_net = "databinder.net repository" at "http://databinder.net/ >repo"
+    val dispatchHttp = "net.databinder" %% "dispatch-http" % "0.6.3"
+    val dispatchJson = "net.databinder" %% "dispatch-json" % "0.6.3"
+    val dispatchHttpJson = "net.databinder" %% "dispatch-http-json" % "0.6.3"
+    val liftJson = "net.liftweb" % "lift-json" % "1.1-M5"
+
+    override def libraryDependencies = Set(dispatchHttp, dispatchHttpJson, dispatchJson, liftJson)
   }
 }
