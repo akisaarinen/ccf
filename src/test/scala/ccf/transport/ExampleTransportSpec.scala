@@ -2,6 +2,7 @@ package ccf.transport
 
 import ccf.operation.Operation
 import ccf.messaging.Message
+import ccf.server.Server
 import org.specs.Specification
 import org.specs.mock.Mockito
 
@@ -13,6 +14,12 @@ object ExampleTransportSpec extends Specification with Mockito {
   "ExampleTransport" should {
     val clientId = ClientId.randomId
     val channelId = ChannelId.randomId
+
+    "initialize" in {
+      val server = mock[Server[Operation]]
+      t.initialize(server)
+      listener.onInitialize(server) was called
+    }
 
     "join" in {
       listener.onJoin(clientId, channelId) returns 123

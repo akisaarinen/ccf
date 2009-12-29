@@ -8,6 +8,7 @@ import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation._
 
 import java.io.{StringWriter, PrintWriter}
+import scala.actors.Actor
 import scala.actors.Actor._
 import collection.mutable.HashMap
 
@@ -19,8 +20,10 @@ trait ServerOperationInterceptor[T <: Operation] {
 }
 
 class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
-                             interceptor: ServerOperationInterceptor[T]) extends TransportActor {
+                             interceptor: ServerOperationInterceptor[T],
+                             transport: TransportActor) extends Actor {
   val clients = new HashMap[ClientId, ClientState[T]]
+  transport.initialize(this)
   start
 
   def act = loop { react {

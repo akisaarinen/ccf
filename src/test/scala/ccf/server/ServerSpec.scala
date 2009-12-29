@@ -17,9 +17,12 @@ object ServerSpec extends Specification with Mockito {
   val interceptor = mock[ServerOperationInterceptor[Operation]]
   interceptor.operationsForCreatingClient(anyObject[ClientId], anyObject[ChannelId], anyObject[Operation]) returns List()
   interceptor.operationsForAllClients(anyObject[ClientId], anyObject[ChannelId], anyObject[Operation]) returns List()
-  val server = new Server(factory, interceptor)
+  val server = new Server(factory, interceptor, transport)
 
   "Server with no clients" should {
+    "initialize transport" in {
+      transport.initialize(server) was called
+    }
     "accept a client and return current state" in {
       val client = ClientId.randomId
       val channel = ChannelId.randomId
@@ -86,6 +89,7 @@ object ServerSpec extends Specification with Mockito {
     "propagate messages from a client to others in same channel" in {
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
       transport !! Event.Msg(client2, channel, msg) was called
+      transport.initialize(server) was called
       transport had noMoreCalls
     }
 
