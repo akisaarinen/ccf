@@ -29,7 +29,7 @@ object ServerSpec extends Specification with Mockito {
       case class MyStateClass(i: Int)
       val myState = MyStateClass(123)
       interceptor.currentStateFor(channel) returns myState
-      server !? Event.Join(transport, client, channel) must equalTo(Event.State(client, channel, myState))
+      server !? Event.Join(client, channel) must equalTo(Event.State(client, channel, myState))
       server.clients.contains(client) must equalTo(true)
     }
     "reply with error to unknown message" in {
@@ -45,9 +45,9 @@ object ServerSpec extends Specification with Mockito {
     val channel = ChannelId.randomId
 
     doBefore {
-      server !? Event.Join(transport, client1, channel)
-      server !? Event.Join(transport, client2, channel)
-      server !? Event.Join(transport, client3, channel)
+      server !? Event.Join(client1, channel)
+      server !? Event.Join(client2, channel)
+      server !? Event.Join(client3, channel)
     }
     
     "quit a joined client" in {
@@ -60,12 +60,12 @@ object ServerSpec extends Specification with Mockito {
     }
 
     "not allow a client to join another channel before quitting" in {
-      server !? Event.Join(transport, client1, ChannelId.randomId) must haveClass[Event.Error]
+      server !? Event.Join(client1, ChannelId.randomId) must haveClass[Event.Error]
     }
 
     "return error if interceptor throws an exception" in {
       interceptor.currentStateFor(channel) throws new RuntimeException("")
-      server !? Event.Join(transport, client1, channel) must haveClass[Event.Error]
+      server !? Event.Join(client1, channel) must haveClass[Event.Error]
     }
   }
 
@@ -81,9 +81,9 @@ object ServerSpec extends Specification with Mockito {
     synchronizer.createLocalOperation(op) returns msg
       
     doBefore {
-      server !? Event.Join(transport, client1, channel)
-      server !? Event.Join(transport, client2, channel)
-      server !? Event.Join(transport, clientInOtherChannel, otherChannel)
+      server !? Event.Join(client1, channel)
+      server !? Event.Join(client2, channel)
+      server !? Event.Join(clientInOtherChannel, otherChannel)
     }
 
     "propagate messages from a client to others in same channel" in {

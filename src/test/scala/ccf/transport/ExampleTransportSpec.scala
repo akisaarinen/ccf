@@ -23,7 +23,7 @@ object ExampleTransportSpec extends Specification with Mockito {
 
     "join" in {
       listener.onJoin(clientId, channelId) returns 123
-      t !? Event.Join(transport, clientId, channelId) must equalTo(Event.State(clientId, channelId, 123))
+      t !? Event.Join(clientId, channelId) must equalTo(Event.State(clientId, channelId, 123))
     }
 
     "quit" in {
