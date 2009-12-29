@@ -85,7 +85,7 @@ object ServerSpec extends Specification with Mockito {
 
     "propagate messages from a client to others in same channel" in {
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(client2, channel, msg) was called
+      transport !! Event.Msg(client2, channel, msg) was called
       transport had noMoreCalls
     }
 
@@ -101,7 +101,7 @@ object ServerSpec extends Specification with Mockito {
       interceptor.operationsForCreatingClient(client1, channel, op) returns List(creationOp, creationOp)
       
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(client1, channel, creationMsg) was called.twice
+      transport !! Event.Msg(client1, channel, creationMsg) was called.twice
       interceptor.applyOperation(server, client1, channel, op) was called
     }
 
@@ -113,8 +113,8 @@ object ServerSpec extends Specification with Mockito {
       interceptor.operationsForAllClients(client1, channel, op) returns List(forAllOp, forAllOp)
       
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport ! Event.Msg(client1, channel, forAllMsg) was called.twice
-      transport ! Event.Msg(client2, channel, forAllMsg) was called.twice
+      transport !! Event.Msg(client1, channel, forAllMsg) was called.twice
+      transport !! Event.Msg(client2, channel, forAllMsg) was called.twice
       interceptor.applyOperation(server, client1, channel, op) was called
       interceptor.applyOperation(server, client1, channel, forAllOp) was called.twice
     }
@@ -143,9 +143,9 @@ object ServerSpec extends Specification with Mockito {
 
     "inform all clients in channel when channel has been shutdown" in {
       server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())
-      transport ! Event.Msg(client1, channel, ChannelShutdown("any reason")) was called
-      transport ! Event.Msg(client2, channel, ChannelShutdown("any reason")) was called
-      transport ! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason")) wasnt called
+      transport !! Event.Msg(client1, channel, ChannelShutdown("any reason")) was called
+      transport !! Event.Msg(client2, channel, ChannelShutdown("any reason")) was called
+      transport !! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason")) wasnt called
     }
   }
 }

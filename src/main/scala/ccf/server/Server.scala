@@ -49,7 +49,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       val shutdownMsg = ChannelShutdown[T](reason)
       clientsForChannel(channelId).foreach { clientId =>
         clients.get(clientId).foreach { state =>
-          state.transport ! Event.Msg(clientId, channelId, shutdownMsg)
+          state.transport !! Event.Msg(clientId, channelId, shutdownMsg)
         }
         clients -= clientId
       }
@@ -67,13 +67,13 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
           val others = otherClientsFor(clientId)
           others.foreach { otherClientId =>
             val msgForOther = clients(otherClientId).send(op)
-            transport ! Event.Msg(otherClientId, channelId, msgForOther)
+            transport !! Event.Msg(otherClientId, channelId, msgForOther)
           }
 
           val opsForCreator = interceptor.operationsForCreatingClient(clientId, channelId, op)
           opsForCreator.foreach { opForCreator =>
             val msgForCreator = clients(clientId).send(opForCreator)
-            transport ! Event.Msg(clientId, channelId, msgForCreator)
+            transport !! Event.Msg(clientId, channelId, msgForCreator)
           }
 
           val opsForAll = interceptor.operationsForAllClients(clientId, channelId, op)
@@ -81,7 +81,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
             interceptor.applyOperation(this, clientId, channelId, opForAll)
             clientsForChannel(channelId).foreach { clientInChannel =>
               val msgForClient = clients(clientInChannel).send(opForAll)
-              transport ! Event.Msg(clientInChannel, channelId, msgForClient)
+              transport !! Event.Msg(clientInChannel, channelId, msgForClient)
             }
           }
 
@@ -91,8 +91,6 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
         }
       }
     }
-    case Event.Ok() => // Ignore, caused by reply() from transport
-    case Event.Error(_) => // Ignore, caused by reply() from transport
     case m => reply(Event.Error("Unknown message %s".format(m)))
   }}
 
