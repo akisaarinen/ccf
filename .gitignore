@@ -1,3 +1,7 @@
+project/boot
 project/build/target
 tags
-target
+ccf/target
+ccf/lib_managed
+app/target
+app/lib_managed
