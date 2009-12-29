@@ -91,6 +91,8 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
         }
       }
     }
+    case Event.Ok() => // Ignore, caused by reply() from transport
+    case Event.Error(_) => // Ignore, caused by reply() from transport
     case m => reply(Event.Error("Unknown message %s".format(m)))
   }}
 
