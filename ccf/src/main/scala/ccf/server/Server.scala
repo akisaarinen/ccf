@@ -34,10 +34,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined, unable to quit"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Not in that channel"))
-      case Some(state) => {
-        clients -= clientId
-        reply(Event.Ok())
-      }
+      case Some(state) => reply(onQuit(clientId, channelId))
     }
     case Event.ShutdownChannel(channelId, reason) => {
       val shutdownMsg = ChannelShutdown[T](reason)
@@ -96,6 +93,11 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
     } catch {
       case e => Event.Error(stackTraceToString(e))
     }
+  }
+
+  private def onQuit(clientId: ClientId, channelId: ChannelId): Any = {
+    clients -= clientId
+    Event.Ok()
   }
 
   private def clientsForChannel(channelId: ChannelId): List[ClientId] = {
