@@ -29,16 +29,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   def act = loop { react {
     case Event.Join(clientId, channelId) => clients.get(clientId) match {
       case Some(state) => reply(Event.Error("Already joined"))
-      case None => {
-        val synchronizer = factory.createSynchronizer
-        clients(clientId) = new ClientState(channelId, synchronizer)
-        try {
-          val currentState = interceptor.currentStateFor(channelId)
-          reply(Event.State(clientId, channelId, currentState))
-        } catch {
-          case e => reply(Event.Error(stackTraceToString(e)))
-        }
-      }
+      case None => reply(onJoin(clientId, channelId))
     }
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined, unable to quit"))
@@ -95,6 +86,17 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
     }
     case m => reply(Event.Error("Unknown message %s".format(m)))
   }}
+
+  private def onJoin(clientId: ClientId, channelId: ChannelId): Any = {
+    val synchronizer = factory.createSynchronizer
+    clients(clientId) = new ClientState(channelId, synchronizer)
+    try {
+      val currentState = interceptor.currentStateFor(channelId)
+      Event.State(clientId, channelId, currentState)
+    } catch {
+      case e => Event.Error(stackTraceToString(e))
+    }
+  }
 
   private def clientsForChannel(channelId: ChannelId): List[ClientId] = {
     clients filter { case (id, state) => state.channel == channelId } map { case (id, _) => id } toList
