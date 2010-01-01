@@ -36,16 +36,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Not in that channel"))
       case Some(state) => reply(onQuit(clientId, channelId))
     }
-    case Event.ShutdownChannel(channelId, reason) => {
-      val shutdownMsg = ChannelShutdown[T](reason)
-      clientsForChannel(channelId).foreach { clientId =>
-        clients.get(clientId).foreach { state =>
-          transport !! Event.Msg(clientId, channelId, shutdownMsg)
-        }
-        clients -= clientId
-      }
-      reply(Event.Ok())
-    }
+    case Event.ShutdownChannel(channelId, reason) => reply(onShutdown(channelId, reason))
     case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined to any channel"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
@@ -97,6 +88,17 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
 
   private def onQuit(clientId: ClientId, channelId: ChannelId): Any = {
     clients -= clientId
+    Event.Ok()
+  }
+
+  private def onShutdown(channelId: ChannelId, reason: String): Any = {
+    val shutdownMsg = ChannelShutdown[T](reason)
+    clientsForChannel(channelId).foreach { clientId =>
+      clients.get(clientId).foreach { state =>
+        transport !! Event.Msg(clientId, channelId, shutdownMsg)
+      }
+      clients -= clientId
+    }
     Event.Ok()
   }
 
