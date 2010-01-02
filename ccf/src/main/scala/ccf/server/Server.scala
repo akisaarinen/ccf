@@ -1,6 +1,6 @@
 package ccf.server
 
-import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
+import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage, Message}
 import ccf.operation.Operation
 import ccf.transport.{TransportActor, ClientId, ChannelId, Event}
 import ccf.tree.JupiterTreeTransformation
@@ -40,37 +40,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
     case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined to any channel"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
-      case Some(state) => {
-        val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
-        try {
-          interceptor.applyOperation(this, clientId, channelId, op)
-
-          val others = otherClientsFor(clientId)
-          others.foreach { otherClientId =>
-            val msgForOther = clients(otherClientId).send(op)
-            transport !! Event.Msg(otherClientId, channelId, msgForOther)
-          }
-
-          val opsForCreator = interceptor.operationsForCreatingClient(clientId, channelId, op)
-          opsForCreator.foreach { opForCreator =>
-            val msgForCreator = clients(clientId).send(opForCreator)
-            transport !! Event.Msg(clientId, channelId, msgForCreator)
-          }
-
-          val opsForAll = interceptor.operationsForAllClients(clientId, channelId, op)
-          opsForAll.foreach { opForAll =>
-            interceptor.applyOperation(this, clientId, channelId, opForAll)
-            clientsForChannel(channelId).foreach { clientInChannel =>
-              val msgForClient = clients(clientInChannel).send(opForAll)
-              transport !! Event.Msg(clientInChannel, channelId, msgForClient)
-            }
-          }
-
-          reply(Event.Ok())
-        } catch {
-          case e => reply(Event.Error(stackTraceToString(e)))
-        }
-      }
+      case Some(state) => reply(onMsg(clientId, channelId, msg.asInstanceOf[Message[T]], state))
     }
     case m => reply(Event.Error("Unknown message %s".format(m)))
   }}
@@ -89,6 +59,38 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   private def onQuit(clientId: ClientId, channelId: ChannelId): Any = {
     clients -= clientId
     Event.Ok()
+  }
+
+  private def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[T], state: ClientState[T]): Any = {
+    val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
+    try {
+      interceptor.applyOperation(this, clientId, channelId, op)
+
+      val others = otherClientsFor(clientId)
+      others.foreach { otherClientId =>
+        val msgForOther = clients(otherClientId).send(op)
+        transport !! Event.Msg(otherClientId, channelId, msgForOther)
+      }
+
+      val opsForCreator = interceptor.operationsForCreatingClient(clientId, channelId, op)
+      opsForCreator.foreach { opForCreator =>
+        val msgForCreator = clients(clientId).send(opForCreator)
+        transport !! Event.Msg(clientId, channelId, msgForCreator)
+      }
+
+      val opsForAll = interceptor.operationsForAllClients(clientId, channelId, op)
+      opsForAll.foreach { opForAll =>
+        interceptor.applyOperation(this, clientId, channelId, opForAll)
+        clientsForChannel(channelId).foreach { clientInChannel =>
+          val msgForClient = clients(clientInChannel).send(opForAll)
+          transport !! Event.Msg(clientInChannel, channelId, msgForClient)
+        }
+      }
+
+      Event.Ok()
+    } catch {
+      case e => Event.Error(stackTraceToString(e))
+    }
   }
 
   private def onShutdown(channelId: ChannelId, reason: String): Any = {
