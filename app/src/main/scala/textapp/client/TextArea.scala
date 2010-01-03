@@ -1,4 +1,4 @@
-package textapp
+package textapp.client
 
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}

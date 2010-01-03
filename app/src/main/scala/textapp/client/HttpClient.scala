@@ -1,4 +1,4 @@
-package textapp
+package textapp.client
 
 import ccf.messaging.ConcurrentOperationMessage
 import ccf.transport.ClientId

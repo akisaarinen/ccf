@@ -1,4 +1,4 @@
-package textapp
+package textapp.client
 
 import ccf.tree.indexing.TreeIndex
 import ccf.transport.ClientId

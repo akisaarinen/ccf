@@ -1,4 +1,4 @@
-package textapp
+package textapp.client
 
 import javax.swing.event.{DocumentListener, DocumentEvent}
 

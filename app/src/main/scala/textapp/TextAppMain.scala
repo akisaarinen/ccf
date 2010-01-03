@@ -1,6 +1,7 @@
 package textapp
 
 import textapp.server.ServerApp
+import textapp.client.ClientApp
 
 object TextAppMain {
   def main(args: Array[String]) {
