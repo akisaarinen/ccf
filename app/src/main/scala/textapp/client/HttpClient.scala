@@ -4,19 +4,13 @@ import ccf.messaging.ConcurrentOperationMessage
 import ccf.transport.ClientId
 import ccf.tree.operation.TreeOperation
 
+import dispatch.{:/, Http, Logger, Request}
+import net.liftweb.json.JsonAST
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.JsonParser.parse
+import OperationCoding.{encode, decode}
 
 class HttpClient(id: ClientId) {
-  import dispatch._
-  import Http._
-  import dispatch.json.JsHttp._
-
-  import net.liftweb.json._
-  import net.liftweb.json.JsonAST
-  import net.liftweb.json.JsonAST._
-  import net.liftweb.json.JsonDSL._
-  import net.liftweb.json.JsonParser.parse
-
-  import OperationCoding.{encode, decode}
 
   val http = new Http {
     override lazy val log = new Logger {
