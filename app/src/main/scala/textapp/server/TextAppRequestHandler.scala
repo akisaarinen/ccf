@@ -29,8 +29,12 @@ class TextAppRequestHandler extends HttpHandler {
 
   def handle(exchange: HttpExchange) {
     try {
+      import scala.io.Source
       val uri = exchange.getRequestURI
-      //println("Serving " + uri)
+      println("Serving '%s' using %s %s".format(uri, exchange.getProtocol, exchange.getRequestMethod))
+
+      val body = Source.fromInputStream(exchange.getRequestBody).getLines.toList.foldLeft("")(_+_)
+
       findResource(uri) match {
         case Some(resource) => {
           exchange.sendResponseHeaders(200, resource.length)

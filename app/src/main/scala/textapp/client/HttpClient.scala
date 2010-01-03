@@ -55,7 +55,8 @@ class HttpClient(clientId: ClientId) {
   }
 
   private def fetch(req: Request): JsonAST.JValue = {
-    http(req >- { s => parse(s) })
+    val postReq = req << Map()
+    http(postReq >- { s => parse(s) })
   }
 }
 
