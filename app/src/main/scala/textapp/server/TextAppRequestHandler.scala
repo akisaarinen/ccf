@@ -35,7 +35,15 @@ class TextAppRequestHandler extends HttpHandler {
 
       val body = Source.fromInputStream(exchange.getRequestBody).getLines.toList.foldLeft("")(_+_)
 
-      findResource(uri) match {
+      import java.net.URLDecoder
+      val paramArray = body.split("&").map(_.split("=")).map { kvPair => 
+        val (encodedKey, encodedValue) = (kvPair(0), kvPair(1))
+        val key = URLDecoder.decode(encodedKey)
+        val value = URLDecoder.decode(encodedValue)
+        (key, value)
+      }
+      val params = Map(paramArray: _*)
+      findResource(uri, params) match {
         case Some(resource) => {
           exchange.sendResponseHeaders(200, resource.length)
           exchange.getResponseBody.write(resource.getBytes)
@@ -52,29 +60,28 @@ class TextAppRequestHandler extends HttpHandler {
     }
   }
 
-  def findResource(uri: URI): Option[String] = {
-    val JoinExpr = new Regex("""/textapp/join/(.*)""")
-    val QuitExpr = new Regex("""/textapp/quit/(.*)""")
-    val AddExpr = new Regex("""/textapp/op/add/(.*)/(.*)""")
-    val GetExpr = new Regex("""/textapp/op/get/(.*)""")
+  def findResource(uri: URI, params: Map[String, String]): Option[String] = {
+    val JoinExpr = new Regex("""/textapp/join""")
+    val QuitExpr = new Regex("""/textapp/quit""")
+    val AddExpr = new Regex("""/textapp/op/add""")
+    val GetExpr = new Regex("""/textapp/op/get""")
+        
+    val id = ClientId(java.util.UUID.fromString(params("id")))
 
     val json: JsonAST.JValue = uri.toString match {
-      case JoinExpr(idStr) =>
-        val id = ClientId(java.util.UUID.fromString(idStr))
+      case JoinExpr() =>
         clients += (id -> new Client)
         ("status" -> "ok") ~
         ("document" -> document.text)
-      case QuitExpr(idStr) =>
-        val id = ClientId(java.util.UUID.fromString(idStr))
+      case QuitExpr() =>
         clients -= id
         ("status" -> "ok")
-      case AddExpr(idStr, encodedOp) => 
-        val id = ClientId(java.util.UUID.fromString(idStr))
+      case AddExpr() => 
+        val encodedOp = params("op")
         val op = decode(encodedOp)
         handleOpFromClient(id, op)
         ("status" -> "ok")
-      case GetExpr(idStr) => 
-        val id = ClientId(java.util.UUID.fromString(idStr))
+      case GetExpr() => 
         val ops = getOpsForClient(id).map(encode(_))
         ("status" -> "ok") ~
         ("ops" -> ops) ~

@@ -21,25 +21,25 @@ class HttpClient(clientId: ClientId) {
   private def idStr = clientId.id.toString
 
   private def base = host / "textapp"
-  private def joinUri = base / "join" / idStr
-  private def quitUri = base / "quit" / idStr
-  private def addUri(op: String) = base / "op" / "add" / idStr / op
-  private def getUri = base / "op" / "get" / idStr
+  private def joinUri = base / "join"
+  private def quitUri = base / "quit"
+  private def addUri = base / "op" / "add"
+  private def getUri = base / "op" / "get"
 
   def join: String = {
-    fetch(joinUri) \ "document" match {
+    fetch(joinUri, Map()) \ "document" match {
       case JField(_, JString(v)) => v
       case x => error("No document available in join message (%s)".format(x))
     }
   }
   def quit {
-    fetch(quitUri)
+    fetch(quitUri, Map())
   }
   def add(op: String) {
-    fetch(addUri(op))
+    fetch(addUri, Map("op" -> op))
   }
   def get: (String, List[TreeOperation]) = {
-    val reply = fetch(getUri)
+    val reply = fetch(getUri, Map())
     val ops = reply \ "ops" match {
       case JField(_, JArray(ops)) => ops.map { op => op match {
         case JString(v) => decode(v) 
@@ -54,8 +54,8 @@ class HttpClient(clientId: ClientId) {
     (hash, ops)
   }
 
-  private def fetch(req: Request): JsonAST.JValue = {
-    val postReq = req << Map()
+  private def fetch(req: Request, params: Map[String, Any]): JsonAST.JValue = {
+    val postReq = req << (Map("id" -> idStr) ++ params)
     http(postReq >- { s => parse(s) })
   }
 }
