@@ -24,6 +24,22 @@ class TextAppRequestHandler extends HttpHandler {
     val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
     val msgsToClient = new ArrayBuffer[ConcurrentOperationMessage[TreeOperation]]()
   }
+  
+  private val page404 = 
+    <html>
+      <head><title>404 - Page not found</title></head>
+      <body>
+        <h1>404 - Page not found</h1>
+      </body>
+    </html>
+
+  private val page500 = 
+    <html>
+      <head><title>500 - Internal server error</title></head>
+      <body>
+        <h1>500 - Internal server error</h1>
+      </body>
+    </html>
 
   val clients = Map[ClientId, Client]()
 
@@ -48,13 +64,17 @@ class TextAppRequestHandler extends HttpHandler {
           exchange.sendResponseHeaders(200, resource.length)
           exchange.getResponseBody.write(resource.getBytes)
         }
-        case None => exchange.sendResponseHeaders(404, 0)
+        case None => {
+          exchange.sendResponseHeaders(404, 0)
+          exchange.getResponseBody.write(page404.toString.getBytes)
+        }
       }
     } catch {
       case e => 
-        println("EXCEPTION WHILE HANDLING")
-        println(e)
+        println("=== Exception while handling request ===")
+        e.printStackTrace
         exchange.sendResponseHeaders(500, 0)
+        exchange.getResponseBody.write(page500.toString.getBytes)
     } finally {
       exchange.getResponseBody.close
     }
