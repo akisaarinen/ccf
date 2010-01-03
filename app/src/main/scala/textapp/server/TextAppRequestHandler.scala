@@ -17,9 +17,9 @@ class TextAppRequestHandler extends HttpHandler {
   import net.liftweb.json.JsonAST._
   import net.liftweb.json.JsonDSL._
 
-  val document = new TextDocument("")
+  private val document = new TextDocument("")
 
-  class Client {
+  private class Client {
     val serverSync = new JupiterOperationSynchronizer[TreeOperation](true, JupiterTreeTransformation)
     val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
     val msgsToClient = new ArrayBuffer[ConcurrentOperationMessage[TreeOperation]]()
@@ -41,7 +41,7 @@ class TextAppRequestHandler extends HttpHandler {
       </body>
     </html>
 
-  val clients = Map[ClientId, Client]()
+  private val clients = Map[ClientId, Client]()
 
   def handle(exchange: HttpExchange) {
     try {
@@ -80,7 +80,7 @@ class TextAppRequestHandler extends HttpHandler {
     }
   }
 
-  def findResource(uri: URI, params: Map[String, String]): Option[String] = {
+  private def findResource(uri: URI, params: Map[String, String]): Option[String] = {
     val JoinExpr = new Regex("""/textapp/join""")
     val QuitExpr = new Regex("""/textapp/quit""")
     val AddExpr = new Regex("""/textapp/op/add""")
@@ -114,7 +114,7 @@ class TextAppRequestHandler extends HttpHandler {
     Some(compact(JsonAST.render(json)))
   }
 
-  def handleOpFromClient(id: ClientId, op: TreeOperation) {
+  private def handleOpFromClient(id: ClientId, op: TreeOperation) {
     val client = clients(id)
     val msg = client.clientSync.createLocalOperation(op)
     val opInServer = client.serverSync.receiveRemoteOperation(msg)
@@ -122,14 +122,14 @@ class TextAppRequestHandler extends HttpHandler {
     println("text in server: " + document.text)
   }
 
-  def getOpsForClient(id: ClientId): List[TreeOperation] = {
+  private def getOpsForClient(id: ClientId): List[TreeOperation] = {
     val client = clients(id)
     val msgs = client.msgsToClient.toList
     client.msgsToClient.clear
     msgs.map(client.clientSync.receiveRemoteOperation(_))
   }
 
-  def applyOpInServer(toClients: ClientId => Boolean, op: TreeOperation) {
+  private def applyOpInServer(toClients: ClientId => Boolean, op: TreeOperation) {
     document.applyOp(op)
     clients.filter { case (id, _) => toClients(id) }.foreach { case(id, client) =>
       client.msgsToClient += client.serverSync.createLocalOperation(op)
