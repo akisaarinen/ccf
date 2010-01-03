@@ -1,5 +1,7 @@
 package textapp
 
+import textapp.server.ServerApp
+
 object TextAppMain {
   def main(args: Array[String]) {
     if (args.contains("--server") || args.contains("-s")) { 

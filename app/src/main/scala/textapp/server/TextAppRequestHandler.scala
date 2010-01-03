@@ -1,4 +1,4 @@
-package textapp
+package textapp.server
 
 import OperationCoding.{encode, decode}
 import ccf.JupiterOperationSynchronizer
