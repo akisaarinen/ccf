@@ -10,8 +10,7 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonParser.parse
 import OperationCoding.{encode, decode}
 
-class HttpClient(id: ClientId) {
-
+class HttpClient(clientId: ClientId) {
   val http = new Http {
     override lazy val log = new Logger {
       def info(msg: String, items: Any*) {}
@@ -19,7 +18,7 @@ class HttpClient(id: ClientId) {
   }
   val host = :/("localhost", 8000)
 
-  private def idStr = id.id.toString
+  private def idStr = clientId.id.toString
 
   private def base = host / "textapp"
   private def joinUri = base / "join" / idStr
