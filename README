@@ -1,7 +1,21 @@
 Concurrency Control Framework (CCF)
+===================================
 
-Installing and compiling:
+Setting up development environment:
+-----------------------------------
+  1. Clone the git repository
+  2. Configure JVM  
+  3. ./sbt update   (fetches dependencies)
+  4. ./sbt test     (runs all tests)
 
-  ./sbt update
-  ./sbt test
+Creating library package:
+-------------------------
   ./sbt package
+
+  This will produce the package to:
+    ./ccf/target/ccf-{version}.jar
+
+Running the test application:
+-----------------------------
+  ./sbt -p app run -s    (starts the server)
+  ./sbt -p app run       (starts the client)
