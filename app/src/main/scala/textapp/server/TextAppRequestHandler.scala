@@ -45,20 +45,10 @@ class TextAppRequestHandler extends HttpHandler {
 
   def handle(exchange: HttpExchange) {
     try {
-      import scala.io.Source
       val uri = exchange.getRequestURI
       println("Serving '%s' using %s %s".format(uri, exchange.getProtocol, exchange.getRequestMethod))
 
-      val body = Source.fromInputStream(exchange.getRequestBody).getLines.toList.foldLeft("")(_+_)
-
-      import java.net.URLDecoder
-      val paramArray = body.split("&").map(_.split("=")).map { kvPair => 
-        val (encodedKey, encodedValue) = (kvPair(0), kvPair(1))
-        val key = URLDecoder.decode(encodedKey)
-        val value = URLDecoder.decode(encodedValue)
-        (key, value)
-      }
-      val params = Map(paramArray: _*)
+      val params = new FormDecoder(exchange.getRequestBody).params
       findResource(uri, params) match {
         case Some(resource) => {
           exchange.sendResponseHeaders(200, resource.length)
@@ -80,7 +70,7 @@ class TextAppRequestHandler extends HttpHandler {
     }
   }
 
-  private def findResource(uri: URI, params: Map[String, String]): Option[String] = {
+  private def findResource(uri: URI, params: scala.collection.immutable.Map[String, String]): Option[String] = {
     val JoinExpr = new Regex("""/textapp/join""")
     val QuitExpr = new Regex("""/textapp/quit""")
     val AddExpr = new Regex("""/textapp/op/add""")
