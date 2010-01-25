@@ -21,7 +21,7 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
 
     val specs = "org.scala-tools.testing" % "specs" % "1.6.0"
     val mockito = "org.mockito" % "mockito-core" % "1.8.0"
-    val databinder_net = "databinder.net repository" at "http://databinder.net/ >repo"
+    val databinder_net = "databinder.net repository" at "http://databinder.net/repo"
     val dispatchHttp = "net.databinder" %% "dispatch-http" % "0.6.3"
     val dispatchJson = "net.databinder" %% "dispatch-json" % "0.6.3"
     val dispatchHttpJson = "net.databinder" %% "dispatch-http-json" % "0.6.3"
