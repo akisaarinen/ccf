@@ -8,7 +8,7 @@ import dispatch.{:/, Http, Logger, Request}
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonParser.parse
-import OperationCoding.{encode, decode}
+import MessageCoding.{decode}
 
 class HttpClient(clientId: ClientId) {
   val http = new Http {
@@ -23,8 +23,9 @@ class HttpClient(clientId: ClientId) {
   private def base = host / "textapp"
   private def joinUri = base / "join"
   private def quitUri = base / "quit"
-  private def addUri = base / "op" / "add"
-  private def getUri = base / "op" / "get"
+  private def addUri = base / "msg" / "add"
+  private def getUri = base / "msg" / "get"
+    
 
   def join: String = {
     fetch(joinUri, Map()) \ "document" match {
@@ -35,23 +36,23 @@ class HttpClient(clientId: ClientId) {
   def quit {
     fetch(quitUri, Map())
   }
-  def add(op: String) {
-    fetch(addUri, Map("op" -> op))
+  def add(msg: String) {
+    fetch(addUri, Map("msg" -> msg))
   }
-  def get: (String, List[TreeOperation]) = {
+  def get: (String, List[ConcurrentOperationMessage[TreeOperation]]) = {
     val reply = fetch(getUri, Map())
-    val ops = reply \ "ops" match {
-      case JField(_, JArray(ops)) => ops.map { op => op match {
+    val msgs = reply \ "msgs" match {
+      case JField(_, JArray(msgs)) => msgs.map { msg => msg match {
         case JString(v) => decode(v) 
-        case _ => error("Unknown value type in op list")
+        case _ => error("Unknown value type in msg list")
       }}
-      case _ => error("Unknown ops list in json")
+      case _ => error("Unknown msgs list in json")
     }
     val hash = reply \ "hash" match {
       case JField(_, JString(v)) => v
       case _ => error("no hash given")
     }
-    (hash, ops)
+    (hash, msgs)
   }
 
   private def fetch(req: Request, params: Map[String, Any]): JsonAST.JValue = {

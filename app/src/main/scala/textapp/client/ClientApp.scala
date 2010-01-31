@@ -1,12 +1,17 @@
 package textapp.client
 
+import ccf.JupiterOperationSynchronizer
+import ccf.messaging.ConcurrentOperationMessage
+import ccf.tree.JupiterTreeTransformation
 import ccf.tree.indexing.TreeIndex
 import ccf.transport.ClientId
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import javax.swing.JFrame
-import OperationCoding.{encode, decode}
+import MessageCoding.encode
 
 class ClientApp {
+  private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
+  
   val frame = new JFrame("TextApp")
   val httpClient = new HttpClient(ClientId.randomId)
 
@@ -39,15 +44,17 @@ class ClientApp {
   
   private def sendToServer(op: TreeOperation) {
     document.applyOp(op)
-    httpClient.add(encode(op))
+    val msg = clientSync.createLocalOperation(op)
+    httpClient.add(encode(msg))
   }
 
   import java.util.TimerTask
   def syncTask = new TimerTask {
     def run = Utils.invokeAndWait { () => 
       httpClient.get match {
-        case (hash, ops) => {
-          ops.foreach { op => 
+        case (hash, msgs) => {
+          msgs.foreach { msg => 
+            val op = clientSync.receiveRemoteOperation(msg)
             textArea.applyOp(op)
             document.applyOp(op)
           }

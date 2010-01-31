@@ -1,9 +1,9 @@
 package textapp.server
 
-import OperationCoding.{encode, decode}
+import MessageCoding.{encode, decode}
 import ccf.JupiterOperationSynchronizer
 import ccf.messaging.ConcurrentOperationMessage
-import ccf.transport.ClientId
+import ccf.transport.{ClientId, ChannelId}
 import ccf.tree.JupiterTreeTransformation
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
@@ -42,6 +42,7 @@ class TextAppRequestHandler extends HttpHandler {
     </html>
 
   private val clients = Map[ClientId, Client]()
+  private val defaultChannel = ChannelId.randomId
 
   def handle(exchange: HttpExchange) {
     try {
@@ -73,8 +74,8 @@ class TextAppRequestHandler extends HttpHandler {
   private def findResource(uri: URI, params: scala.collection.immutable.Map[String, String]): Option[String] = {
     val JoinExpr = new Regex("""/textapp/join""")
     val QuitExpr = new Regex("""/textapp/quit""")
-    val AddExpr = new Regex("""/textapp/op/add""")
-    val GetExpr = new Regex("""/textapp/op/get""")
+    val AddExpr = new Regex("""/textapp/msg/add""")
+    val GetExpr = new Regex("""/textapp/msg/get""")
         
     val id = ClientId(java.util.UUID.fromString(params("id")))
 
@@ -87,36 +88,34 @@ class TextAppRequestHandler extends HttpHandler {
         clients -= id
         ("status" -> "ok")
       case AddExpr() => 
-        val encodedOp = params("op")
-        val op = decode(encodedOp)
-        handleOpFromClient(id, op)
+        val encodedMsg = params("msg")
+        val msg = decode(encodedMsg)
+        handleMsgFromClient(id, msg)
         ("status" -> "ok")
       case GetExpr() => 
-        val ops = getOpsForClient(id).map(encode(_))
+        val msgs = getMsgsForClient(id).map(encode(_))
         ("status" -> "ok") ~
-        ("ops" -> ops) ~
+        ("msgs" -> msgs) ~
         ("hash" -> document.hash)
       case _ => 
         ("status" -> "error") ~
         ("error" -> "unknown uri")
     }
-        
     Some(compact(JsonAST.render(json)))
   }
-
-  private def handleOpFromClient(id: ClientId, op: TreeOperation) {
+    
+  private def handleMsgFromClient(id: ClientId, msg: ConcurrentOperationMessage[TreeOperation]) {
     val client = clients(id)
-    val msg = client.clientSync.createLocalOperation(op)
     val opInServer = client.serverSync.receiveRemoteOperation(msg)
     applyOpInServer(_ != id, opInServer)
     println("text in server: " + document.text)
   }
 
-  private def getOpsForClient(id: ClientId): List[TreeOperation] = {
+  private def getMsgsForClient(id: ClientId): List[ConcurrentOperationMessage[TreeOperation]] = {
     val client = clients(id)
     val msgs = client.msgsToClient.toList
     client.msgsToClient.clear
-    msgs.map(client.clientSync.receiveRemoteOperation(_))
+    msgs
   }
 
   private def applyOpInServer(toClients: ClientId => Boolean, op: TreeOperation) {
