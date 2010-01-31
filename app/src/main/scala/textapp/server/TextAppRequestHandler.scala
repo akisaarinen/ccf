@@ -1,16 +1,19 @@
 package textapp.server
 
 import MessageCoding.{encode, decode}
-import ccf.JupiterOperationSynchronizer
+import ccf.{JupiterOperationSynchronizer, JupiterOperationSynchronizerFactory}
 import ccf.messaging.ConcurrentOperationMessage
 import ccf.transport.{ClientId, ChannelId}
 import ccf.tree.JupiterTreeTransformation
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
+import ccf.transport.{Event, TransportActor}
+import ccf.server.{ServerOperationInterceptor, Server}
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 import java.net.URI
 import java.util.UUID
 import scala.collection.mutable.{ArrayBuffer, Map}
 import scala.util.matching.Regex
+import scala.actors.Actor._
 
 class TextAppRequestHandler extends HttpHandler {
   import net.liftweb.json.JsonAST
@@ -18,12 +21,6 @@ class TextAppRequestHandler extends HttpHandler {
   import net.liftweb.json.JsonDSL._
 
   private val document = new TextDocument("")
-
-  private class Client {
-    val serverSync = new JupiterOperationSynchronizer[TreeOperation](true, JupiterTreeTransformation)
-    val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
-    val msgsToClient = new ArrayBuffer[ConcurrentOperationMessage[TreeOperation]]()
-  }
   
   private val page404 = 
     <html>
@@ -41,8 +38,31 @@ class TextAppRequestHandler extends HttpHandler {
       </body>
     </html>
 
-  private val clients = Map[ClientId, Client]()
+  private var messages = List[Event.Msg[TreeOperation]]()
   private val defaultChannel = ChannelId.randomId
+    
+  private val factory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)
+  private val interceptor = new ServerOperationInterceptor[TreeOperation] {
+    override def currentStateFor(channelId: ChannelId): Any = document
+    override def applyOperation(server: Server[TreeOperation], clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit = {
+      document.applyOp(op)
+    }
+    override def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
+    override def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
+  }
+  private val transport = new TransportActor {
+    start
+    def act = loop { react {
+      case msg: Event.Msg[TreeOperation] => {
+        messages synchronized {
+          messages = messages ::: List(msg)
+        }
+      }
+      case _ => 
+    }}
+    override def initialize(server: Server[_]) {}
+  }
+  private val server = new Server[TreeOperation](factory, interceptor, transport)
 
   def handle(exchange: HttpExchange) {
     try {
@@ -81,16 +101,16 @@ class TextAppRequestHandler extends HttpHandler {
 
     val json: JsonAST.JValue = uri.toString match {
       case JoinExpr() =>
-        clients += (id -> new Client)
+        server !? Event.Join(id, defaultChannel)
         ("status" -> "ok") ~
         ("document" -> document.text)
       case QuitExpr() =>
-        clients -= id
+        server !? Event.Quit(id, defaultChannel)
         ("status" -> "ok")
       case AddExpr() => 
         val encodedMsg = params("msg")
         val msg = decode(encodedMsg)
-        handleMsgFromClient(id, msg)
+        server !? Event.Msg(id, defaultChannel, msg)
         ("status" -> "ok")
       case GetExpr() => 
         val msgs = getMsgsForClient(id).map(encode(_))
@@ -103,25 +123,16 @@ class TextAppRequestHandler extends HttpHandler {
     }
     Some(compact(JsonAST.render(json)))
   }
-    
-  private def handleMsgFromClient(id: ClientId, msg: ConcurrentOperationMessage[TreeOperation]) {
-    val client = clients(id)
-    val opInServer = client.serverSync.receiveRemoteOperation(msg)
-    applyOpInServer(_ != id, opInServer)
-    println("text in server: " + document.text)
-  }
 
   private def getMsgsForClient(id: ClientId): List[ConcurrentOperationMessage[TreeOperation]] = {
-    val client = clients(id)
-    val msgs = client.msgsToClient.toList
-    client.msgsToClient.clear
-    msgs
-  }
-
-  private def applyOpInServer(toClients: ClientId => Boolean, op: TreeOperation) {
-    document.applyOp(op)
-    clients.filter { case (id, _) => toClients(id) }.foreach { case(id, client) =>
-      client.msgsToClient += client.serverSync.createLocalOperation(op)
+    def isForClient(msg: Event.Msg[_]) = msg match {
+      case Event.Msg(clientId, _, _) if (id == clientId) => true
+      case _ => false
     }
+
+    val msgsForClient = messages.filter(isForClient(_))
+    val msgsNotForClient = messages.filter(!isForClient(_))
+    messages = msgsNotForClient
+    msgsForClient.map(_.msg.asInstanceOf[ConcurrentOperationMessage[TreeOperation]])
   }
 }
