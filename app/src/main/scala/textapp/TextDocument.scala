@@ -5,8 +5,8 @@ import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import java.security.MessageDigest
 
 class TextDocument(initialText: String) {
-  val buffer = new StringBuffer(initialText)
-  val md = MessageDigest.getInstance("MD5")
+  private val buffer = new StringBuffer(initialText)
+  private val md = MessageDigest.getInstance("MD5")
   def applyOp(op: TreeOperation): Unit = op match {
     case InsertOperation(TreeIndex(i), Elem(c)) => buffer.insert(i, c)
     case DeleteOperation(TreeIndex(i)) => buffer.deleteCharAt(i)
