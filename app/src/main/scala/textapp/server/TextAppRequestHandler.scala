@@ -7,7 +7,7 @@ import ccf.transport.{ClientId, ChannelId}
 import ccf.tree.JupiterTreeTransformation
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import ccf.transport.{Event, TransportActor}
-import ccf.server.{ServerOperationInterceptor, Server}
+import ccf.server.Server
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 import java.net.URI
 import java.util.UUID
@@ -42,14 +42,7 @@ class TextAppRequestHandler extends HttpHandler {
   private val defaultChannel = ChannelId.randomId
     
   private val factory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)
-  private val interceptor = new ServerOperationInterceptor[TreeOperation] {
-    override def currentStateFor(channelId: ChannelId): Any = document
-    override def applyOperation(server: Server[TreeOperation], clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit = {
-      document.applyOp(op)
-    }
-    override def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
-    override def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
-  }
+  private val interceptor = new TextAppOperationInterceptor(document)
   private val transport = new TransportActor {
     start
     def act = loop { react {
