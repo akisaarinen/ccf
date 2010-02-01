@@ -9,10 +9,6 @@ import scala.collection.mutable.{ArrayBuffer, Map}
 import scala.util.matching.Regex
 
 class TextAppRequestHandler extends HttpHandler {
-  import net.liftweb.json.JsonAST
-  import net.liftweb.json.JsonAST._
-  import net.liftweb.json.JsonDSL._
-  
   private val page404 = 
     <html>
       <head><title>404 - Page not found</title></head>
@@ -66,6 +62,9 @@ class TextAppRequestHandler extends HttpHandler {
     val GetExpr = new Regex("""/textapp/msg/get""")
         
     val id = ClientId(java.util.UUID.fromString(params("id")))
+  
+    import net.liftweb.json.JsonAST
+    import net.liftweb.json.JsonDSL._
 
     val json: JsonAST.JValue = uri.toString match {
       case JoinExpr() =>
