@@ -13,7 +13,6 @@ import java.net.URI
 import java.util.UUID
 import scala.collection.mutable.{ArrayBuffer, Map}
 import scala.util.matching.Regex
-import scala.actors.Actor._
 
 class TextAppRequestHandler extends HttpHandler {
   import net.liftweb.json.JsonAST
@@ -43,18 +42,7 @@ class TextAppRequestHandler extends HttpHandler {
     
   private val factory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)
   private val interceptor = new TextAppOperationInterceptor(document)
-  private val transport = new TransportActor {
-    start
-    def act = loop { react {
-      case msg: Event.Msg[TreeOperation] => {
-        messages synchronized {
-          messages = messages ::: List(msg)
-        }
-      }
-      case _ => 
-    }}
-    override def initialize(server: Server[_]) {}
-  }
+  private val transport = new TextAppTransportActor(onMessageToClient)
   private val server = new Server[TreeOperation](factory, interceptor, transport)
 
   def handle(exchange: HttpExchange) {
@@ -115,6 +103,10 @@ class TextAppRequestHandler extends HttpHandler {
         ("error" -> "unknown uri")
     }
     Some(compact(JsonAST.render(json)))
+  }
+
+  private def onMessageToClient(msg: Event.Msg[TreeOperation]): Unit = messages.synchronized {
+    messages = messages ::: List(msg)
   }
 
   private def getMsgsForClient(id: ClientId): List[ConcurrentOperationMessage[TreeOperation]] = {
