@@ -109,7 +109,7 @@ class TextAppRequestHandler extends HttpHandler {
     messages = messages ::: List(msg)
   }
 
-  private def getMsgsForClient(id: ClientId): List[ConcurrentOperationMessage[TreeOperation]] = {
+  private def getMsgsForClient(id: ClientId): List[ConcurrentOperationMessage[TreeOperation]] = messages.synchronized {
     def isForClient(msg: Event.Msg[_]) = msg match {
       case Event.Msg(clientId, _, _) if (id == clientId) => true
       case _ => false
