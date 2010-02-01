@@ -5,8 +5,8 @@ import ccf.server.Server
 import ccf.transport.Event
 import ccf.transport.{ClientId, ChannelId}
 import ccf.tree.JupiterTreeTransformation
-import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
-import ccf.{JupiterOperationSynchronizer, JupiterOperationSynchronizerFactory}
+import ccf.tree.operation.TreeOperation
+import ccf.JupiterOperationSynchronizerFactory
 
 class DocumentHandler {
   private val document = new TextDocument("")

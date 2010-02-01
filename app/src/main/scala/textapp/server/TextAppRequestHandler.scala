@@ -5,7 +5,7 @@ import ccf.transport.{ClientId, ChannelId}
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 import java.net.URI
 import java.util.UUID
-import scala.collection.mutable.{ArrayBuffer, Map}
+import scala.collection.immutable.Map
 import scala.util.matching.Regex
 
 class TextAppRequestHandler extends HttpHandler {
@@ -55,7 +55,7 @@ class TextAppRequestHandler extends HttpHandler {
     }
   }
 
-  private def findResource(uri: URI, params: scala.collection.immutable.Map[String, String]): Option[String] = {
+  private def findResource(uri: URI, params: Map[String, String]): Option[String] = {
     val JoinExpr = new Regex("""/textapp/join""")
     val QuitExpr = new Regex("""/textapp/quit""")
     val AddExpr = new Regex("""/textapp/msg/add""")
