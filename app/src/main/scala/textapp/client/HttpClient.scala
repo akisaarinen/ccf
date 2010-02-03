@@ -40,15 +40,13 @@ class HttpClient(clientId: ClientId) {
     fetch(addUri, Map("msg" -> msg))
   }
   def get: (String, List[ConcurrentOperationMessage[TreeOperation]]) = {
-    val reply = fetch(getUri, Map())
-    val msgs = reply \ "msgs" match {
-      case JField(_, JArray(msgs)) => msgs.map { msg => msg match {
-        case JString(v) => decode(v) 
-        case _ => error("Unknown value type in msg list")
-      }}
+    val replyJson = fetch(getUri, Map())
+    val encodedMsgs = replyJson \ "msgs" match {
+      case JField(_, JArray(msgs)) => msgs.map(_.toString)
       case _ => error("Unknown msgs list in json")
     }
-    val hash = reply \ "hash" match {
+    val msgs = encodedMsgs.map(decode(_))
+    val hash = replyJson \ "hash" match {
       case JField(_, JString(v)) => v
       case _ => error("no hash given")
     }
