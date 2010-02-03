@@ -14,7 +14,7 @@ then
   exit
 fi
 
-ORIGINAL_VERSION=`grep "project.version=" $BUILD_FILE`
+ORIGINAL_VERSION=`grep "project.version=" $BUILD_FILE | cut -d = -f 2-`
 
 if [ $# == 2 ] 
 then
