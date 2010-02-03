@@ -9,9 +9,11 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     override def testFrameworks = ScalaCheckFramework :: SpecsFramework :: Nil
     override def mainClass = Some("TestMain")
 
-    val specs = "org.scala-tools.testing" % "specs" % "1.6.0"
-    val mockito = "org.mockito" % "mockito-core" % "1.8.0"
-    val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5"
+    val testScopeDependency = "test"
+
+    val specs = "org.scala-tools.testing" % "specs" % "1.6.0" % testScopeDependency
+    val mockito = "org.mockito" % "mockito-core" % "1.8.0" % testScopeDependency
+    val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5" % testScopeDependency
     override def libraryDependencies = Set(specs, mockito, scalacheck)
   }
 
