@@ -5,6 +5,7 @@ import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import java.awt.Dimension
 import javax.swing.JTextArea
 import javax.swing.text.SimpleAttributeSet
+import textapp.Elem
 
 class TextArea(initialText: String, 
                onInsert: List[(Int, Char)] => Unit, 

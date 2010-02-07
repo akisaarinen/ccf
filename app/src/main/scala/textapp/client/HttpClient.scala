@@ -8,7 +8,7 @@ import dispatch.{:/, Http, Logger, Request}
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonParser.parse
-import MessageCoding.{decode}
+import textapp.MessageCoding.decode
 
 class HttpClient(clientId: ClientId) {
   val http = new Http {

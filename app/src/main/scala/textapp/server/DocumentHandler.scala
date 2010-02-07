@@ -7,6 +7,7 @@ import ccf.transport.{ClientId, ChannelId}
 import ccf.tree.JupiterTreeTransformation
 import ccf.tree.operation.TreeOperation
 import ccf.JupiterOperationSynchronizerFactory
+import textapp.TextDocument
 
 class DocumentHandler {
   private val document = new TextDocument("")

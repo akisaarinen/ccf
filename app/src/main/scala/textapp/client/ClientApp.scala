@@ -5,7 +5,8 @@ import ccf.tree.JupiterTreeTransformation
 import ccf.transport.ClientId
 import ccf.tree.operation.TreeOperation
 import java.util.{Timer, TimerTask}
-import MessageCoding.encode
+import textapp.MessageCoding.encode
+import textapp.TextDocument
 
 class ClientApp {
   private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)

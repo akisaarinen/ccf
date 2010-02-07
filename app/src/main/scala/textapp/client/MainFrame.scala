@@ -3,6 +3,7 @@ package textapp.client
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import javax.swing.JFrame
+import textapp.{TextDocument, Elem}
 
 class MainFrame(document: TextDocument, sendToServer: TreeOperation => Unit) extends JFrame("libccf test application") {
   val textArea = new TextArea(document.text, onInsert, onDelete)
