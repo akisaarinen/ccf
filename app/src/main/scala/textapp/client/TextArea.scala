@@ -1,11 +1,11 @@
 package textapp.client
 
 import ccf.tree.indexing.TreeIndex
-import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import textapp.Elem
 import java.awt.{Color, Dimension}
 import javax.swing.JTextPane
 import javax.swing.text.{StyleConstants, SimpleAttributeSet, StyleContext}
+import ccf.tree.operation.{NoOperation, TreeOperation, InsertOperation, DeleteOperation}
 
 class TextArea(initialText: String,
                onInsert: List[(Int, Char)] => Unit, 
@@ -34,6 +34,7 @@ class TextArea(initialText: String,
         getDocument.insertString(i, c.toString, remoteEditAttributes)
       case DeleteOperation(TreeIndex(i)) =>
         getDocument.remove(i, 1)
+      case NoOperation() =>
       case _ => error("unable to apply operation to text area ('%s')".format(op))
     }
     getDocument.addDocumentListener(listener)
