@@ -17,5 +17,32 @@ Creating library package:
 
 Running the test application:
 -----------------------------
-  ./sbt -p app run -s    (starts the server)
-  ./sbt -p app run       (starts the client)
+
+  The test application is a very simple collaborative text-editing application,
+  consisting of a server that binds to a port and a client that connects to the
+  server using HTTP. You may start multiple instances of the client application
+  locally and try out how the text is updated to the other instances in real
+  time. Best example of the operation is of course if you can run the client in
+  two machines and just specify the same server address for both clients.
+
+
+  Running the server application:
+
+  ./sbt -p app run -s    (-s can be replaced with --server)
+    
+    Optional parameters for server:
+    --port <port> || -p <port>
+
+    Port defaults to 9999.
+
+
+  Running the client application:
+
+  ./sbt -p app run       (no parameters == client)
+    
+    Optional parameters for client:
+    --host <host> || -h <host>
+    --port <port> || -p <port>
+
+    Port defaults to 9999 and host to 'localhost'.
+
