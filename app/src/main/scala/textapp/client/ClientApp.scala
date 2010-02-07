@@ -5,7 +5,7 @@ import ccf.tree.JupiterTreeTransformation
 import ccf.transport.ClientId
 import ccf.tree.operation.TreeOperation
 import java.util.{Timer, TimerTask}
-import textapp.MessageCoding.encode
+import textapp.messaging.MessageCoding.encode
 import textapp.TextDocument
 
 class ClientApp {

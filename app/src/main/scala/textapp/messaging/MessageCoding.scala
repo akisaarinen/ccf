@@ -1,4 +1,4 @@
-package textapp
+package textapp.messaging
 
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}

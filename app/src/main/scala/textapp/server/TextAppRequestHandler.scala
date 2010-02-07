@@ -6,7 +6,7 @@ import java.net.URI
 import java.util.UUID
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
-import textapp.MessageCoding.{encode, decode}
+import textapp.messaging.MessageCoding.{encode, decode}
 
 class TextAppRequestHandler extends HttpHandler {
   private val page404 = 

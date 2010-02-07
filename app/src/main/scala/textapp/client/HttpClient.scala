@@ -8,15 +8,15 @@ import dispatch.{:/, Http, Logger, Request}
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonParser.parse
-import textapp.MessageCoding.decode
+import textapp.messaging.MessageCoding.decode
 
 class HttpClient(clientId: ClientId) {
-  val http = new Http {
+  private val http = new Http {
     override lazy val log = new Logger {
       def info(msg: String, items: Any*) {}
     }
   }
-  val host = :/("localhost", 8000)
+  private val host = :/("localhost", 8000)
 
   private def idStr = clientId.id.toString
 
