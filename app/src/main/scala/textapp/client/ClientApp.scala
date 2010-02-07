@@ -13,11 +13,14 @@ import javax.swing.JFrame
 class ClientApp {
   private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
   private val messageCoder = new MessageCoder
+
+  private val hostname = "localhost"
+  private val port = 8000
   
-  val httpClient = new HttpClient(ClientId.randomId)
+  val httpClient = new HttpClient(hostname, port, ClientId.randomId)
   val initialText = httpClient.join
   val document = new TextDocument(initialText)
-  val frame = new MainFrame(document, sendToServer)
+  val frame = new MainFrame(hostname, port, document, sendToServer)
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
   frame.pack()
   frame.setVisible(true)

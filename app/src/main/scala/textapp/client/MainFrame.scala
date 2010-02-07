@@ -7,7 +7,7 @@ import textapp.{TextDocument, Elem}
 import javax.swing.{JLabel, JFrame}
 import java.awt.Color
 
-class MainFrame(document: TextDocument, sendToServer: TreeOperation => Unit) extends JFrame("libccf test application") {
+class MainFrame(hostname: String, port: Int, document: TextDocument, sendToServer: TreeOperation => Unit) extends JFrame("libccf test application") {
   val textArea = new TextArea(document.text, onInsert, onDelete)
   val mainPanel = new MainPanel(textArea)
   getContentPane().add(mainPanel)
@@ -30,7 +30,7 @@ class MainFrame(document: TextDocument, sendToServer: TreeOperation => Unit) ext
 
   class MainPanel(textArea: TextArea) extends FormsPanel("pref", "pref, pref") {
     val infoPanel = new FormsPanel("pref", "20px, 14px, 14px, 8px") {
-      val genericInfo = new JLabel("Collaborative text-editing using CCF")
+      val genericInfo = new JLabel("Connected to server at '%s:%d' using HTTP".format(hostname, port))
       val ownTextInfo = new JLabel("* Own text is shown with green color")
       val otherTextInfo = new JLabel("* Others' text is shown with red color")
       ownTextInfo.setForeground(new Color(0, 150, 0))

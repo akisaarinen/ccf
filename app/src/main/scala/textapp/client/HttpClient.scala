@@ -10,13 +10,13 @@ import net.liftweb.json.JsonParser.parse
 import textapp.messaging.MessageCoder
 import ccf.messaging.Message
 
-class HttpClient(clientId: ClientId) {
+class HttpClient(hostname: String, port: Int, clientId: ClientId) {
   private val http = new Http {
     override lazy val log = new Logger {
       def info(msg: String, items: Any*) {}
     }
   }
-  private val host = :/("localhost", 8000)
+  private val host = :/(hostname, port)
   private val messageCoder = new MessageCoder
 
   private def idStr = clientId.id.toString
