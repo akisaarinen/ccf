@@ -10,12 +10,9 @@ import textapp.TextDocument
 import ccf.messaging.ConcurrentOperationMessage
 import javax.swing.JFrame
 
-class ClientApp {
+class ClientApp(hostname: String, port: Int) {
   private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
   private val messageCoder = new MessageCoder
-
-  private val hostname = "localhost"
-  private val port = 8000
   
   val httpClient = new HttpClient(hostname, port, ClientId.randomId)
   val initialText = httpClient.join
