@@ -6,6 +6,7 @@ import ccf.tree.JupiterTreeTransformation
 import ccf.tree.indexing.TreeIndex
 import ccf.transport.ClientId
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
+import java.util.{Timer, TimerTask}
 import javax.swing.JFrame
 import MessageCoding.encode
 
@@ -24,32 +25,10 @@ class ClientApp {
   frame.pack()
   frame.setVisible(true)
 
-  import java.util.Timer
   val timer = new Timer
   timer.scheduleAtFixedRate(syncTask, 0, 500)
 
-  def onInsert(items: List[(Int, Char)]) {
-    items.foreach { case (i, c) => 
-      //println("+ %c at %d".format(c, i))
-      sendToServer(InsertOperation(TreeIndex(i), Elem(c)))
-    }
-  }
-
-  def onDelete(items: List[Int]) {
-    items.foreach { i =>
-      //println("- %d".format(i))
-      sendToServer(DeleteOperation(TreeIndex(i)))
-    }
-  }
-  
-  private def sendToServer(op: TreeOperation) {
-    document.applyOp(op)
-    val msg = clientSync.createLocalOperation(op)
-    httpClient.add(encode(msg))
-  }
-
-  import java.util.TimerTask
-  def syncTask = new TimerTask {
+  private def syncTask = new TimerTask {
     def run = Utils.invokeAndWait { () => 
       httpClient.get match {
         case (hash, msgs) => {
@@ -62,5 +41,23 @@ class ClientApp {
         }
       }
     }
+  }
+
+  private def onInsert(items: List[(Int, Char)]) {
+    items.foreach { case (i, c) => 
+      sendToServer(InsertOperation(TreeIndex(i), Elem(c)))
+    }
+  }
+
+  private def onDelete(items: List[Int]) {
+    items.foreach { i =>
+      sendToServer(DeleteOperation(TreeIndex(i)))
+    }
+  }
+  
+  private def sendToServer(op: TreeOperation) {
+    document.applyOp(op)
+    val msg = clientSync.createLocalOperation(op)
+    httpClient.add(encode(msg))
   }
 }
