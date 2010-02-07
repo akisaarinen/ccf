@@ -42,7 +42,7 @@ class HttpClient(clientId: ClientId) {
   def get: (String, List[ConcurrentOperationMessage[TreeOperation]]) = {
     val replyJson = fetch(getUri, Map())
     val encodedMsgs = replyJson \ "msgs" match {
-      case JField(_, JArray(msgs)) => msgs.map(_.toString)
+      case JField(_, JArray(msgs)) => msgs.map(_.values.toString)
       case _ => error("Unknown msgs list in json")
     }
     val msgs = encodedMsgs.map(decode(_))
