@@ -8,7 +8,7 @@ import dispatch.{:/, Http, Logger, Request}
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonParser.parse
-import textapp.messaging.MessageCoding.decode
+import textapp.messaging.MessageCoder
 
 class HttpClient(clientId: ClientId) {
   private val http = new Http {
@@ -17,6 +17,7 @@ class HttpClient(clientId: ClientId) {
     }
   }
   private val host = :/("localhost", 8000)
+  private val messageCoder = new MessageCoder
 
   private def idStr = clientId.id.toString
 
@@ -45,7 +46,7 @@ class HttpClient(clientId: ClientId) {
       case JField(_, JArray(msgs)) => msgs.map(_.values.toString)
       case _ => error("Unknown msgs list in json")
     }
-    val msgs = encodedMsgs.map(decode(_))
+    val msgs = encodedMsgs.map(messageCoder.decode(_))
     val hash = replyJson \ "hash" match {
       case JField(_, JString(v)) => v
       case _ => error("no hash given")

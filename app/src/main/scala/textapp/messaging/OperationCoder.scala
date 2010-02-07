@@ -5,7 +5,7 @@ import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import scala.util.matching.Regex
 import textapp.Elem
 
-object OperationCoding {
+class OperationCoder {
   def encode(op: TreeOperation): String = op match {
     case InsertOperation(TreeIndex(i), Elem(c)) => "ins_%d_%d".format(i, c.toInt)
     case DeleteOperation(TreeIndex(i)) => "del_%d".format(i)

@@ -6,7 +6,7 @@ import java.net.URI
 import java.util.UUID
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
-import textapp.messaging.MessageCoding.{encode, decode}
+import textapp.messaging.MessageCoder
 
 class TextAppRequestHandler extends HttpHandler {
   private val page404 = 
@@ -27,6 +27,7 @@ class TextAppRequestHandler extends HttpHandler {
 
   private val documentHandler = new DocumentHandler
   private val defaultChannel = ChannelId.randomId
+  private val messageCoder = new MessageCoder
 
   def handle(exchange: HttpExchange) {
     try {
@@ -76,12 +77,12 @@ class TextAppRequestHandler extends HttpHandler {
         ("status" -> "ok")
       case AddExpr() => 
         val encodedMsg = params("msg")
-        val msg = decode(encodedMsg)
+        val msg = messageCoder.decode(encodedMsg)
         documentHandler.onMsg(id, defaultChannel, msg)
         ("status" -> "ok")
       case GetExpr() => 
         val (msgs, document) = documentHandler.getMessages(id)
-        val encodedMsgs = msgs.map(encode(_))
+        val encodedMsgs = msgs.map(messageCoder.encode(_))
         ("status" -> "ok") ~
         ("msgs" -> encodedMsgs) ~
         ("hash" -> document.hash)

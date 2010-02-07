@@ -5,11 +5,12 @@ import ccf.tree.JupiterTreeTransformation
 import ccf.transport.ClientId
 import ccf.tree.operation.TreeOperation
 import java.util.{Timer, TimerTask}
-import textapp.messaging.MessageCoding.encode
+import textapp.messaging.MessageCoder
 import textapp.TextDocument
 
 class ClientApp {
   private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
+  private val messageCoder = new MessageCoder
   
   val httpClient = new HttpClient(ClientId.randomId)
   val initialText = httpClient.join
@@ -40,6 +41,6 @@ class ClientApp {
   private def sendToServer(op: TreeOperation) {
     document.applyOp(op)
     val msg = clientSync.createLocalOperation(op)
-    httpClient.add(encode(msg))
+    httpClient.add(messageCoder.encode(msg))
   }
 }
