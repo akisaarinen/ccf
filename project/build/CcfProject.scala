@@ -26,7 +26,8 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val dispatchJson = "net.databinder" %% "dispatch-json" % "0.6.3"
     val dispatchHttpJson = "net.databinder" %% "dispatch-http-json" % "0.6.3"
     val liftJson = "net.liftweb" % "lift-json" % "1.1-M5"
+    val jGoodiesForms = "com.jgoodies" % "forms" % "1.2.0"
 
-    override def libraryDependencies = Set(dispatchHttp, dispatchHttpJson, dispatchJson, liftJson)
+    override def libraryDependencies = Set(dispatchHttp, dispatchHttpJson, dispatchJson, liftJson, jGoodiesForms)
   }
 }
