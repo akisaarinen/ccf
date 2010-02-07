@@ -34,13 +34,17 @@ class ClientApp {
         case (hash, msgs) => {
           msgs.foreach { msg => 
             val op = clientSync.receiveRemoteOperation(msg)
-            textArea.applyOp(op)
-            document.applyOp(op)
+            applyOperationLocally(op)
           }
           if (document.hash != hash) error("Hash differs after sync :(")
         }
       }
     }
+  }
+
+  private def applyOperationLocally(op: TreeOperation) {
+      textArea.applyOp(op)
+      document.applyOp(op)
   }
 
   private def onInsert(items: List[(Int, Char)]) {
