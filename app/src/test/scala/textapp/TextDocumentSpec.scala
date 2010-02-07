@@ -13,6 +13,10 @@ object TextDocumentSpec extends Specification {
     "calculate initial MD5 hash correctly" in {
       doc.hash must equalTo("d41d8cd98f00b204e9800998ecf8427e")
     }
+    "ignore no-ops" in {
+      doc.applyOp(NoOperation())
+      doc.text must equalTo("")
+    }
   }
 
   "TextDocument with operations applied" should {
