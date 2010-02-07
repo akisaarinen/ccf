@@ -1,6 +1,6 @@
 package textapp.server
 
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.Message
 import ccf.server.Server
 import ccf.transport.Event
 import ccf.transport.{ClientId, ChannelId}
@@ -33,11 +33,11 @@ class DocumentHandler {
     server !? Event.Quit(clientId, channelId)
   }
   
-  def onMsg(clientId: ClientId, channelId: ChannelId, msg: ConcurrentOperationMessage[TreeOperation]) {
+  def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[TreeOperation]) {
     server !? Event.Msg(clientId, channelId, msg)
   }
 
-  def getMessages(clientId: ClientId): (List[ConcurrentOperationMessage[TreeOperation]], TextDocument) = messages.synchronized {
+  def getMessages(clientId: ClientId): (List[Message[TreeOperation]], TextDocument) = messages.synchronized {
     def isForClient(msg: Event.Msg[_]) = msg match {
       case Event.Msg(id, _, _) if (id == clientId) => true
       case _ => false
@@ -46,7 +46,6 @@ class DocumentHandler {
     val msgsForClient = messages.filter(isForClient(_))
     val msgsNotForClient = messages.filter(!isForClient(_))
     messages = msgsNotForClient
-    val msgsAsCom = msgsForClient.map(_.msg.asInstanceOf[ConcurrentOperationMessage[TreeOperation]])
-    (msgsAsCom, document)
+    (msgsForClient.map(_.msg), document)
   }
 }

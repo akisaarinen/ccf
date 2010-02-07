@@ -7,6 +7,7 @@ import ccf.tree.operation.TreeOperation
 import java.util.{Timer, TimerTask}
 import textapp.messaging.MessageCoder
 import textapp.TextDocument
+import ccf.messaging.ConcurrentOperationMessage
 
 class ClientApp {
   private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
@@ -23,10 +24,13 @@ class ClientApp {
     def run = Utils.invokeAndWait { () => 
       httpClient.get match {
         case (hash, msgs) => {
-          msgs.foreach { msg => 
-            val op = clientSync.receiveRemoteOperation(msg)
-            applyOperationLocally(op)
-          }
+          msgs.foreach { _ match {
+            case msg: ConcurrentOperationMessage[TreeOperation] =>
+              val op = clientSync.receiveRemoteOperation(msg)
+              applyOperationLocally(op)
+            case msg =>
+              error("Received unknown message type (%s)".format(msg.toString))
+          }}
           if (document.hash != hash) error("Hash differs after sync :(")
         }
       }

@@ -1,6 +1,5 @@
 package textapp.client
 
-import ccf.messaging.ConcurrentOperationMessage
 import ccf.transport.ClientId
 import ccf.tree.operation.TreeOperation
 
@@ -9,6 +8,7 @@ import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonParser.parse
 import textapp.messaging.MessageCoder
+import ccf.messaging.Message
 
 class HttpClient(clientId: ClientId) {
   private val http = new Http {
@@ -40,7 +40,7 @@ class HttpClient(clientId: ClientId) {
   def add(msg: String) {
     fetch(addUri, Map("msg" -> msg))
   }
-  def get: (String, List[ConcurrentOperationMessage[TreeOperation]]) = {
+  def get: (String, List[Message[TreeOperation]]) = {
     val replyJson = fetch(getUri, Map())
     val encodedMsgs = replyJson \ "msgs" match {
       case JField(_, JArray(msgs)) => msgs.map(_.values.toString)
