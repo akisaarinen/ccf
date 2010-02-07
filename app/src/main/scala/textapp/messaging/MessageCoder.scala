@@ -6,7 +6,7 @@ import ccf.messaging._
 import scala.util.matching.Regex
 
 class MessageCoder {
-  private val operationCoder = new OperationCoder
+  protected val operationCoder = new OperationCoder
   def encode(msg: ConcurrentOperationMessage[TreeOperation]): String = {
     val encodedOp = operationCoder.encode(msg.op)
     "%s,%d,%d".format(encodedOp, msg.localMessage, msg.expectedRemoteMessage)
