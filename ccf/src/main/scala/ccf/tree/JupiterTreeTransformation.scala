@@ -20,6 +20,9 @@ object JupiterTreeTransformation extends JupiterTransformer[TreeOperation] {
           if (localIsPrimary) NoOperation() // local is primary, ignore server move
           else MoveOperation(localMove.targetIndex, remoteMove.targetIndex) // Server wins
         }
+        case (localMove: MoveOperation, remoteUpdate: UpdateAttributeOperation) if (localMove.sourceIndex == remoteUpdate.index) => {
+          UpdateAttributeOperation(localMove.targetIndex, remoteUpdate.attribute, remoteUpdate.modifier)
+        }
         case (localUpdate: UpdateAttributeOperation, remoteUpdate: UpdateAttributeOperation) => {
           if (haveConflictingTargets(localUpdate, remoteUpdate) && localIsPrimary) NoOperation() // Ignore remote op if local is primary and there is conflict
           else remoteOp
