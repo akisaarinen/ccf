@@ -137,6 +137,11 @@ object ServerSpec extends Specification with Mockito {
       interceptor.operationsForAllClients(client1, channel, op) throws new RuntimeException("")
       server !? Event.Msg(client1, channel, msg) must haveClass[Event.Error]
     }
+    
+    "return error if synchronizer throws exception when adding msg" in {
+      synchronizer.receiveRemoteOperation(msg) throws new RuntimeException("")
+      server !? Event.Msg(client1, channel, msg) must haveClass[Event.Error]
+    }
 
     "quit all clients from specified channel" in {
       server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())

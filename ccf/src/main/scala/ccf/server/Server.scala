@@ -62,8 +62,8 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   }
 
   private def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[T], state: ClientState[T]): Any = {
-    val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
     try {
+      val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
       interceptor.applyOperation(this, clientId, channelId, op)
 
       val others = otherClientsFor(clientId)
