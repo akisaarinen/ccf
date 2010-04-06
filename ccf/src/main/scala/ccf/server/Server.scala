@@ -28,7 +28,8 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
 
   def act = loop { react {
     case Event.Join(clientId, channelId) => clients.get(clientId) match {
-      case Some(state) => reply(Event.Error("Already joined"))
+      case Some(state) if (state.channel != channelId) => reply(Event.Error("Already joined to another channel"))
+      case Some(state) if (state.channel == channelId) => println("already joined to this channel"); reply(getCurrentState(clientId, channelId))
       case None => reply(onJoin(clientId, channelId))
     }
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {
@@ -48,13 +49,17 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   private def onJoin(clientId: ClientId, channelId: ChannelId): Any = {
     val synchronizer = factory.createSynchronizer
     clients(clientId) = new ClientState(channelId, synchronizer)
+    getCurrentState(clientId, channelId)
+  }
+
+  private def getCurrentState(clientId: ClientId, channelId: ChannelId): Any = {
     try {
-      val currentState = interceptor.currentStateFor(channelId)
-      Event.State(clientId, channelId, currentState)
+      Event.State(clientId, channelId, interceptor.currentStateFor(channelId))
     } catch {
-      case e => Event.Error(stackTraceToString(e))
+      case e => Event.Error("Could not get current state: "+stackTraceToString(e))
     }
   }
+
 
   private def onQuit(clientId: ClientId, channelId: ChannelId): Any = {
     clients -= clientId
