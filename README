@@ -99,48 +99,55 @@ Jakarta Commons, whereas the server used Sun's Java HTTP server. The client and
 server ran on the same computer (Ubuntu 9.04, Intel Core 2 Duo 2.4 GHz),
 however, the loopback device was not used.
 
-Setting up development environment:
------------------------------------
-  1. Clone the git repository
-  2. Configure JVM  
-  3. ./sbt update   (fetches dependencies)
-  4. ./sbt test     (runs all tests)
+Setting Up Development Environment
+----------------------------------
 
-Creating library package:
--------------------------
-  ./sbt package
+1. Clone the git repository
+2. Configure JVM
+3. Fetch all depencencies
 
-  This will produce the package to:
-    ./ccf/target/ccf-{version}.jar
+  $ ./sbt update
 
-Running the test application:
------------------------------
+4. Run all tests:
 
-  The test application is a very simple collaborative text-editing application,
-  consisting of a server that binds to a port and a client that connects to the
-  server using HTTP. You may start multiple instances of the client application
-  locally and try out how the text is updated to the other instances in real
-  time. Best example of the operation is of course if you can run the client in
-  two machines and just specify the same server address for both clients.
+  $ ./sbt test
 
+Creating Library Package
+------------------------
 
-  Running the server application:
+ $ ./sbt package
 
-  ./sbt -p app run -s    (-s can be replaced with --server)
-    
-    Optional parameters for server:
-    --port <port> || -p <port>
+This will produce the package to:
 
-    Port defaults to 9999.
+  ./ccf/target/ccf-{version}.jar
 
+Running the Test Application
+----------------------------
 
-  Running the client application:
+The test application is a very simple collaborative text-editing application,
+consisting of a server that binds to a port and a client that connects to the
+server using HTTP. You may start multiple instances of the client application
+locally and try out how the text is updated to the other instances in real
+time. Best example of the operation is of course if you can run the client in
+two machines and just specify the same server address for both clients.
 
-  ./sbt -p app run       (no parameters == client)
-    
-    Optional parameters for client:
-    --host <host> || -h <host>
-    --port <port> || -p <port>
+Running the server application:
 
-    Port defaults to 9999 and host to 'localhost'.
+  $ ./sbt -p app run -s    (-s can be replaced with --server)
 
+Optional parameters for server:
+
+  --port <port> || -p <port>
+
+Port defaults to 9999.
+
+Running the client application:
+
+ $ ./sbt -p app run       (no parameters == client)
+
+Optional parameters for client:
+
+  --host <host> || -h <host>
+  --port <port> || -p <port>
+
+Port defaults to 9999 and host to 'localhost'.
