@@ -4,6 +4,7 @@ import sbt.Configurations._
 class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   lazy val lib = project("ccf", "ccf", new CcfLibraryProject(_))
   lazy val app = project("app", "app", new TextAppProject(_), lib)
+  lazy val perftest = project("perftest", "perftest", new PerftestProject(_), lib)
 
   class CcfLibraryProject(info: ProjectInfo) extends DefaultProject(info) {
     override def testFrameworks = ScalaCheckFramework :: SpecsFramework :: Nil
@@ -26,5 +27,12 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val dispatchHttpJson = "net.databinder" %% "dispatch-http-json" % "0.6.3"
     val liftJson = "net.liftweb" % "lift-json" % "1.1-M5"
     val jGoodiesForms = "com.jgoodies" % "forms" % "1.2.0"
+  }
+
+  class PerftestProject(info: ProjectInfo) extends DefaultProject(info) {
+    lazy val client = task { args => { runTask(Some("perftest.client.Client"), runClasspath, args) }.dependsOn(compile) }
+    lazy val server = task { args => { runTask(Some("perftest.server.Server"), runClasspath, args) }.dependsOn(compile) }
+
+    val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
   }
 }
