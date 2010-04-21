@@ -1,6 +1,104 @@
 Concurrency Control Framework (CCF)
 ===================================
 
+Messaging in CCF
+----------------
+
+In addition to concurrency control, CCF provides interfaces for exchanging
+information with a remote server in a robust way. These interfaces can be
+categorized into three layers: transport, session, and application layer.
+
+Transport Layer
+---------------
+
+The transport layer specifies a connection interface for accessing remote
+services by means of a message exchange pattern known as request-response. The
+connection interface specifies a method, #invoke, that attempts to invoke some
+remote service with zero or more arguments. The invocations are synchronous in
+the sense that #invoke blocks until a response has been received from the
+server or an error occurs. The connection interface unifies the error
+conditions, such as disconnections and timeouts, by throwing an exception of
+type ConnectionException upon detection of an error.
+
+Protocols that rely on request-response message exchange patterns inherently
+assume that no request, or in this case invocation, can be carried out over the
+same communication path until the current request completes. This obviously has
+an impact on the maximum number of requests per second. Although, this comes
+with a price, it complies with the requirement of delivering all messages over
+HTTP. This requirement is set forth by network related restrictions of various
+production environments. Also, HTTP/1.1 connections are by default persistent,
+and thus, the only overhead of using HTTP in comparison to some other TCP/IP
+request-response protocol is caused by the HTTP request headers. Surely, the
+request-response is inferior to other messaging protocols that allow multiple
+requests before a single response is received, however, benchmarking HTTP/1.1
+shows that a protocol relying on request-response message exchange pattern is
+viable for concurrency control among multiple clients (see the results below).
+
+In order to meet requirements of the session and application layer, the
+transport layer does not define the wire format of invocation requests. This
+allows an application to access remote services specific to the application.
+For example, an application can use the very same communication path over which
+operations are transferred for querying server's time and date.
+
+Session Layer
+-------------
+
+As the transport layer cannot guarantee successful invocations of remote
+services, the session layer introduces semantics for recovering from errors or
+inconsistent states between the client and server. This in turn allows the
+application layer rely on the session layer for robust delivery of requests and
+notification of disconnections and reconnections.
+
+The session layer introduces the concept of channels in which operations
+subject to operation transformation are exchanged. If the application layer
+wishes to access a remote service specific to the application, it is required
+to carry out this request within a channel. Only the session layer is allowed
+to perform out-of-channel requests, also known as session control invocations,
+on a remote service, for example, heartbeats and joinin and parting to and from
+a channel. Currently, a single session instance maps to a single channel, but
+this limitation is not by design, only an implementation detail.
+
+For ensuring robust client-server communication, the session layer specifies a
+set of fields that must be part of each invocation: unique client id, version
+number, and channel id. The unique client id is used for identifying a single
+client, while a single client may maintain one or more sessions. The version
+number is introduced for ensuring that the invocation of a remote service can
+be assumed to be valid. If the server-side detects that the version number does
+not match the expected one, the request is rejected and the error condition is
+signalled in the response. Also, the session layer enforces that all
+communication is sequential within the request-response context, that is, both
+the client and server must process messages in order, and inconsistencies in
+the sequence result into execution of recovery procedures.
+
+The requests over the session layer may or may not be authenticated, and is an
+application specific detail. For example, the remote service may require each
+invocation to include credidentials, such as a session key obtained by
+out-of-session communication.
+
+Application Layer
+-----------------
+
+The application layer relies on the session layer for performing invocations of
+remote services and for receiving notifications about the current state of the
+communication path.
+
+If the session layer detects that the remote service may be unavailable, the
+application layer is notified about it. Although, the application is allowed to
+queue invocations to the remote service, it must prepare for the event that the
+remote service will not become available.
+
+Request-Response Latencies over HTTP/1.1
+----------------------------------------
+
+On average a request-response took 18.8 ms with a standard deviation of 19.2
+ms. The maximum response-request took 184 ms and the minimum 1 ms. The results
+were obtained by performing 10,000 requests from a client to the server running
+in their own processes. Both the request and response had a content length of
+1024 bytes. The client was written in Scala using HttpClient version 4.0.1 of
+Jakarta Commons, whereas the server used Sun's Java HTTP server. The client and
+server ran on the same computer (Ubuntu 9.04, Intel Core 2 Duo 2.4 GHz),
+however, the loopback device was not used.
+
 Setting up development environment:
 -----------------------------------
   1. Clone the git repository
