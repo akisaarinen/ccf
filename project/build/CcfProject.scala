@@ -14,7 +14,6 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val specs = "org.scala-tools.testing" % "specs" % "1.6.0" % testScopeDependency
     val mockito = "org.mockito" % "mockito-core" % "1.8.0" % testScopeDependency
     val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5" % testScopeDependency
-    override def libraryDependencies = Set(specs, mockito, scalacheck)
   }
 
   class TextAppProject(info: ProjectInfo) extends DefaultProject(info) {
@@ -27,7 +26,5 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val dispatchHttpJson = "net.databinder" %% "dispatch-http-json" % "0.6.3"
     val liftJson = "net.liftweb" % "lift-json" % "1.1-M5"
     val jGoodiesForms = "com.jgoodies" % "forms" % "1.2.0"
-
-    override def libraryDependencies = Set(dispatchHttp, dispatchHttpJson, dispatchJson, liftJson, jGoodiesForms)
   }
 }
