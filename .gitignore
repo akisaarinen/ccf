@@ -5,3 +5,5 @@ ccf/target
 ccf/lib_managed
 app/target
 app/lib_managed
+perftest/target
+perftest/lib_managed
