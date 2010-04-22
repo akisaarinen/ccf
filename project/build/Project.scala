@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Configurations._
 
-class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
+class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   lazy val lib = project("ccf", "ccf", new CcfLibraryProject(_))
   lazy val app = project("app", "app", new TextAppProject(_), lib)
   lazy val perftest = project("perftest", "perftest", new PerftestProject(_), lib)
