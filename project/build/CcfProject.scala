@@ -12,6 +12,7 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
 
     val testScopeDependency = "test"
 
+    val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
     val specs = "org.scala-tools.testing" % "specs" % "1.6.0" % testScopeDependency
     val mockito = "org.mockito" % "mockito-core" % "1.8.0" % testScopeDependency
     val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5" % testScopeDependency
