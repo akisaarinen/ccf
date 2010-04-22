@@ -1,8 +1,7 @@
 package perftest.client
 
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.{DefaultHttpClient, BasicResponseHandler}
+import ccf.transport.Connection
+import ccf.transport.http.HttpConnection
 
 import java.net.URL
 
@@ -18,28 +17,24 @@ object Statistics {
 
 object Client {
   private val numberOfHttpRequests = 10000
+  private val timeoutMillis = 1000
+  private val method = "method"
   private val payload = (0 to 1023).map(x => 0).mkString("")
   def main(args: Array[String]) = {
-    val httpClient = new DefaultHttpClient
-    val url = new URL(args(0))
-    report(roundTripTimes(httpClient, url))
+    val url  = new URL(args(0))
+    val conn = new HttpConnection(url, timeoutMillis)
+    report(roundTripTimes(conn))
   }
-  private def roundTripTimes(httpClient: DefaultHttpClient, url: URL): List[Double] = {
-    (0 to numberOfHttpRequests).map { _ => measure(send, httpClient, url) }.toList
-  }
-  private def measure(measurable: (DefaultHttpClient, URL) => Unit, httpClient: DefaultHttpClient, url: URL) = {
-    val startMillis = System.currentTimeMillis
-    measurable(httpClient, url)
-    (System.currentTimeMillis - startMillis).asInstanceOf[Double]
+  private def roundTripTimes(conn: Connection): List[Double] = {
+    import System.currentTimeMillis
+    (0 to numberOfHttpRequests).map { _ => 
+      val startTimestampMillis = currentTimeMillis 
+      conn.invoke(method, payload)
+      (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
+    }.toList
   }
   private def report(xs: List[Double]) {
     import Statistics._
     println("mean=%f,sd=%f,min=%f,max=%f".format(mean(xs), stddev(xs), min(xs), max(xs)))
-  }
-  private def send(httpClient: DefaultHttpClient, url: URL) {
-    val httpPost = new HttpPost(url.toString) {
-      setEntity(new StringEntity(payload))
-    }
-    httpClient.execute[String](httpPost, new BasicResponseHandler)
   }
 }
