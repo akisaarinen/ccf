@@ -18,24 +18,25 @@ object Statistics {
 
 object Client {
   private val numberOfHttpRequests = 10000
-  private val httpClient = new DefaultHttpClient
   private val payload = (0 to 1023).map(x => 0).mkString("")
   def main(args: Array[String]) = {
-    report(roundTripTimes(new URL(args(0))))
+    val httpClient = new DefaultHttpClient
+    val url = new URL(args(0))
+    report(roundTripTimes(httpClient, url))
   }
-  private def roundTripTimes(url: URL): List[Double] = {
-    (0 to numberOfHttpRequests).map { _ => measure(send, url) }.toList
+  private def roundTripTimes(httpClient: DefaultHttpClient, url: URL): List[Double] = {
+    (0 to numberOfHttpRequests).map { _ => measure(send, httpClient, url) }.toList
   }
-  private def measure(measurable: URL => Unit, url: URL) = {
+  private def measure(measurable: (DefaultHttpClient, URL) => Unit, httpClient: DefaultHttpClient, url: URL) = {
     val startMillis = System.currentTimeMillis
-    measurable(url)
+    measurable(httpClient, url)
     (System.currentTimeMillis - startMillis).asInstanceOf[Double]
   }
   private def report(xs: List[Double]) {
     import Statistics._
     println("mean=%f,sd=%f,min=%f,max=%f".format(mean(xs), stddev(xs), min(xs), max(xs)))
   }
-  private def send(url: URL) {
+  private def send(httpClient: DefaultHttpClient, url: URL) {
     val httpPost = new HttpPost(url.toString) {
       setEntity(new StringEntity(payload))
     }
