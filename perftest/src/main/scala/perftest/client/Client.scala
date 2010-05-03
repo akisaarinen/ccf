@@ -1,6 +1,6 @@
 package perftest.client
 
-import ccf.transport.{Connection, Request}
+import ccf.transport.{Connection, Request, Headers}
 import ccf.transport.http.HttpConnection
 
 import scala.collection.immutable.HashMap
@@ -23,7 +23,7 @@ object Statistics {
 object Client {
   private val numberOfHttpRequests = 10000
   private val timeoutMillis = 1000
-  private val headers = HashMap("type" -> "type")
+  private val headers = Headers("type" -> "type")
   private val content = (0 to 1023).map(x => 0).mkString("")
   def main(args: Array[String]) = {
     val url  = new URL(args(0))
