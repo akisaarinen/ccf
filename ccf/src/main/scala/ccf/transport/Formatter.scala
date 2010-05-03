@@ -1,5 +1,5 @@
 package ccf.transport
 
 trait Formatter {
-  def format(data: Any): String
+  def format(request: Request): String
 }
