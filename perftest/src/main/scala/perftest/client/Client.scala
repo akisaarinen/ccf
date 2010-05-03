@@ -1,9 +1,14 @@
 package perftest.client
 
-import ccf.transport.Connection
+import ccf.transport.{Connection, Request}
 import ccf.transport.http.HttpConnection
 
+import scala.collection.immutable.HashMap
+
 import java.net.URL
+
+import net.lag.logging.Logger
+import java.util.logging.Level
 
 object Statistics {
   import Math._
@@ -18,18 +23,19 @@ object Statistics {
 object Client {
   private val numberOfHttpRequests = 10000
   private val timeoutMillis = 1000
-  private val method = "method"
-  private val payload = (0 to 1023).map(x => 0).mkString("")
+  private val headers = HashMap("type" -> "type")
+  private val content = (0 to 1023).map(x => 0).mkString("")
   def main(args: Array[String]) = {
     val url  = new URL(args(0))
     val conn = new HttpConnection(url, timeoutMillis)
+    Logger.get("dispatch").setLevel(Level.OFF)
     report(roundTripTimes(conn))
   }
   private def roundTripTimes(conn: Connection): List[Double] = {
     import System.currentTimeMillis
     (0 to numberOfHttpRequests).map { _ => 
       val startTimestampMillis = currentTimeMillis 
-      conn.invoke(method, payload)
+      conn.send(Request(headers, Some(content)))
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
