@@ -8,7 +8,17 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.{DefaultHttpClient, BasicResponseHandler}
 import org.apache.http.params.HttpConnectionParams
 
+import ccf.transport.json.{JsonFormatter, JsonParser}
+
+import dispatch.{Request => HttpRequest, _}
+import Http._
+
+import scala.collection.immutable.TreeMap
+
 class HttpConnection(url: URL, timeoutMillis: Int) extends Connection {
+  private val formatter = JsonFormatter
+  private val parser = JsonParser
+  private val http = new Http
   private val httpClient = new DefaultHttpClient
   init
   def invoke(method: String, args: String): String = {
@@ -19,9 +29,12 @@ class HttpConnection(url: URL, timeoutMillis: Int) extends Connection {
     catch { case e: IOException => throw new ConnectionException(e.toString) }
   }
   def send(request: Request): Option[Response] = {
-    error("Not implemented")
+    val req = requestUrl(request).POST << formatter.format(request)
+    http(req >- { parser.parse(_) })
   }
   def disconnect = httpClient.getConnectionManager.shutdown
+  private def requestUrl(request: Request) = url.toString / request.header("type").getOrElse(requestTypeMissing)
+  private def requestTypeMissing = throw new InvalidRequestException("Request header \"type\" missing")
   private def init = {
     HttpConnectionParams.setConnectionTimeout(httpClientParams, timeoutMillis)
     HttpConnectionParams.setSoTimeout(httpClientParams, timeoutMillis)
