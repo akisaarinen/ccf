@@ -12,6 +12,8 @@ class CcfProject(info: ProjectInfo) extends ParentProject(info) { rootProject =>
 
     val testScopeDependency = "test"
 
+    val databinder_net = "databinder.net repository" at "http://databinder.net/repo"
+    val dispatchHttp = "net.databinder" %% "dispatch-http" % "0.7.3"
     val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
     val specs = "org.scala-tools.testing" % "specs" % "1.6.0" % testScopeDependency
     val mockito = "org.mockito" % "mockito-core" % "1.8.0" % testScopeDependency
