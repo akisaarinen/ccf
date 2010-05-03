@@ -18,6 +18,9 @@ class HttpConnection(url: URL, timeoutMillis: Int) extends Connection {
     try { httpClient.execute[String](httpPost, new BasicResponseHandler) } 
     catch { case e: IOException => throw new ConnectionException(e.toString) }
   }
+  def send(request: Request): Option[Response] = {
+    error("Not implemented")
+  }
   def disconnect = httpClient.getConnectionManager.shutdown
   private def init = {
     HttpConnectionParams.setConnectionTimeout(httpClientParams, timeoutMillis)
