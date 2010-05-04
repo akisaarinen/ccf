@@ -12,11 +12,11 @@ import Http._
 
 import scala.collection.immutable.TreeMap
 
-class HttpConnection(url: URL, timeoutMillis: Int) extends Connection {
+class HttpConnection(url: URL, timeoutMillis: Int, http: Http) extends Connection {
   private val formatter = JsonFormatter
   private val parser = JsonParser
-  private val http = new Http
   init
+  def this(url: URL, timeoutMillis: Int) = this(url, timeoutMillis, new Http)
   def send(request: Request): Option[Response] = {
     val req = requestUrl(request).POST << formatter.format(request)
     http(req >- { parser.parse(_) })
