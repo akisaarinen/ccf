@@ -3,8 +3,10 @@ package ccf.transport.json
 import com.twitter.json.{Json, JsonException}
 
 object JsonParser extends Parser {
-  def parse(message: String): Option[Response] = handleJsonException {
-    if (message.isEmpty) None else Some(response(message))
+  def parse(message: String): Option[Response] = try { 
+    if (message.isEmpty) None else Some(response(message)) 
+  } catch { 
+    case e: JsonException => throw new MalformedDataException(e.toString)
   }
   private def response(message: String): Response = Json.parse(message) match {
     case m: Map[Any, Any] => Response(headers(m), content(m))
@@ -19,6 +21,4 @@ object JsonParser extends Parser {
     case _                => throw new MalformedDataException("Invalid message header")
   }
   private def content(m: Map[Any, Any]): Option[Any] = m.get("content")
-  private def handleJsonException(f: => Option[Response]) =
-    try { f } catch { case e: JsonException => throw new MalformedDataException(e.toString) }
 }
