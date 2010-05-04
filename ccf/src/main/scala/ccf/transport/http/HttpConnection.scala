@@ -21,7 +21,6 @@ class HttpConnection(url: URL, timeoutMillis: Int) extends Connection {
     val req = requestUrl(request).POST << formatter.format(request)
     http(req >- { parser.parse(_) })
   }
-  def disconnect = httpClient.getConnectionManager.shutdown
   private def requestUrl(request: Request) = url.toString / request.header("type").getOrElse(requestTypeMissing)
   private def requestTypeMissing = throw new InvalidRequestException("Request header \"type\" missing")
   private def init = {

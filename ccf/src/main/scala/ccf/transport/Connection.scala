@@ -5,6 +5,4 @@ trait Connection {
   @throws(classOf[MalformedDataException])
   @throws(classOf[ConnectionException])
   def send(request: Request): Option[Response]
-  @throws(classOf[ConnectionException])
-  def disconnect
 }
