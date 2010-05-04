@@ -14,9 +14,9 @@ object JsonParser extends Parser {
     case Some(headers) => Headers(headersToMap(headers))
     case None          => throw new MalformedDataException("Missing message header")
   }
-  private def headersToMap(headers: Any) = {
-    if (headers.isInstanceOf[Map[Any,Any]]) { headers.asInstanceOf[Map[Any, Any]] }
-    else throw new MalformedDataException("Invalid message header")
+  private def headersToMap(headers: Any) = headers match {
+    case m: Map[Any, Any] => m
+    case _                => throw new MalformedDataException("Invalid message header")
   }
   private def content(m: Map[Any, Any]): Option[Any] = m.get("content")
   private def handleJsonException(f: => Option[Response]) =
