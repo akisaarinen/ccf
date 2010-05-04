@@ -4,13 +4,10 @@ import java.io.IOException
 import java.net.URL
 
 import org.apache.http.params.HttpConnectionParams
-
 import ccf.transport.json.{JsonFormatter, JsonParser}
 
-import dispatch.{Request => HttpRequest, _}
-import Http._
-
-import scala.collection.immutable.TreeMap
+import dispatch.{Request => HttpRequest, Http}
+import dispatch.Http._
 
 class HttpConnection(url: URL, timeoutMillis: Int, http: Http) extends Connection {
   private val formatter = JsonFormatter
@@ -27,6 +24,5 @@ class HttpConnection(url: URL, timeoutMillis: Int, http: Http) extends Connectio
     HttpConnectionParams.setConnectionTimeout(httpClientParams, timeoutMillis)
     HttpConnectionParams.setSoTimeout(httpClientParams, timeoutMillis)
   }
-  private def httpClient = http.client
-  private def httpClientParams = httpClient.getParams
+  private def httpClientParams = http.client.getParams
 }
