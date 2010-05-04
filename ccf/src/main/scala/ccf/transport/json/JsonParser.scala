@@ -10,15 +10,16 @@ object JsonParser extends Parser {
   }
   private def response(message: String): Response = Json.parse(message) match {
     case m: Map[Any, Any] => Response(headers(m), content(m))
-    case _                => throw new MalformedDataException("Invalid message frame")
+    case _                => malformedDataException("Invalid message frame")
   }
   private def headers(m: Map[Any, Any]): Headers = m.get("headers") match {
     case Some(headers) => Headers(headersToMap(headers))
-    case None          => throw new MalformedDataException("Missing message header")
+    case None          => malformedDataException("Missing message header")
   }
   private def headersToMap(headers: Any) = headers match {
     case m: Map[Any, Any] => m
-    case _                => throw new MalformedDataException("Invalid message header")
+    case _                => malformedDataException("Invalid message header")
   }
   private def content(m: Map[Any, Any]): Option[Any] = m.get("content")
+  private def malformedDataException(s: String) = throw new MalformedDataException(s)
 }
