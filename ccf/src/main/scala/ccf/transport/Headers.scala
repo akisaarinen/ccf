@@ -10,4 +10,8 @@ object Headers {
   }
 }
 
-class Headers(val headers: Map[String, String])
+class Headers(val headers: Map[String, String]) {
+  override def toString = headers.toString
+  override def equals(o: Any): Boolean = o.isInstanceOf[Headers] && headers.equals(o.asInstanceOf[Headers].headers)
+  override def hashCode = headers.hashCode
+}
