@@ -6,7 +6,7 @@ import java.net.URL
 object HttpConnectionSpec extends Specification {
   "Invalid request" should {
     "cause an InvalidRequestException" in {
-      val conn = new HttpConnection(new URL("http://www.com"), 1000)
+      val conn = HttpConnection.create(new URL("http://www.com"))
       conn.send(new Request(Map[String, String](), None)) must throwA[InvalidRequestException]
     }
   }
