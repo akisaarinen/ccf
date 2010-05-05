@@ -6,5 +6,8 @@ import scala.collection.immutable.TreeMap
 
 object JsonFormatter extends Formatter {
   def format(request: Request): String = Json.build(toMap(request)).toString
-  private def toMap(request: Request) = TreeMap[String, Any]("headers" -> request.headers, "content" -> request.content)
+  private def toMap(request: Request) = request.content match {
+    case Some(c) => Map("headers" -> request.headers, "content" -> c)
+    case None    => Map("headers" -> request.headers)
+  }
 }
