@@ -7,7 +7,7 @@ object HttpConnectionSpec extends Specification {
   "Invalid request" should {
     "cause an InvalidRequestException" in {
       val conn = new HttpConnection(new URL("http://www.com"), 1000)
-      conn.send(new Request(Headers(), None)) must throwA[InvalidRequestException]
+      conn.send(new Request(Map[String, String](), None)) must throwA[InvalidRequestException]
     }
   }
 }

@@ -33,19 +33,17 @@ object JsonParserSpec extends Specification {
   "A JSON response with headers but without content" should {
     val jsonResponse = """{"headers":{"aa":"bb","cc":"dd"}}"""
     "parse to equivalent Response" in {
-      val expected = Response(Headers("aa" -> "bb", "cc" -> "dd"), None)
+      val expected = Response(Map[String, String]("aa" -> "bb", "cc" -> "dd"), None)
       val parsed = JsonParser.parse(jsonResponse).get
-      parsed.headers.headers must equalTo(expected.headers.headers)
-      parsed.content must equalTo(expected.content)
+      parsed must equalTo(expected)
     }
   }
   "A JSON response with headers and content elements" should {
     val jsonResponse = """{"headers":{"aa":"bb","cc":"dd"},"content":{"b":2}}"""
     "parse to equivalent Response" in {
-      val expected = Response(Headers("aa" -> "bb", "cc" -> "dd"), Some(TreeMap("b" -> 2)))
+      val expected = Response(Map[String, String]("aa" -> "bb", "cc" -> "dd"), Some(TreeMap("b" -> 2)))
       val parsed = JsonParser.parse(jsonResponse).get
-      parsed.headers.headers must equalTo(expected.headers.headers)
-      parsed.content must equalTo(expected.content)
+      parsed must equalTo(expected)
     }
   }
 }
