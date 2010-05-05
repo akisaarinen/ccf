@@ -7,10 +7,10 @@ import ccf.transport.json.{JsonFormatter, JsonParser}
 
 object HttpConnection {
   private val timeoutMillis = 1000
-  def create(url: URL) = new HttpConnection(url, timeoutMillis, new HttpImpl(timeoutMillis), JsonParser, JsonFormatter)
+  def create(url: URL) = new HttpConnection(url, new HttpImpl(timeoutMillis), JsonParser, JsonFormatter)
 }
 
-class HttpConnection(url: URL, timeoutMillis: Int, http: Http, parser: Parser, formatter: Formatter) extends Connection {
+class HttpConnection(url: URL, http: Http, parser: Parser, formatter: Formatter) extends Connection {
   def send(request: Request): Option[Response] = try {
     http.post(requestUrl(request), formatter.format(request)) { parser.parse }
   } catch {
