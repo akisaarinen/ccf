@@ -24,8 +24,7 @@ object Client {
   private val numberOfHttpRequests = 10000
   private val headers = Map[String, String]("type" -> "perftest")
   private val content = (0 to 1023).map(x => 0).mkString("")
-  def main(args: Array[String]) = {
-    val url  = new URL(args(0))
+  def run(url: URL) = {
     val conn = HttpConnection.create(url)
     Logger.get("dispatch").setLevel(Level.OFF)
     report(roundTripTimes(conn))
