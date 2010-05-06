@@ -25,7 +25,7 @@ class HttpRequestHandler extends HttpHandler {
 object Server {
   def run(url: URL)= { 
     val server = HttpServer.create(new InetSocketAddress(url.getHost, url.getPort), 0)
-    server.createContext("/perftest", new HttpRequestHandler)
+    server.createContext(url.getPath, new HttpRequestHandler)
     server.start
   }
 }
