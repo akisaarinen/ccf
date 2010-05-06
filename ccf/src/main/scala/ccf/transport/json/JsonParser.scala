@@ -3,7 +3,7 @@ package ccf.transport.json
 import com.twitter.json.{Json, JsonException}
 
 object JsonParser extends Parser {
-  def parse(message: String): Option[Response] = try { 
+  def parseResponse(message: String): Option[Response] = try { 
     if (message.isEmpty) None else Some(response(message)) 
   } catch { 
     case e: JsonException => throw new MalformedDataException(e.toString)

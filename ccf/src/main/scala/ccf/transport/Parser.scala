@@ -2,5 +2,5 @@ package ccf.transport
 
 trait Parser {
   @throws(classOf[MalformedDataException])
-  def parse(msg: String): Option[Response]
+  def parseResponse(msg: String): Option[Response]
 }
