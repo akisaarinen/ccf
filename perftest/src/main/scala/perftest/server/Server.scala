@@ -11,7 +11,7 @@ class HttpRequestHandler extends HttpHandler {
   def handle(exchange: HttpExchange) { 
     try {
       val response = Request(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
-      val body = JsonFormatter.format(response)
+      val body = JsonFormatter.formatRequest(response)
       exchange.sendResponseHeaders(200, body.length)
       exchange.getResponseBody.write(body.getBytes)
     } finally {

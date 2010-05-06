@@ -12,7 +12,7 @@ object HttpConnection {
 
 class HttpConnection(url: URL, http: Http, parser: Parser, formatter: Formatter) extends Connection {
   def send(request: Request): Option[Response] = try {
-    http.post(requestUrl(request), formatter.format(request)) { parser.parse }
+    http.post(requestUrl(request), formatter.formatRequest(request)) { parser.parse }
   } catch {
     case e: IOException => throw new ConnectionException(e.toString)
   }
