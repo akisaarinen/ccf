@@ -3,10 +3,10 @@ package ccf.transport.json
 import com.twitter.json.Json
 
 object JsonFormatter extends Formatter {
-  def formatRequest(request: Request): String = Json.build(toMap(request)).toString
-  def formatResponse(response: Response): String = error("Not implemented")
-  private def toMap(request: Request) = request.content match {
-    case Some(c) => Map("headers" -> request.headers, "content" -> c)
-    case None    => Map("headers" -> request.headers)
+  def formatRequest(r: Request): String = Json.build(toMap(r.headers, r.content)).toString
+  def formatResponse(r: Response): String = Json.build(toMap(r.headers, r.content)).toString
+  private def toMap(headers: Map[String, String], content: Option[Any]) = content match {
+    case Some(c) => Map("headers" -> headers, "content" -> c)
+    case None    => Map("headers" -> headers)
   }
 }
