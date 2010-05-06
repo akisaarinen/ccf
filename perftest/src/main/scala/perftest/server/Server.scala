@@ -7,6 +7,8 @@ import java.net.InetSocketAddress
 import ccf.transport.Response
 import ccf.transport.json.JsonFormatter
 
+import java.net.URL
+
 class HttpRequestHandler extends HttpHandler {
   def handle(exchange: HttpExchange) { 
     try {
@@ -24,7 +26,8 @@ object Server {
   def main(args: Array[String]) {
     if (args.length > 0) run(args(0)) else println("Usage: Server [IP ADDR]")
   }
-  private def run(ipAddress: String) {
+  def run(url: URL): Unit = run(url.getHost)
+  private def run(ipAddress: String): Unit = {
     val server = HttpServer.create(new InetSocketAddress(ipAddress, 8080), 0)
     server.createContext("/perftest", new HttpRequestHandler)
     server.start
