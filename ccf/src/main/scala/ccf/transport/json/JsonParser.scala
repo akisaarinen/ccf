@@ -8,6 +8,7 @@ object JsonParser extends Parser {
   } catch { 
     case e: JsonException => throw new MalformedDataException(e.toString)
   }
+  def parseRequest(message: String): Option[Request] = error("Not implemented")
   private def response(message: String): Response = Json.parse(message) match {
     case m: Map[Any, Any] => Response(headers(m), content(m))
     case _                => malformedDataException("Invalid message frame")
