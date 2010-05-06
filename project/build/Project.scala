@@ -33,9 +33,7 @@ class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   }
 
   class PerftestProject(info: ProjectInfo) extends DefaultProject(info) {
-    lazy val client = task { args => { runTask(Some("perftest.client.Client"), runClasspath, args) }.dependsOn(compile) }
-    lazy val server = task { args => { runTask(Some("perftest.server.Server"), runClasspath, args) }.dependsOn(compile) }
-
+    override def mainClass = Some("perftest.Perftest")
     val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
   }
 }
