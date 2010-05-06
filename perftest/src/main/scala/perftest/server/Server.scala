@@ -23,12 +23,8 @@ class HttpRequestHandler extends HttpHandler {
 }
 
 object Server {
-  def main(args: Array[String]) {
-    if (args.length > 0) run(args(0)) else println("Usage: Server [IP ADDR]")
-  }
-  def run(url: URL): Unit = run(url.getHost)
-  private def run(ipAddress: String): Unit = {
-    val server = HttpServer.create(new InetSocketAddress(ipAddress, 8080), 0)
+  def run(url: URL)= { 
+    val server = HttpServer.create(new InetSocketAddress(url.getHost, url.getPort), 0)
     server.createContext("/perftest", new HttpRequestHandler)
     server.start
   }
