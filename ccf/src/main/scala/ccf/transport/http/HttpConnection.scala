@@ -7,7 +7,7 @@ import ccf.transport.json.{JsonFormatter, JsonParser}
 
 object HttpConnection {
   private val timeoutMillis = 1000
-  def create(url: URL) = new HttpConnection(url, new HttpImpl(timeoutMillis), JsonParser, JsonFormatter)
+  def create(url: URL) = new HttpConnection(url, new DispatchHttpClient(timeoutMillis), JsonParser, JsonFormatter)
 }
 
 class HttpConnection(url: URL, client: HttpClient, parser: Parser, formatter: Formatter) extends Connection {
