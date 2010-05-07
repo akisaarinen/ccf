@@ -12,10 +12,11 @@ object HttpConnection {
 
 class HttpConnection(url: URL, client: HttpClient, parser: Parser, formatter: Formatter) extends Connection {
   def send(request: Request): Option[Response] = try {
-    client.post(requestUrl(request), formatter.formatRequest(request)) { parser.parseResponse }
+    parser.parseResponse(post(request))
   } catch {
     case e: IOException => throw new ConnectionException(e.toString)
   }
+  private def post(request: Request) = client.post(requestUrl(request), formatter.formatRequest(request))
   private def requestUrl(request: Request) = new URL(url, request.header("type").getOrElse(requestTypeMissing))
   private def requestTypeMissing = throw new InvalidRequestException("Request header \"type\" missing")
 }

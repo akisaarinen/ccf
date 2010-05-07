@@ -10,7 +10,7 @@ import java.net.URL
 class DispatchHttpClient(timeoutMillis: Int) extends HttpClient {
   private val http = new DispatchHttp
   init
-  def post[T](url: URL, data: String)(block: String => T): T = http(url.toString.POST << data >- { block })
+  def post(url: URL, data: String): String = http(url.toString.POST << data >- { x => x })
   private def init {
     HttpConnectionParams.setConnectionTimeout(httpClientParams, timeoutMillis)
     HttpConnectionParams.setSoTimeout(httpClientParams, timeoutMillis)

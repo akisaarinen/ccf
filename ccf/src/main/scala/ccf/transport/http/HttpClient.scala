@@ -5,5 +5,5 @@ import java.net.URL
 
 trait HttpClient {
   @throws(classOf[IOException])
-  def post[T](url: URL, data: String)(block: String => T): T
+  def post(url: URL, data: String): String
 }
