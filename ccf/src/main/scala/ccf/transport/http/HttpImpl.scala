@@ -7,7 +7,7 @@ import dispatch.Http._
 
 import java.net.URL
 
-class HttpImpl(timeoutMillis: Int) extends Http {
+class HttpImpl(timeoutMillis: Int) extends HttpClient {
   private val http = new DispatchHttp
   init
   def post[T](url: URL, data: String)(block: String => T): T = http(url.toString.POST << data >- { block })

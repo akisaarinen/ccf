@@ -10,9 +10,9 @@ object HttpConnection {
   def create(url: URL) = new HttpConnection(url, new HttpImpl(timeoutMillis), JsonParser, JsonFormatter)
 }
 
-class HttpConnection(url: URL, http: Http, parser: Parser, formatter: Formatter) extends Connection {
+class HttpConnection(url: URL, client: HttpClient, parser: Parser, formatter: Formatter) extends Connection {
   def send(request: Request): Option[Response] = try {
-    http.post(requestUrl(request), formatter.formatRequest(request)) { parser.parseResponse }
+    client.post(requestUrl(request), formatter.formatRequest(request)) { parser.parseResponse }
   } catch {
     case e: IOException => throw new ConnectionException(e.toString)
   }
