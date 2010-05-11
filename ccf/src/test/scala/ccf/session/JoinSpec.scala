@@ -15,13 +15,13 @@ object JoinSpec extends Specification with Mockito {
     val joinRequest = JoinRequest(newChannelId)(session)
     val joinMessage = Join(newChannelId)
     connection.send(joinRequest) returns None
-    "call Connection#send with valid join request and return valid new session on #send" in {
+    "invoke #send with a valid join request and return a valid new session on #send" in {
       val (nextSession: Session, r: Option[Response]) = joinMessage.send(session)
       nextSession.seqId must be equalTo(1)
       nextSession.channels must be equalTo(Set(existingChannelId, newChannelId))
       connection.send(joinRequest) was called
     }
-    "take no action, if channel is already joined" in {
+    "take no action if already a member of a channel" in {
       val joinExistingMessage = Join(existingChannelId)
       val (nextSession: Session, r: Option[Response]) = joinExistingMessage.send(session)
       nextSession must be equalTo(session)
