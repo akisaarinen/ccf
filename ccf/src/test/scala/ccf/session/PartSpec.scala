@@ -15,13 +15,13 @@ object PartSpec extends Specification with Mockito {
     val partRequest = PartRequest(existingChannelId)(session)
     val partMessage = Part(existingChannelId)
     connection.send(partRequest) returns None
-    "call Connection#send with valid part message and return valid new session on #send" in {
+    "invoke #send with a valid part message and return a valid new session on #send" in {
       val (nextSession: Session, r: Option[Response]) = partMessage.send(session)
       nextSession.seqId must be equalTo(1)
       nextSession.channels must be equalTo(Set())
       connection.send(partRequest) was called
     }
-    "take no action, if channel is already joined" in {
+    "take no action if not a member of a channel" in {
       val partInvalidChannelMessage = Part(newChannelId)
       val (nextSession: Session, r: Option[Response]) = partInvalidChannelMessage.send(session)
       nextSession must be equalTo(session)
