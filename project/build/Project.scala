@@ -7,7 +7,6 @@ class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   lazy val perftest = project("perftest", "perftest", new PerftestProject(_), lib)
 
   class CcfLibraryProject(info: ProjectInfo) extends DefaultProject(info) {
-    override def testFrameworks = ScalaCheckFramework :: SpecsFramework :: Nil
     override def mainClass = Some("TestMain")
 
     val testScopeDependency = "test"
@@ -21,7 +20,6 @@ class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   }
 
   class TextAppProject(info: ProjectInfo) extends DefaultProject(info) {
-    override def testFrameworks = SpecsFramework :: Nil
     override def mainClass = Some("textapp.TextAppMain")
 
     val databinder_net = "databinder.net repository" at "http://databinder.net/repo"

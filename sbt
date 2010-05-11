@@ -1,5 +1,5 @@
 #!/bin/bash
-LAUNCHER_VERSION=0.5.5
+LAUNCHER_VERSION=0.7.3
 export JAVA_OPTS="-client -XX:MaxPermSize=256m -Xmx512m"
 
 sbt_opts=
@@ -12,7 +12,7 @@ do
 done
 shift $(($OPTIND - 1))
 
-sbt_cmd="java ${JAVA_OPTS} -jar `dirname $0`/sbt-launcher-$LAUNCHER_VERSION.jar"
+sbt_cmd="java ${JAVA_OPTS} -jar `dirname $0`/sbt-launch-$LAUNCHER_VERSION.jar"
 
 if [ -z "$sbt_opts" ]; then
   $sbt_cmd $*
