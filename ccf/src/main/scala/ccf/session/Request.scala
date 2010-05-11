@@ -8,3 +8,9 @@ object JoinRequest {
     Some(Map("channelId" -> channelId.toString))
   )
 }
+object PartRequest {
+  def apply(channelId: ChannelId)(s: Session): Request = Request(
+    Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString, "type" -> "channel/part"),
+    Some(Map("channelId" -> channelId.toString))
+  )
+}
