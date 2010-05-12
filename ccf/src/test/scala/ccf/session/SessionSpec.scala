@@ -2,7 +2,7 @@ package ccf.session
 
 import org.specs.Specification
 import org.specs.mock.Mockito
-import ccf.transport.Connection
+import ccf.transport.{Connection, ConnectionException}
 
 object SessionSpec extends Specification with Mockito {
   val connection = mock[Connection]
@@ -25,8 +25,9 @@ object SessionSpec extends Specification with Mockito {
       val joinRequest = JoinRequest(newChannelId)(session)
       val joinMessage = Join(newChannelId)
       connection.send(joinRequest) returns None
-      val nextSession = session.send(joinMessage)
+      val (nextSession, result) = session.send(joinMessage)
 
+      result must equalTo(Right(Success(joinMessage, None)))
       nextSession.seqId must equalTo(1)
       nextSession.channels must equalTo(Set(existingChannelId, newChannelId))
       connection.send(joinRequest) was called
@@ -35,11 +36,20 @@ object SessionSpec extends Specification with Mockito {
       val partRequest = PartRequest(existingChannelId)(session)
       val partMessage = Part(existingChannelId)
       connection.send(partRequest) returns None
-      val nextSession = session.send(partMessage)
+      val (nextSession, result) = session.send(partMessage)
 
+      result must equalTo(Right(Success(partMessage, None)))
       nextSession.seqId must equalTo(1)
       nextSession.channels must equalTo(Set())
       connection.send(partRequest) was called
+    }
+    "report failure and keep current session state, if transport layer fails with ConnectException" in {
+      val request = JoinRequest(newChannelId)(session)
+      val message = Join(newChannelId)
+      doThrow(new ConnectionException("Error")).when(connection).send(request)
+      val (nextSession, result) = session.send(message)
+      nextSession must equalTo(session)
+      result must equalTo(Left(Failure(message, "ccf.transport.ConnectionException: Error")))
     }
   }
 }
