@@ -33,5 +33,6 @@ class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   class PerftestProject(info: ProjectInfo) extends DefaultProject(info) {
     override def mainClass = Some("perftest.Perftest")
     val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
+    val jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.1.0.RC0"
   }
 }
