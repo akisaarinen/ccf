@@ -1,31 +1,36 @@
 package perftest.server
 
-import com.sun.net.httpserver.HttpServer
-import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 import java.net.InetSocketAddress
 
+import org.eclipse.jetty.server.handler.AbstractHandler
+import org.eclipse.jetty.server.{Server => Jetty7Server, Request, Handler, Connector}
+import org.eclipse.jetty.server.nio.SelectChannelConnector
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import ccf.transport.Response
 import ccf.transport.json.JsonFormatter
 
 import java.net.URL
 
-class HttpRequestHandler extends HttpHandler {
-  def handle(exchange: HttpExchange) { 
-    try {
-      val response = Response(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
-      val body = JsonFormatter.formatResponse(response)
-      exchange.sendResponseHeaders(200, body.length)
-      exchange.getResponseBody.write(body.getBytes)
-    } finally {
-      exchange.getResponseBody.close
-    }
+class HttpRequestHandler extends AbstractHandler {
+  override def handle(target: String, req: Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) { 
+    val response = Response(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
+    val body = JsonFormatter.formatResponse(response)
+    httpResp.setContentType("application/json")
+    httpResp.setStatus(HttpServletResponse.SC_OK);
+    httpResp.setContentLength(body.length)
+    httpResp.getWriter.write(body)
+    (httpReq.asInstanceOf[Request]).setHandled(true);
   }
 }
 
 object Server {
   def run(url: URL)= { 
-    val server = HttpServer.create(new InetSocketAddress(url.getHost, url.getPort), 0)
-    server.createContext(url.getPath, new HttpRequestHandler)
+    val server = new Jetty7Server(url.getPort)
+    val connector = new SelectChannelConnector()
+    connector.setPort(url.getPort)
+    server.setConnectors(List[Connector](connector).toArray)
+    server.setHandler(new HttpRequestHandler())
     server.start
   }
 }
