@@ -1,12 +1,20 @@
-import sbt._
-import sbt.Configurations._
+import sbt.{Project => SbtProject, _}
+  
+abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) {
+  def transitiveDepJars = (jars +++ Path.lazyPathFinder { dependencies.flatMap(jars(_)) }).distinct
+  private def jars: PathFinder = mainDependencies.scalaJars +++ projectJar +++ managedDepJars +++ unmanagedDepJars
+  private def jars(p: SbtProject): Seq[Path] = p match { case cp: AbstractProject => cp.jars.get.toList; case _ => Nil }
+  private def projectJar = ((outputPath ##) / defaultJarName)
+  private def managedDepJars = descendents(managedDependencyPath / "compile" ##, "*.jar")
+  private def unmanagedDepJars = descendents(info.projectPath / "lib" ##, "*.jar")
+}
 
 class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
   lazy val lib = project("ccf", "ccf", new CcfLibraryProject(_))
   lazy val app = project("app", "app", new TextAppProject(_), lib)
   lazy val perftest = project("perftest", "perftest", new PerftestProject(_), lib)
 
-  class CcfLibraryProject(info: ProjectInfo) extends DefaultProject(info) {
+  class CcfLibraryProject(info: ProjectInfo) extends AbstractProject(info) {
     override def mainClass = Some("TestMain")
 
     val testScopeDependency = "test"
@@ -19,7 +27,7 @@ class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5" % testScopeDependency
   }
 
-  class TextAppProject(info: ProjectInfo) extends DefaultProject(info) {
+  class TextAppProject(info: ProjectInfo) extends AbstractProject(info) {
     override def mainClass = Some("textapp.TextAppMain")
 
     val databinder_net = "databinder.net repository" at "http://databinder.net/repo"
@@ -30,9 +38,15 @@ class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
     val jGoodiesForms = "com.jgoodies" % "forms" % "1.2.0"
   }
 
-  class PerftestProject(info: ProjectInfo) extends DefaultProject(info) {
+  class PerftestProject(info: ProjectInfo) extends AbstractProject(info) {
+    override def manifestClassPath = Some(distFileJars.map(_.getName).mkString(" "))
     override def mainClass = Some("perftest.Perftest")
-    val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
+
     val jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.1.0.RC0"
+
+    lazy val dist = zipTask(transitiveDepJars, "dist", distName) dependsOn (`package`)
+
+    private def distName = "%s-%s.zip".format(name, version)
+    private def distFileJars = transitiveDepJars.getFiles.filter(_.getName.endsWith(".jar"))
   }
 }
