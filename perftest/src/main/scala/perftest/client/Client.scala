@@ -1,9 +1,9 @@
 package perftest.client
 
-import ccf.transport.{Connection, Request}
 import ccf.transport.http.HttpConnection
 
-import scala.collection.immutable.HashMap
+import ccf.session.{ChannelId, ClientId, Version}
+import ccf.session.{SessionActor, Join, Shutdown}
 
 import java.net.URL
 
@@ -21,19 +21,21 @@ object Statistics {
 }
 
 object Client {
-  private val numberOfHttpRequests = 10000
-  private val headers = Map[String, String]("type" -> "perftest")
-  private val content = (0 to 1023).map(x => 0).mkString("")
+  private val numberOfMsgsToSend = 10000
+  private val clientId = ClientId.randomId
+  private val version = Version(1, 2)
   def run(url: URL) = {
     val conn = HttpConnection.create(url)
+    val sa = new SessionActor(conn, clientId, version)
     Logger.get("dispatch").setLevel(Level.OFF)
-    report(roundTripTimes(conn))
+    report(roundTripTimes(sa))
+    sa ! Shutdown
   }
-  private def roundTripTimes(conn: Connection): List[Double] = {
+  private def roundTripTimes(sa: SessionActor): List[Double] = {
     import System.currentTimeMillis
-    (0 to numberOfHttpRequests).map { _ => 
-      val startTimestampMillis = currentTimeMillis 
-      conn.send(Request(headers, Some(content)))
+    (0 to numberOfMsgsToSend).map { _ => 
+      val startTimestampMillis = currentTimeMillis
+      sa !? Join(ChannelId.randomId)
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
