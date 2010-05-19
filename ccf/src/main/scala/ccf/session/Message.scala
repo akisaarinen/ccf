@@ -11,11 +11,15 @@ trait Message {
 
 case class Join(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = if (!s.channels(channelId)) {
-    (s.next(s.channels + channelId), sendRequest(JoinRequest(channelId), s))
+    val nextSession = s.next(s.channels + channelId)
+    val response = sendRequest(JoinRequest(channelId), s)
+    (nextSession, response)
   } else { (s, None) }
 }
 case class Part(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = if (s.channels(channelId)) {
-    (s.next(s.channels - channelId), sendRequest(PartRequest(channelId), s))
+    val nextSession = s.next(s.channels - channelId)
+    val response = sendRequest(PartRequest(channelId), s)
+    (nextSession, response)
   } else { (s, None) }
 }
