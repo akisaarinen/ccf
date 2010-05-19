@@ -3,7 +3,7 @@ package perftest.client
 import ccf.transport.http.HttpConnection
 
 import ccf.session.{ChannelId, ClientId, Version}
-import ccf.session.{SessionActor, Join, Shutdown}
+import ccf.session.{SessionActor, Join, Operation, Shutdown}
 
 import java.net.URL
 
@@ -27,6 +27,7 @@ object Client {
   def run(url: URL) = {
     val conn = HttpConnection.create(url)
     val sa = new SessionActor(conn, clientId, version)
+    sa ! Join(ChannelId.randomId)
     Logger.get("dispatch").setLevel(Level.OFF)
     report(roundTripTimes(sa))
     sa ! Shutdown
@@ -35,7 +36,7 @@ object Client {
     import System.currentTimeMillis
     (0 to numberOfMsgsToSend).map { _ => 
       val startTimestampMillis = currentTimeMillis
-      sa !? Join(ChannelId.randomId)
+      sa !? Operation("op", ChannelId.randomId, Some("request content"))
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
