@@ -23,3 +23,10 @@ case class Part(channelId: ChannelId) extends Message {
     (nextSession, response)
   } else { (s, None) }
 }
+case class Operation(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
+  override def send(s: Session): (Session, Option[Response]) = {
+    val nextSession = s.next(s.channels)
+    val response = sendRequest(OperationRequest(requestType, channelId, content), s)
+    (nextSession, response)
+  }
+}

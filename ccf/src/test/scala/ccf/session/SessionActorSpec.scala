@@ -48,5 +48,17 @@ object SessionActorSpec extends Specification with Mockito {
       sa !? message must equalTo(Left(Failure(message, "ccf.transport.ConnectionException: Error")))
     }
   }
+  "SessionActor on Operation" should {
+    val session = newSession(1, Set(channelId))
+    val content = Some(Map("a" -> "b", "c" -> Map("d" -> 3)))
+    val requestType = "app/custom"
+    val operationMessage = Operation(requestType, channelId, content)
+    val operationRequest = OperationRequest(requestType, channelId, content)(session)
+    "reply with Success(...) when server returns valid response to request" in {
+      val sa = new SessionActor(connection, clientId, version, session)
+      connection.send(operationRequest) returns Some(Response(operationRequest.headers, content))
+      sa !? operationMessage must equalTo(Right(Success(operationMessage, content)))
+    }
+  }
   private def newSession(seqId: Int, channels: Set[ChannelId]) = Session(connection, version, clientId, seqId, channels)
 }
