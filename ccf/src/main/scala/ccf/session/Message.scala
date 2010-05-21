@@ -25,7 +25,7 @@ case class Part(channelId: ChannelId) extends Message {
 case class InChannelMessage(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
   override def send(s: Session): (Session, Option[Response]) = {
     val nextSession = s.next(s.channels)
-    val response = s.connection.send(InChannelRequest(requestType, channelId, content)(s))
+    val response = s.connection.send(InChannelRequest(s, requestType, channelId, content))
     (nextSession, response)
   }
 }

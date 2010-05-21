@@ -24,6 +24,6 @@ object PartRequest extends SessionControlRequest  {
 }
 
 object InChannelRequest extends AbstractRequest {
-  def apply(requestType: String, channelId: ChannelId, content: Option[Any])(s: Session): Request = 
+  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request = 
     request(s, requestType, channelId, content)
 }
