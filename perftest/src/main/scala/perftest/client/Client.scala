@@ -3,7 +3,7 @@ package perftest.client
 import ccf.transport.http.HttpConnection
 
 import ccf.session.{ChannelId, ClientId, Version}
-import ccf.session.{SessionActor, Join, Operation, Shutdown}
+import ccf.session.{SessionActor, Join, InChannelMessage, Shutdown}
 
 import java.net.URL
 
@@ -36,7 +36,7 @@ object Client {
     import System.currentTimeMillis
     (0 to numberOfMsgsToSend).map { _ => 
       val startTimestampMillis = currentTimeMillis
-      sa !? Operation("op", ChannelId.randomId, Some("request content"))
+      sa !? InChannelMessage("type", ChannelId.randomId, Some("request content"))
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
