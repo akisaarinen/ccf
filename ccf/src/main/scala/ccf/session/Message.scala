@@ -6,27 +6,26 @@ case object Shutdown
 
 trait Message {
   def send(s: Session): (Session, Option[Response])
-  protected def sendRequest(request: Session => Request, session: Session): Option[Response] = session.connection.send(request(session))
 }
 
 case class Join(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = if (!s.channels(channelId)) {
     val nextSession = s.next(s.channels + channelId)
-    val response = sendRequest(JoinRequest(channelId), s)
+    val response = s.connection.send(JoinRequest(channelId)(s))
     (nextSession, response)
   } else { (s, None) }
 }
 case class Part(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = if (s.channels(channelId)) {
     val nextSession = s.next(s.channels - channelId)
-    val response = sendRequest(PartRequest(channelId), s)
+    val response = s.connection.send(PartRequest(channelId)(s))
     (nextSession, response)
   } else { (s, None) }
 }
 case class InChannelMessage(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
   override def send(s: Session): (Session, Option[Response]) = {
     val nextSession = s.next(s.channels)
-    val response = sendRequest(InChannelRequest(requestType, channelId, content), s)
+    val response = s.connection.send(InChannelRequest(requestType, channelId, content)(s))
     (nextSession, response)
   }
 }
