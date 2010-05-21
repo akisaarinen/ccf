@@ -11,7 +11,7 @@ trait Message {
 case class Join(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = if (!s.channels(channelId)) {
     val nextSession = s.next(s.channels + channelId)
-    val response = s.connection.send(JoinRequest(channelId)(s))
+    val response = s.connection.send(JoinRequest(s, channelId))
     (nextSession, response)
   } else { (s, None) }
 }

@@ -12,7 +12,7 @@ object SessionActorSpec extends Specification with Mockito {
   "SessionActor on Join" should {
     val session = newSession(0, Set())
     val joinMessage = Join(channelId)
-    val joinRequest = JoinRequest(channelId)(session)
+    val joinRequest = JoinRequest(session, channelId)
     "reply with Success(...) when server returns valid response request" in {
       val sa = new SessionActor(connection, clientId, version)
       connection.send(joinRequest) returns Some(Response(joinRequest.headers, None))
@@ -44,7 +44,7 @@ object SessionActorSpec extends Specification with Mockito {
     val message = Join(channelId)
     "reply with Failure(...) when message send fails" in {
       val sa = new SessionActor(connection, clientId, version)
-      doThrow(new ConnectionException("Error")).when(connection).send(JoinRequest(channelId)(session))
+      doThrow(new ConnectionException("Error")).when(connection).send(JoinRequest(session, channelId))
       sa !? message must equalTo(Left(Failure(message, "ccf.transport.ConnectionException: Error")))
     }
   }

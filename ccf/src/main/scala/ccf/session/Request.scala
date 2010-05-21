@@ -16,7 +16,7 @@ abstract class SessionControlRequest extends AbstractRequest {
 }
 
 object JoinRequest extends SessionControlRequest {
-  def apply(channelId: ChannelId)(s: Session): Request = request(s, "channel/join", channelId)
+  def apply(s: Session, channelId: ChannelId): Request = request(s, "channel/join", channelId)
 }
 
 object PartRequest extends SessionControlRequest  {
