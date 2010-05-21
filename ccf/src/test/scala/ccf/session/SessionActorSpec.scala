@@ -27,7 +27,7 @@ object SessionActorSpec extends Specification with Mockito {
   "SessionActor on Part" should {
     val session = newSession(1, Set(channelId))
     val partMessage = Part(channelId)
-    val partRequest = PartRequest(channelId)(session)
+    val partRequest = PartRequest(session, channelId)
     "reply with Success(...) when server returns valid response to request" in {
       val sa = new SessionActor(connection, clientId, version, session)
       connection.send(partRequest) returns Some(Response(partRequest.headers, None))

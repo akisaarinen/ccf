@@ -20,7 +20,7 @@ object JoinRequest extends SessionControlRequest {
 }
 
 object PartRequest extends SessionControlRequest  {
-  def apply(channelId: ChannelId)(s: Session): Request = request(s, "channel/part", channelId)
+  def apply(s: Session, channelId: ChannelId): Request = request(s, "channel/part", channelId)
 }
 
 object InChannelRequest extends AbstractRequest {

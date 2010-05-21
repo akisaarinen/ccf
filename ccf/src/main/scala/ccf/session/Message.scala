@@ -18,7 +18,7 @@ case class Join(channelId: ChannelId) extends Message {
 case class Part(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = if (s.channels(channelId)) {
     val nextSession = s.next(s.channels - channelId)
-    val response = s.connection.send(PartRequest(channelId)(s))
+    val response = s.connection.send(PartRequest(s, channelId))
     (nextSession, response)
   } else { (s, None) }
 }
