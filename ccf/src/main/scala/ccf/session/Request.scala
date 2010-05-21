@@ -16,7 +16,7 @@ object PartRequest {
     Some(Map("channelId" -> channelId.toString))
   )
 }
-object OperationRequest {
+object InChannelRequest {
   def apply(requestType: String, channelId: ChannelId, content: Option[Any])(s: Session): Request = Request(
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
         "channelId" -> channelId.toString, "type" -> requestType),

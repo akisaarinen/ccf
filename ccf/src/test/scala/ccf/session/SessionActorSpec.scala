@@ -53,10 +53,10 @@ object SessionActorSpec extends Specification with Mockito {
     val content = Some(Map("a" -> "b", "c" -> Map("d" -> 3)))
     val requestType = "app/custom"
     val operationMessage = Operation(requestType, channelId, content)
-    val operationRequest = OperationRequest(requestType, channelId, content)(session)
+    val inChannelRequest = InChannelRequest(requestType, channelId, content)(session)
     "reply with Success(...) when server returns valid response to request" in {
       val sa = new SessionActor(connection, clientId, version, session)
-      connection.send(operationRequest) returns Some(Response(operationRequest.headers, content))
+      connection.send(inChannelRequest) returns Some(Response(inChannelRequest.headers, content))
       sa !? operationMessage must equalTo(Right(Success(operationMessage, content)))
     }
   }
