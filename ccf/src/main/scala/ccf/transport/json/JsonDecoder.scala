@@ -2,10 +2,10 @@ package ccf.transport.json
 
 import com.twitter.json.{Json, JsonException}
 
-object JsonParser extends Parser {
-  def parseResponse(m: String) = parseMessage[Response](m, toResponse)
-  def parseRequest(m: String) = parseMessage[Request](m, toRequest)
-  private def parseMessage[T](m: String, f: (Map[String, String], Option[Any]) => T) = {
+object JsonDecoder extends Decoder {
+  def decodeResponse(m: String) = decodeMessage[Response](m, toResponse)
+  def decodeRequest(m: String) = decodeMessage[Request](m, toRequest)
+  private def decodeMessage[T](m: String, f: (Map[String, String], Option[Any]) => T) = {
     try { if (m.isEmpty) None else { Some(parse(m, f)) } }
     catch { case e: JsonException => malformedDataException(e.toString) }
   }

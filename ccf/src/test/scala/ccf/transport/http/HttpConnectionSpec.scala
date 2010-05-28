@@ -11,7 +11,7 @@ object HttpConnectionSpec extends Specification with Mockito {
     val url = new URL("http://www.url")
     "cause an InvalidRequestException" in {
       val client = mock[HttpClient]
-      val parser = mock[Parser]
+      val parser = mock[Decoder]
       val formatter = mock[Formatter]
       val conn = new HttpConnection(url, client, parser, formatter) 
       conn.send(new Request(Map[String, String](), None)) must throwA[InvalidRequestException]
@@ -28,7 +28,7 @@ object HttpConnectionSpec extends Specification with Mockito {
       formatter.formatRequest(request) returns requestData
       val client = mock[HttpClient]
       client.post(new URL(url, spec), requestData) throws new IOException
-      val conn = new HttpConnection(url, client, mock[Parser], formatter)
+      val conn = new HttpConnection(url, client, mock[Decoder], formatter)
       conn.send(request) must throwA[ConnectionException]
     }
   }
