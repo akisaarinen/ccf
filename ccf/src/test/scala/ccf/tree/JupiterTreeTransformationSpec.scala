@@ -199,5 +199,7 @@ object JupiterTreeTransformationSpec extends Specification {
     asPrimary
   }
 
-  private case class Node(name: String) extends TreeNode
+  private case class Node(name: String) extends TreeNode {
+    def encode: Any = error("not implemented")
+  }
 }

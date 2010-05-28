@@ -1,3 +1,5 @@
 package ccf.tree
 
-trait TreeNode
+trait TreeNode {
+  def encode: Any
+}
