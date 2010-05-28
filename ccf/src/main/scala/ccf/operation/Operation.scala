@@ -1,4 +1,5 @@
 package ccf.operation
 
-trait Operation
-
+trait Operation {
+  def encode: Any
+}

@@ -5,7 +5,10 @@ import ccf.operation.Operation
 import org.specs.Specification
 import org.specs.mock.Mockito
 
-case class TestOperation() extends Operation()
+case class TestOperation() extends Operation() {
+  def encode: Any = error("not implemented")
+}
+
 case class TestNoOperation() extends TestOperation()
 case class AnotherOperation() extends TestOperation()
 
