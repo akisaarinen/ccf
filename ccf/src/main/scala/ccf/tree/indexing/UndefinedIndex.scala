@@ -6,4 +6,5 @@ case class UndefinedIndex() extends Indexable {
   def ==(other: Indexable) = false
   def isAffectedBy(other: Indexable) = false
   def isDescendantOf(other: Indexable) = false
+  def encode: Any = "undefined"
 }

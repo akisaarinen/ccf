@@ -53,4 +53,6 @@ case class TreeIndex(val indexPath: Int*) extends Indexable {
   def indexInLevel = if (level == 0) 0 else indexPath.last
   def increment(count: Int) = parent.append(indexInLevel + count)
   def decrement(count: Int) = parent.append(indexInLevel - count)
+
+  def encode: Map[String, Any] = Map("index" -> indexPath)
 }

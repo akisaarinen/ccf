@@ -14,4 +14,6 @@ trait Indexable {
   def <=(other: Indexable) = (this < other || this == other)
   def >(other: Indexable) = !(this <= other)
   def >=(other: Indexable) = (this > other || this == other)
+
+  def encode: Any
 }
