@@ -8,14 +8,14 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import ccf.transport.Response
-import ccf.transport.json.JsonFormatter
+import ccf.transport.json.JsonEncoder
 
 import java.net.URL
 
 class HttpRequestHandler extends AbstractHandler {
   override def handle(target: String, req: Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) { 
     val response = Response(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
-    val body = JsonFormatter.formatResponse(response)
+    val body = JsonEncoder.encodeResponse(response)
     httpResp.setContentType("application/json")
     httpResp.setStatus(HttpServletResponse.SC_OK);
     httpResp.setContentLength(body.length)
