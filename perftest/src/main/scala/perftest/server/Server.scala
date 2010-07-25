@@ -1,9 +1,7 @@
 package perftest.server
 
-import java.net.InetSocketAddress
-
 import org.eclipse.jetty.server.handler.AbstractHandler
-import org.eclipse.jetty.server.{Server => Jetty7Server, Request, Handler, Connector}
+import org.eclipse.jetty.server.{Server => Jetty7Server, Request, Connector}
 import org.eclipse.jetty.server.nio.SelectChannelConnector
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
