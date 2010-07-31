@@ -6,7 +6,7 @@ case object Shutdown
 
 trait Message {
   def send(s: Session): (Session, Option[Response])
-  protected def send(s: Session, request: Request, channels: Set[ChannelId]) = {
+  protected def send(s: Session, request: Request, channels: Set[ChannelId]): (Session, Option[Response]) = {
     val nextSession = s.next(channels)
     val response = s.connection.send(request)
     (nextSession, response)
