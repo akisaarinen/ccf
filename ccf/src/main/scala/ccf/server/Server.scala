@@ -3,14 +3,11 @@ package ccf.server
 import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage, Message}
 import ccf.operation.Operation
 import ccf.transport.{TransportActor, ClientId, ChannelId, Event}
-import ccf.tree.JupiterTreeTransformation
-import ccf.tree.indexing.TreeIndex
-import ccf.tree.operation._
-
 import java.io.{StringWriter, PrintWriter}
 import scala.actors.Actor
 import scala.actors.Actor._
 import collection.mutable.HashMap
+import ccf.OperationSynchronizerFactory
 
 trait ServerOperationInterceptor[T <: Operation] {
   def currentStateFor(channelId: ChannelId): Any
