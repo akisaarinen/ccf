@@ -9,6 +9,10 @@ import java.util.logging.Level
 import ccf.OperationContext
 import ccf.operation.Operation
 import ccf.session._
+import ccf.tree.indexing.TreeIndex
+import ccf.tree.TreeNode
+import perftest.PerfTestTreeNode
+import ccf.tree.operation._
 
 object Statistics {
   import Math._
@@ -35,11 +39,21 @@ object Client {
   }
   private def roundTripTimes(sa: SessionActor): List[Double] = {
     import System.currentTimeMillis
-    (0 to numberOfMsgsToSend).map { _ =>
+    (0 to numberOfMsgsToSend).map { index =>
       val startTimestampMillis = currentTimeMillis
-      sa !? InChannelMessage("type", channelId, Some("request content"))
+      val context = new OperationContext[TreeOperation](createOperation(index), index, 0)
+      sa !? OperationContextMessage(channelId, context)
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
+  }
+  private def createOperation(i: Int): TreeOperation = {
+    (i % 5) match {
+      case 0 => NoOperation()
+      case 1 => InsertOperation(TreeIndex(1,2,3), new PerfTestTreeNode("foo"))
+      case 2 => DeleteOperation(TreeIndex(3,2,1))
+      case 3 => MoveOperation(TreeIndex(3), TreeIndex(4))
+      case 4 => UpdateAttributeOperation(TreeIndex(8), "someAttr", new NopModifier)
+    }
   }
   private def report(xs: List[Double]) {
     import Statistics._

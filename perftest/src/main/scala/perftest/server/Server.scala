@@ -6,23 +6,35 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import ccf.transport.Response
-import ccf.transport.json.JsonEncoder
-
 import java.net.URL
 import ccf.transport.json.{JsonDecoder, JsonEncoder}
 import java.io.StringWriter
 import ccf.session.AbstractRequest
+import ccf.OperationContext
+import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
 
 class HttpRequestHandler extends AbstractHandler {
   override def handle(target: String, req: Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
     var requestBody = readRequestBody(req)
     val request = JsonDecoder.decodeRequest(requestBody)
+    val operationDecoder = new TreeOperationDecoder {
+      protected def parseModifier(encodedValue: Any) = null
+      protected def parseNode(encodedValue: Any) = null
+    }
+
     request match {
       case Some(r: ccf.transport.Request) => {
         r.header("type") match {
-          case Some(AbstractRequest.joinRequestType) => 
+          case Some(AbstractRequest.joinRequestType) =>
           case Some(AbstractRequest.partRequestType) =>
-          case Some("type") => writeTestResponse(httpResp)
+          case Some(AbstractRequest.contextRequestType) => {
+            val encodedContext = r.content.get.asInstanceOf[Map[String, Any]]
+            val op = operationDecoder.decode(encodedContext("op"))
+            val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
+            val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
+            val context = new OperationContext[TreeOperation](op, localMsgSeqNo, remoteMsgSeqNo)
+            println("Decoded context: " + context)
+          }
           case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
           case None => error("No request type given")
         }
