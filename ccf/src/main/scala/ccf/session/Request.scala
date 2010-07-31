@@ -11,19 +11,24 @@ abstract class AbstractRequest {
 }
 
 abstract class SessionControlRequest extends AbstractRequest {
-  protected def request(s: Session, requestType: String, channelId: ChannelId): Request = request(s, requestType, channelId, content(channelId))
+  protected def request(s: Session, channelId: ChannelId): Request = request(s, requestType, channelId, content(channelId))
   private def content(channelId: ChannelId) = Some(Map("channelId" -> channelId.toString))
+  val requestType: String
 }
 
 object JoinRequest extends SessionControlRequest {
-  def apply(s: Session, channelId: ChannelId): Request = request(s, "channel/join", channelId)
+  def apply(s: Session, channelId: ChannelId): Request = request(s, channelId)
+  val requestType = "channel/join"
 }
 
 object PartRequest extends SessionControlRequest  {
-  def apply(s: Session, channelId: ChannelId): Request = request(s, "channel/part", channelId)
+  def apply(s: Session, channelId: ChannelId): Request = request(s, channelId)
+  val requestType = "channel/part"
 }
 
 object InChannelRequest extends AbstractRequest {
-  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request = 
+  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request =
     request(s, requestType, channelId, content)
 }
+
+
