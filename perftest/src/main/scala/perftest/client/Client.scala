@@ -23,11 +23,12 @@ object Statistics {
 object Client {
   private val numberOfMsgsToSend = 10000
   private val clientId = ClientId.randomId
+  private val channelId = ChannelId.randomId
   private val version = Version(1, 2)
   def run(url: URL) = {
     val conn = HttpConnection.create(url)
     val sa = new SessionActor(conn, clientId, version)
-    sa ! Join(ChannelId.randomId)
+    sa ! Join(channelId)
     Logger.get("dispatch").setLevel(Level.OFF)
     report(roundTripTimes(sa))
     sa ! Shutdown
@@ -36,7 +37,7 @@ object Client {
     import System.currentTimeMillis
     (0 to numberOfMsgsToSend).map { _ => 
       val startTimestampMillis = currentTimeMillis
-      sa !? InChannelMessage("type", ChannelId.randomId, Some("request content"))
+      sa !? InChannelMessage("type", channelId, Some("request content"))
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
