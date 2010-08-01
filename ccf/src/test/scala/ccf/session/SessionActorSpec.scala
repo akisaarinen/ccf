@@ -13,32 +13,45 @@ object SessionActorSpec extends Specification with Mockito {
     val session = newSession(0, Set())
     val joinMessage = Join(channelId)
     val joinRequest = JoinRequest(session, channelId)
+    val sa = new SessionActor(connection, clientId, version)
     "reply with Success(...) when server returns valid response request" in {
-      val sa = new SessionActor(connection, clientId, version)
       connection.send(joinRequest) returns Some(Response(joinRequest.headers, None))
       sa !? joinMessage must equalTo(Right(Success(joinMessage, None)))
     }
     "reply with Success(...) when server returns no response to request" in {
-      val sa = new SessionActor(connection, clientId, version)
       connection.send(joinRequest) returns None
       sa !? joinMessage must equalTo(Right(Success(joinMessage, None)))
     }
+    "update list of channels in session" in {
+      connection.send(joinRequest) returns None
+      sa !? joinMessage
+      val currentSession = (sa !? Shutdown).asInstanceOf[Session]
+      currentSession.seqId must equalTo(1)
+      currentSession.channels must contain(channelId)
+    }
   }
+
   "SessionActor on Part" should {
     val session = newSession(1, Set(channelId))
     val partMessage = Part(channelId)
     val partRequest = PartRequest(session, channelId)
+    val sa = new SessionActor(connection, clientId, version, session)
     "reply with Success(...) when server returns valid response to request" in {
-      val sa = new SessionActor(connection, clientId, version, session)
       connection.send(partRequest) returns Some(Response(partRequest.headers, None))
       sa !? partMessage must equalTo(Right(Success(partMessage, None)))
     }
     "reply with Success(...) when server returns no response to request" in {
-      val sa = new SessionActor(connection, clientId, version)
       connection.send(partRequest) returns None
       sa !? partMessage must equalTo(Right(Success(partMessage, None)))
     }
+    "update list of channels in session" in {
+      connection.send(partRequest) returns None
+      sa !? partMessage
+      val currentSession = (sa !? Shutdown).asInstanceOf[Session]
+      currentSession.channels must notContain(channelId)
+    }
   }
+  
   "SessionActor on connection failure" should {
     val session = newSession(0, Set())
     val message = Join(channelId)
@@ -60,5 +73,6 @@ object SessionActorSpec extends Specification with Mockito {
       sa !? inChannelMessage must equalTo(Right(Success(inChannelMessage, content)))
     }
   }
+
   private def newSession(seqId: Int, channels: Set[ChannelId]) = Session(connection, version, clientId, seqId, channels)
 }

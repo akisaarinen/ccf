@@ -14,7 +14,10 @@ class SessionActor(connection: Connection, clientId: ClientId, version: Version,
       val nextSession = handleMessage(s, msg)
       loop(nextSession)
     }
-    case Shutdown => exit
+    case Shutdown => {
+      sender ! s
+      exit
+    }
   }}
   private def handleMessage(session: Session, msg: Message): Session = session.send(msg) match {
     case (nextSession: Session, result: Either[Failure, Success]) => {
