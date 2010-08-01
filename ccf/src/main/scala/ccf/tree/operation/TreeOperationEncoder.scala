@@ -17,3 +17,5 @@ class TreeOperationEncoder extends OperationEncoder[TreeOperation] {
     case _ => error("Unable to encode given operation " + op.toString)
   }
 }
+
+object TreeOperationEncoder extends TreeOperationEncoder
