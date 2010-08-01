@@ -42,7 +42,7 @@ class InChannelRequest extends AbstractRequest {
 
 class OperationContextRequest[T <: Operation] extends InChannelRequest {
   def create(s: Session, channelId: ChannelId, context: OperationContext[T]): Request =
-    request(s, requestType, channelId, Some(context))
+    request(s, requestType, channelId, Some(context.encode))
   protected val requestType = AbstractRequest.contextRequestType
 }
 
