@@ -1,6 +1,6 @@
 import sbt.{Project => SbtProject, _}
   
-abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) {
+abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) with IdeaProject {
   def transitiveDepJars = (jars +++ Path.lazyPathFinder { dependencies.flatMap(jars(_)) }).distinct
   private def jars: PathFinder = mainDependencies.scalaJars +++ projectJar +++ managedDepJars +++ unmanagedDepJars
   private def jars(p: SbtProject): Seq[Path] = p match { case cp: AbstractProject => cp.jars.get.toList; case _ => Nil }
@@ -9,7 +9,7 @@ abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) {
   private def unmanagedDepJars = descendents(info.projectPath / "lib" ##, "*.jar")
 }
 
-class Project(info: ProjectInfo) extends ParentProject(info) { rootProject =>
+class Project(info: ProjectInfo) extends ParentProject(info) with IdeaProject { rootProject =>
   lazy val lib = project("ccf", "ccf", new CcfLibraryProject(_))
   lazy val app = project("app", "app", new TextAppProject(_), lib)
   lazy val perftest = project("perftest", "perftest", new PerftestProject(_), lib)
