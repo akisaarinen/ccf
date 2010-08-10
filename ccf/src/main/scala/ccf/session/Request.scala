@@ -1,6 +1,8 @@
 package ccf.session
 
 import ccf.transport.Request
+import ccf.OperationContext
+import ccf.operation.Operation
 
 abstract class AbstractRequest {
   protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request = Request(
@@ -10,25 +12,38 @@ abstract class AbstractRequest {
   )
 }
 
+object AbstractRequest {
+  val joinRequestType = "channel/join"
+  val partRequestType = "channel/part"
+  val contextRequestType = "channel/context"
+}
+
 abstract class SessionControlRequest extends AbstractRequest {
   protected def request(s: Session, channelId: ChannelId): Request = request(s, requestType, channelId, content(channelId))
   private def content(channelId: ChannelId) = Some(Map("channelId" -> channelId.toString))
-  val requestType: String
+  protected val requestType: String
 }
 
-object JoinRequest extends SessionControlRequest {
-  def apply(s: Session, channelId: ChannelId): Request = request(s, channelId)
-  val requestType = "channel/join"
+class JoinRequest extends SessionControlRequest {
+  def create(s: Session, channelId: ChannelId): Request = request(s, channelId)
+  protected val requestType = AbstractRequest.joinRequestType
 }
 
-object PartRequest extends SessionControlRequest  {
-  def apply(s: Session, channelId: ChannelId): Request = request(s, channelId)
-  val requestType = "channel/part"
+class PartRequest extends SessionControlRequest  {
+  def create
+  (s: Session, channelId: ChannelId): Request = request(s, channelId)
+  protected val requestType = AbstractRequest.partRequestType
 }
 
-object InChannelRequest extends AbstractRequest {
-  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request =
+class InChannelRequest extends AbstractRequest {
+  def create(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request =
     request(s, requestType, channelId, content)
+}
+
+class OperationContextRequest[T <: Operation] extends InChannelRequest {
+  def create(s: Session, channelId: ChannelId, context: OperationContext[T]): Request =
+    request(s, requestType, channelId, Some(context))
+  protected val requestType = AbstractRequest.contextRequestType
 }
 
 
