@@ -2,13 +2,13 @@ package perftest.client
 
 import ccf.transport.http.HttpConnection
 
-import ccf.session.{ChannelId, ClientId, Version}
-import ccf.session.{SessionActor, Join, InChannelMessage, Shutdown}
-
 import java.net.URL
 
 import net.lag.logging.Logger
 import java.util.logging.Level
+import ccf.OperationContext
+import ccf.operation.Operation
+import ccf.session._
 
 object Statistics {
   import Math._
@@ -35,7 +35,7 @@ object Client {
   }
   private def roundTripTimes(sa: SessionActor): List[Double] = {
     import System.currentTimeMillis
-    (0 to numberOfMsgsToSend).map { _ => 
+    (0 to numberOfMsgsToSend).map { _ =>
       val startTimestampMillis = currentTimeMillis
       sa !? InChannelMessage("type", channelId, Some("request content"))
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]

@@ -9,16 +9,45 @@ import ccf.transport.Response
 import ccf.transport.json.JsonEncoder
 
 import java.net.URL
+import ccf.transport.json.{JsonDecoder, JsonEncoder}
+import java.io.StringWriter
+import ccf.session.AbstractRequest
 
 class HttpRequestHandler extends AbstractHandler {
-  override def handle(target: String, req: Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) { 
+  override def handle(target: String, req: Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
+    var requestBody = readRequestBody(req)
+    val request = JsonDecoder.decodeRequest(requestBody)
+    request match {
+      case Some(r: ccf.transport.Request) => {
+        r.header("type") match {
+          case Some(AbstractRequest.joinRequestType) => 
+          case Some(AbstractRequest.partRequestType) =>
+          case Some("type") => writeTestResponse(httpResp)
+          case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
+          case None => error("No request type given")
+        }
+      }
+      case None => error("Unable to decode request")
+    }
+    (httpReq.asInstanceOf[Request]).setHandled(true)
+  }
+  private def readRequestBody(request: HttpServletRequest): String = {
+    val reader = request.getReader
+    val buf = new Array[Char](4096)
+    val writer = new StringWriter
+    var len = 0
+    while ({ len = reader.read(buf, 0, buf.length); len != -1}) {
+      writer.write(buf, 0, len)
+    }
+    writer.toString
+  }
+  private def writeTestResponse(httpResp: HttpServletResponse) {
     val response = Response(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
     val body = JsonEncoder.encodeResponse(response)
     httpResp.setContentType("application/json")
     httpResp.setStatus(HttpServletResponse.SC_OK);
     httpResp.setContentLength(body.length)
     httpResp.getWriter.write(body)
-    (httpReq.asInstanceOf[Request]).setHandled(true);
   }
 }
 
