@@ -1,5 +1,7 @@
 package ccf.transport.json
 
+import ccf.transport.Encoder
+import ccf.transport.{Request, Response}
 import com.twitter.json.Json
 
 object JsonEncoder extends Encoder {

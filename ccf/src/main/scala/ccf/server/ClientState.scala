@@ -4,6 +4,7 @@ import ccf.operation.Operation
 import ccf.transport.{ClientId, ChannelId}
 import ccf.messaging.ConcurrentOperationMessage
 import collection.mutable.ArrayBuffer
+import ccf.OperationSynchronizer
 
 class ClientState[T <: Operation](val channel: ChannelId, synchronizer: OperationSynchronizer[T]) {
   def receive(msg: ConcurrentOperationMessage[T]): T = {

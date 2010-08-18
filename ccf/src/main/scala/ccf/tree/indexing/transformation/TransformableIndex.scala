@@ -1,5 +1,7 @@
 package ccf.tree.indexing.transformation
 
+import ccf.tree.indexing.Indexable
+
 abstract sealed case class TransformableIndex(val index: Indexable)
 
 case class SourceIndex(val source: Indexable) extends TransformableIndex(source) {

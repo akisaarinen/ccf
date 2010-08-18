@@ -2,6 +2,9 @@ package ccf.transport.json
 
 import org.specs.Specification
 
+import ccf.transport.MalformedDataException
+import ccf.transport.{Request, Response}
+
 object JsonDecoderSpec extends Specification {
   "Empty string" should {
     "parse to None" in {

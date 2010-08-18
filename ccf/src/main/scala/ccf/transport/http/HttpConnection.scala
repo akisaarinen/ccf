@@ -3,7 +3,11 @@ package ccf.transport.http
 import java.io.IOException
 import java.net.URL
 
+import ccf.transport.Connection
 import ccf.transport.json.{JsonEncoder, JsonDecoder}
+import ccf.transport.{ConnectionException, InvalidRequestException}
+import ccf.transport.{Encoder, Decoder}
+import ccf.transport.{Request, Response}
 
 object HttpConnection {
   private val timeoutMillis = 1000

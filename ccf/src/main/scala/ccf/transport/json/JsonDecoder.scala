@@ -1,5 +1,8 @@
 package ccf.transport.json
 
+import ccf.transport.Decoder
+import ccf.transport.MalformedDataException
+import ccf.transport.{Request, Response}
 import com.twitter.json.{Json, JsonException}
 
 object JsonDecoder extends Decoder {

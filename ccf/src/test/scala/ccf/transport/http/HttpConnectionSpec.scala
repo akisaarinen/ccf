@@ -6,6 +6,10 @@ import org.specs.mock.Mockito
 import java.io.IOException
 import java.net.URL
 
+import ccf.transport.Request
+import ccf.transport.{ConnectionException, InvalidRequestException}
+import ccf.transport.{Encoder, Decoder}
+
 object HttpConnectionSpec extends Specification with Mockito {
   "Invalid request" should {
     val url = new URL("http://www.url")

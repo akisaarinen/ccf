@@ -4,6 +4,8 @@ import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
 import ccf.transport.{ClientId, ChannelId, Event}
 import ccf.operation.Operation
 import ccf.transport.TransportActor
+import ccf.OperationSynchronizer
+import ccf.OperationSynchronizerFactory
 
 import org.specs.Specification
 import org.specs.mock.Mockito
