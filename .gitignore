@@ -7,3 +7,8 @@ app/target
 app/lib_managed
 perftest/target
 perftest/lib_managed
+project/plugins/lib_managed/
+project/plugins/project/
+project/plugins/src_managed/
+project/plugins/target/
+target/
