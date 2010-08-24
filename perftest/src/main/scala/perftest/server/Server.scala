@@ -33,7 +33,6 @@ class HttpRequestHandler extends AbstractHandler {
             val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
             val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
             val context = new OperationContext[TreeOperation](op, localMsgSeqNo, remoteMsgSeqNo)
-            println("Decoded context: " + context)
           }
           case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
           case None => error("No request type given")
