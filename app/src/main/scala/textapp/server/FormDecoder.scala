@@ -10,8 +10,8 @@ class FormDecoder(inputStream: InputStream) {
   private val paramArray = sourceAsString.split("&").filter(_ != "").map(_.split("=")).map { kvPair =>
     if (kvPair.size != 2) throw new RuntimeException("Invalid key-value pair in '%s'".format(kvPair.mkString("=")))
     val (encodedKey, encodedValue) = (kvPair(0), kvPair(1))
-    val key = URLDecoder.decode(encodedKey)
-    val value = URLDecoder.decode(encodedValue)
+    val key = URLDecoder.decode(encodedKey, "UTF-8")
+    val value = URLDecoder.decode(encodedValue, "UTF-8")
     (key, value)
   }
   val params = Map(paramArray: _*)
