@@ -18,7 +18,7 @@ class CommandLineArgumentProcessor(args: Array[String]) {
       if (arg == longFormat || arg == shortFormat) Some("")
       else None
     }.toList
-    (paramsWithValues ::: paramsWithoutValues).firstOption
+    (paramsWithValues ::: paramsWithoutValues).headOption
   }
 
   private def argPairs = args.zip(args.drop(1))
