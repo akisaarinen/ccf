@@ -12,3 +12,9 @@ project/plugins/project/
 project/plugins/src_managed/
 project/plugins/target/
 target/
+*.iml
+*.ipr
+*.iws
+**/*.iml
+**/*.ipr
+**/*.iws
