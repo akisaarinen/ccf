@@ -26,7 +26,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   def act = loop { react {
     case Event.Join(clientId, channelId) => clients.get(clientId) match {
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Already joined to another channel"))
-      case Some(state) if (state.channel == channelId) => println("already joined to this channel"); reply(getCurrentState(clientId, channelId))
+      case Some(state) => println("already joined to this channel"); reply(getCurrentState(clientId, channelId))
       case None => reply(onJoin(clientId, channelId))
     }
     case Event.Quit(clientId, channelId) => clients.get(clientId) match {
