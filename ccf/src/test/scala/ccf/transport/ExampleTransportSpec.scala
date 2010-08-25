@@ -18,7 +18,7 @@ object ExampleTransportSpec extends Specification with Mockito {
     "initialize" in {
       val server = mock[Server[Operation]]
       t.initialize(server)
-      listener.onInitialize(server) was called
+      there was one(listener).onInitialize(server)
     }
 
     "join" in {
@@ -28,18 +28,18 @@ object ExampleTransportSpec extends Specification with Mockito {
 
     "quit" in {
       t !? Event.Quit(clientId, channelId) must equalTo(Event.Ok())
-      listener.onQuit(clientId, channelId) was called
+      there was one(listener).onQuit(clientId, channelId)
     }
 
     "request sync" in {
       t !? Event.Sync(clientId, channelId) must equalTo(Event.Ok())
-      listener.onSync(clientId, channelId) was called
+      there was one(listener).onSync(clientId, channelId)
     }
 
     "pass a message" in {
       val msg = mock[Message[Operation]]
       t !? Event.Msg(clientId, channelId, msg) must equalTo(Event.Ok())
-      listener.onMsg(clientId, channelId, msg) was called
+      there was one(listener).onMsg(clientId, channelId, msg)
     }
 
     "return Event.Error() on unknown message" in {
@@ -47,4 +47,4 @@ object ExampleTransportSpec extends Specification with Mockito {
       t !? UnknownMsg() must haveClass[Event.Error]
     }
   }
-}
+}

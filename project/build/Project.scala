@@ -22,8 +22,8 @@ class Project(info: ProjectInfo) extends ParentProject(info) with IdeaProject { 
     val databinder_net = "databinder.net repository" at "http://databinder.net/repo"
     val dispatchHttp = "net.databinder" %% "dispatch-http" % "0.7.4"
     val httpclient = "org.apache.httpcomponents" % "httpclient" % "4.0.1"
-    val specs = "org.scala-tools.testing" % "specs" % "1.6.1-2.8.0.Beta1-RC6" % testScopeDependency
-    val mockito = "org.mockito" % "mockito-core" % "1.8.0" % testScopeDependency
+    val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % testScopeDependency
+    val mockito = "org.mockito" % "mockito-core" % "1.8.4" % testScopeDependency
     val scalacheck = "org.scala-tools.testing" % "scalacheck" % "1.5" % testScopeDependency
   }
 

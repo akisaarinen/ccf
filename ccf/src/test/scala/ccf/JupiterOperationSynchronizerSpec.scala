@@ -12,7 +12,7 @@ case class TestOperation() extends Operation() {
 case class TestNoOperation() extends TestOperation()
 case class AnotherOperation() extends TestOperation()
 
-object JupiterOperationSynchronizerSpec extends Specification with Mockito {
+class JupiterOperationSynchronizerSpec extends Specification with Mockito {
   val transformer = mock[JupiterTransformer[TestOperation]]
   transformer.createNoOp returns TestNoOperation()
   val synchronizer = new JupiterOperationSynchronizer(true, transformer)

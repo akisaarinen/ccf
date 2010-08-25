@@ -4,7 +4,7 @@ import ccf.transport.{Connection, Response, ConnectionException}
 import org.specs.Specification
 import org.specs.mock.Mockito
 
-object SessionActorSpec extends Specification with Mockito {
+class SessionActorSpec extends Specification with Mockito {
   val connection = mock[Connection]
   val clientId = ClientId.randomId
   val version = Version(1, 2)

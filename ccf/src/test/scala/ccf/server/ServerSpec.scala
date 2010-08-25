@@ -11,8 +11,8 @@ import org.specs.Specification
 import org.specs.mock.Mockito
 import org.mockito.Matchers._
 
-object ServerSpec extends Specification with Mockito {
-  val synchronizer = mock[OperationSynchronizer[Operation]] 
+class ServerSpec extends Specification with Mockito {
+  val synchronizer = mock[OperationSynchronizer[Operation]]
   val transport = mock[TransportActor]
   val factory = mock[OperationSynchronizerFactory[Operation]]
   factory.createSynchronizer returns synchronizer
@@ -23,7 +23,7 @@ object ServerSpec extends Specification with Mockito {
 
   "Server with no clients" should {
     "initialize transport" in {
-      transport.initialize(server) was called
+      there was one(transport).initialize(server)
     }
 
     "accept a client and return current state" in {
@@ -99,9 +99,9 @@ object ServerSpec extends Specification with Mockito {
 
     "propagate messages from a client to others in same channel" in {
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport !! Event.Msg(client2, channel, msg) was called
-      transport.initialize(server) was called
-      transport had noMoreCalls
+      there was one(transport) !! Event.Msg(client2, channel, msg)
+      there was one(transport).initialize(server)
+      there was no(transport)
     }
 
     "not accept message if client has not joined the channel" in {
@@ -114,10 +114,10 @@ object ServerSpec extends Specification with Mockito {
       synchronizer.receiveRemoteOperation(creationMsg) returns creationOp
       synchronizer.createLocalOperation(creationOp) returns creationMsg
       interceptor.operationsForCreatingClient(client1, channel, op) returns List(creationOp, creationOp)
-      
+
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport !! Event.Msg(client1, channel, creationMsg) was called.twice
-      interceptor.applyOperation(server, client1, channel, op) was called
+      there was two(transport) !! Event.Msg(client1, channel, creationMsg)
+      there was one(interceptor).applyOperation(server, client1, channel, op)
     }
 
     "propagate operations for all clients" in {
@@ -126,12 +126,12 @@ object ServerSpec extends Specification with Mockito {
       synchronizer.receiveRemoteOperation(forAllMsg) returns forAllOp
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
       interceptor.operationsForAllClients(client1, channel, op) returns List(forAllOp, forAllOp)
-      
+
       server !? Event.Msg(client1, channel, msg) must equalTo(Event.Ok())
-      transport !! Event.Msg(client1, channel, forAllMsg) was called.twice
-      transport !! Event.Msg(client2, channel, forAllMsg) was called.twice
-      interceptor.applyOperation(server, client1, channel, op) was called
-      interceptor.applyOperation(server, client1, channel, forAllOp) was called.twice
+      there was two(transport) !! Event.Msg(client1, channel, forAllMsg)
+      there was two(transport) !! Event.Msg(client2, channel, forAllMsg)
+      there was one(interceptor).applyOperation(server, client1, channel, op)
+      there was two(interceptor).applyOperation(server, client1, channel, forAllOp)
     }
 
     "return error if interceptor throws an exception on operation applying" in {
@@ -163,9 +163,9 @@ object ServerSpec extends Specification with Mockito {
 
     "inform all clients in channel when channel has been shutdown" in {
       server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())
-      transport !! Event.Msg(client1, channel, ChannelShutdown("any reason")) was called
-      transport !! Event.Msg(client2, channel, ChannelShutdown("any reason")) was called
-      transport !! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason")) wasnt called
+      there was one(transport) !! Event.Msg(client1, channel, ChannelShutdown("any reason"))
+      there was one(transport) !! Event.Msg(client2, channel, ChannelShutdown("any reason"))
+      there was no(transport) !! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason"))
     }
   }
-}
+}

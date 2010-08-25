@@ -30,7 +30,7 @@ object SessionSpec extends Specification with Mockito {
       result must equalTo(Right(Success(joinMessage, None)))
       nextSession.seqId must equalTo(1)
       nextSession.channels must equalTo(Set(existingChannelId, newChannelId))
-      connection.send(joinRequest) was called
+      there was one(connection).send(joinRequest)
     }
     "send Part message, sending correct Request and producing correct Session" in {
       val partRequest = new PartRequest().create(session, existingChannelId)
@@ -41,7 +41,7 @@ object SessionSpec extends Specification with Mockito {
       result must equalTo(Right(Success(partMessage, None)))
       nextSession.seqId must equalTo(1)
       nextSession.channels must equalTo(Set())
-      connection.send(partRequest) was called
+      there was one(connection).send(partRequest)
     }
     "report failure and keep current session state, if transport layer fails with ConnectException" in {
       val request = new JoinRequest().create(session, newChannelId)
