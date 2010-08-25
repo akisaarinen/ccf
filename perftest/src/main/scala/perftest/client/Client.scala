@@ -15,7 +15,7 @@ import perftest.PerfTestTreeNode
 import ccf.tree.operation._
 
 object Statistics {
-  import Math._
+  import scala.math._
   def mean(xs: List[Double]) = xs.reduceLeft(_ + _) / xs.length
   def min(xs: List[Double]) = xs.reduceLeft(_ min _)
   def max(xs: List[Double]) = xs.reduceLeft(_ max _)
