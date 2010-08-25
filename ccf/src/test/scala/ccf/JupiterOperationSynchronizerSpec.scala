@@ -5,12 +5,12 @@ import ccf.operation.Operation
 import org.specs.Specification
 import org.specs.mock.Mockito
 
-case class TestOperation() extends Operation() {
+class TestOperation extends Operation {
   def encode: Any = error("not implemented")
 }
 
-case class TestNoOperation() extends TestOperation()
-case class AnotherOperation() extends TestOperation()
+case class TestNoOperation() extends TestOperation
+case class AnotherOperation() extends TestOperation
 
 class JupiterOperationSynchronizerSpec extends Specification with Mockito {
   val transformer = mock[JupiterTransformer[TestOperation]]

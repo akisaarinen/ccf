@@ -4,7 +4,7 @@ import ccf.tree.indexing.{Indexable, UndefinedIndex}
 import ccf.operation.Operation
 import ccf.tree.TreeNode
 
-abstract sealed case class TreeOperation(val index: Indexable) extends Operation {
+abstract sealed class TreeOperation(val index: Indexable) extends Operation {
   def encode = TreeOperationEncoder.encode(this)
 }
 
