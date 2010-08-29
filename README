@@ -1,6 +1,26 @@
 Concurrency Control Framework (CCF)
 ===================================
 
+What is CCF?
+------------
+
+CCF is a library to make implementing collaborative software easier. It
+provides mechanisms for real-time synchronization of data structures between
+clients over the Internet. CCF is implemented in the Scala programming language.
+
+Authors and licensing
+---------------------
+
+Origins of CCF lie in the Master's thesis of Aki Saarinen [1].  Later on there
+has been also many other contributors, names of which can be found in the
+version history. Most notable include Karim Osman and Harri Salokorpi.
+
+CCF is licensed under the Apache License version 2.0.
+
+[1] "Concurrency Control in Group Editors: Case Study in a Product Backlog Tool"
+    Aki Saarinen, 2009, Helsinki University of Technology
+    Available from http://www.akisaarinen.fi
+
 Messaging in CCF
 ----------------
 
