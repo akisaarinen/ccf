@@ -22,7 +22,7 @@ import ccf.tree.indexing.TreeIndex
 import ccf.JupiterTransformer
 
 object JupiterTreeTransformationSpec extends Specification {
-  val t : JupiterTransformer[TreeOperation] = JupiterTreeTransformation
+  val t : JupiterTransformer = JupiterTreeTransformation
   "JupiterTreeTransformation" should {
     "create no-op" in {
       t.createNoOp must equalTo(NoOperation())

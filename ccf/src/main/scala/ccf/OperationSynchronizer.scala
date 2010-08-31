@@ -16,11 +16,11 @@
 
 package ccf
 
-import ccf.operation.Operation
 import ccf.messaging.ConcurrentOperationMessage
+import tree.operation.TreeOperation
 
-trait OperationSynchronizer[T <: Operation] {
+trait OperationSynchronizer {
   def resetToInitialState: Unit
-  def createLocalOperation(operation: T): ConcurrentOperationMessage[T]
-  def receiveRemoteOperation(message: ConcurrentOperationMessage[T]): T
+  def createLocalOperation(operation: TreeOperation): ConcurrentOperationMessage
+  def receiveRemoteOperation(message: ConcurrentOperationMessage): TreeOperation
 }

@@ -16,8 +16,6 @@
 
 package ccf
 
-import ccf.operation.Operation
-
-class JupiterOperationSynchronizerFactory[T <: Operation](isPrimary: Boolean, transformer: JupiterTransformer[T]) extends OperationSynchronizerFactory[T] {
+class JupiterOperationSynchronizerFactory(isPrimary: Boolean, transformer: JupiterTransformer) extends OperationSynchronizerFactory {
   def createSynchronizer = new JupiterOperationSynchronizer(isPrimary, transformer)
 }

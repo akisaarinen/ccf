@@ -16,8 +16,8 @@
 
 package ccf
 
-import ccf.operation.Operation
+import tree.operation.TreeOperation
 
-case class OperationContext[T <: Operation](val op: T, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) {
+case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) {
   def encode: Any = Map("op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
 }

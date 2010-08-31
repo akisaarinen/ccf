@@ -17,10 +17,9 @@
 package ccf.tree.operation
 
 import ccf.tree.indexing.{Indexable, UndefinedIndex}
-import ccf.operation.Operation
 import ccf.tree.TreeNode
 
-abstract sealed class TreeOperation(val index: Indexable) extends Operation {
+abstract sealed class TreeOperation(val index: Indexable) {
   def encode = TreeOperationEncoder.encode(this)
 }
 

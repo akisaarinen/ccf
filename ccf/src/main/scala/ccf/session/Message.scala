@@ -18,7 +18,6 @@ package ccf.session
 
 import ccf.transport.{Request, Response}
 import ccf.OperationContext
-import ccf.operation.Operation
 
 case object Shutdown
 
@@ -43,7 +42,7 @@ case class InChannelMessage(requestType: String, channelId: ChannelId, content: 
   def send(s: Session): (Session, Option[Response]) =
     if (s.channels(channelId)) send(s, new InChannelRequest().create(s, requestType, channelId, content), s.channels) else (s, None)
 }
-case class OperationContextMessage[T <: Operation](channelId: ChannelId, context: OperationContext[T]) extends Message {
+case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
   def send(s: Session): (Session, Option[Response]) = {
     if (s.channels(channelId)) send(s, new OperationContextRequest().create(s, channelId, context), s.channels) else (s, None)
   }

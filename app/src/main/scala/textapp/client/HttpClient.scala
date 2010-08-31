@@ -56,7 +56,7 @@ class HttpClient(hostname: String, port: Int, clientId: ClientId) {
   def add(msg: String) {
     fetch(addUri, Map("msg" -> msg))
   }
-  def get: (String, List[Message[TreeOperation]]) = {
+  def get: (String, List[Message]) = {
     val replyJson = fetch(getUri, Map())
     val encodedMsgs = replyJson \ "msgs" match {
       case JField(_, JArray(msgs)) => msgs.map(_.values.toString)

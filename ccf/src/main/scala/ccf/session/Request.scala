@@ -18,7 +18,6 @@ package ccf.session
 
 import ccf.transport.Request
 import ccf.OperationContext
-import ccf.operation.Operation
 
 abstract class AbstractRequest {
   protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request = Request(
@@ -56,8 +55,8 @@ class InChannelRequest extends AbstractRequest {
     request(s, requestType, channelId, content)
 }
 
-class OperationContextRequest[T <: Operation] extends InChannelRequest {
-  def create(s: Session, channelId: ChannelId, context: OperationContext[T]): Request =
+class OperationContextRequest extends InChannelRequest {
+  def create(s: Session, channelId: ChannelId, context: OperationContext): Request =
     request(s, requestType, channelId, Some(context.encode))
   protected val requestType = AbstractRequest.contextRequestType
 }

@@ -23,7 +23,6 @@ import java.net.URL
 import net.lag.logging.Logger
 import java.util.logging.Level
 import ccf.OperationContext
-import ccf.operation.Operation
 import ccf.session._
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode
@@ -57,7 +56,7 @@ object Client {
     import System.currentTimeMillis
     (0 to numberOfMsgsToSend).map { index =>
       val startTimestampMillis = currentTimeMillis
-      val context = new OperationContext[TreeOperation](createOperation(index), index, 0)
+      val context = new OperationContext(createOperation(index), index, 0)
       sa !? OperationContextMessage(channelId, context)
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList

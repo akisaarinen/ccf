@@ -16,17 +16,15 @@
 
 package ccf.transport
 
-import ccf.operation.Operation
 import ccf.messaging.Message
 import ccf.server.Server
-import scala.actors.Actor._
 
 trait ExampleTransportListener {
-  def onInitialize(server: Server[_]): Unit
+  def onInitialize(server: Server): Unit
   def onJoin(clientId: ClientId, channelId: ChannelId): Any
   def onQuit(clientId: ClientId, channelId: ChannelId): Unit
   def onSync(clientId: ClientId, channelId: ChannelId): Unit
-  def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[Operation]): Unit
+  def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message): Unit
 }
 
 class ExampleTransport(listener: ExampleTransportListener) extends TransportActor {
@@ -51,5 +49,5 @@ class ExampleTransport(listener: ExampleTransportListener) extends TransportActo
     case _ => reply(Event.Error("Unknown message"))
   }}
 
-  def initialize(server: Server[_]) = listener.onInitialize(server)
+  def initialize(server: Server) = listener.onInitialize(server)
 }

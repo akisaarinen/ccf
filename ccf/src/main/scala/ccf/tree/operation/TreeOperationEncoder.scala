@@ -18,7 +18,7 @@ package ccf.tree.operation
 
 import ccf.session.OperationEncoder
 
-class TreeOperationEncoder extends OperationEncoder[TreeOperation] {
+class TreeOperationEncoder extends OperationEncoder {
   def encode(op: TreeOperation) = {
     val typeString = op.getClass.getSimpleName
     Map("type" -> typeString) ++ encodedContents(op)

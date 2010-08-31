@@ -20,7 +20,7 @@ import ccf.session.OperationDecoder
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode
 
-abstract class TreeOperationDecoder extends OperationDecoder[TreeOperation] {
+abstract class TreeOperationDecoder extends OperationDecoder {
   def decode(any: Any): TreeOperation = {
     val map = any.asInstanceOf[Map[String, Any]]
     map.get("type") match {

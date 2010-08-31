@@ -27,7 +27,7 @@ import ccf.messaging.ConcurrentOperationMessage
 import javax.swing.JFrame
 
 class ClientApp(hostname: String, port: Int) {
-  private val clientSync = new JupiterOperationSynchronizer[TreeOperation](false, JupiterTreeTransformation)
+  private val clientSync = new JupiterOperationSynchronizer(false, JupiterTreeTransformation)
   private val messageCoder = new MessageCoder
   
   val httpClient = new HttpClient(hostname, port, ClientId.randomId)
@@ -46,7 +46,7 @@ class ClientApp(hostname: String, port: Int) {
       httpClient.get match {
         case (hash, msgs) => {
           msgs.foreach { _ match {
-            case msg: ConcurrentOperationMessage[TreeOperation] =>
+            case msg: ConcurrentOperationMessage =>
               val op = clientSync.receiveRemoteOperation(msg)
               applyOperationLocally(op)
             case msg =>

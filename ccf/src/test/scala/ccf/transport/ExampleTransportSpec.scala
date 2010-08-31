@@ -16,7 +16,7 @@
 
 package ccf.transport
 
-import ccf.operation.Operation
+import ccf.tree.operation.TreeOperation
 import ccf.messaging.Message
 import ccf.server.Server
 import org.specs.Specification
@@ -32,7 +32,7 @@ object ExampleTransportSpec extends Specification with Mockito {
     val channelId = ChannelId.randomId
 
     "initialize" in {
-      val server = mock[Server[Operation]]
+      val server = mock[Server]
       t.initialize(server)
       there was one(listener).onInitialize(server)
     }
@@ -53,7 +53,7 @@ object ExampleTransportSpec extends Specification with Mockito {
     }
 
     "pass a message" in {
-      val msg = mock[Message[Operation]]
+      val msg = mock[Message]
       t !? Event.Msg(clientId, channelId, msg) must equalTo(Event.Ok())
       there was one(listener).onMsg(clientId, channelId, msg)
     }
@@ -63,4 +63,4 @@ object ExampleTransportSpec extends Specification with Mockito {
       t !? UnknownMsg() must haveClass[Event.Error]
     }
   }
-}
+}

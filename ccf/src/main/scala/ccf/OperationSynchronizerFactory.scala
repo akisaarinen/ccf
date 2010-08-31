@@ -16,9 +16,7 @@
 
 package ccf
 
-import ccf.operation.Operation
-
-abstract class OperationSynchronizerFactory[T <: Operation] {
-  def createSynchronizer: OperationSynchronizer[T]
+abstract class OperationSynchronizerFactory {
+  def createSynchronizer: OperationSynchronizer
 }
 

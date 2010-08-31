@@ -27,14 +27,14 @@ import textapp.TextDocument
 
 class DocumentHandler {
   private val document = new TextDocument("")
-  private var messages = List[Event.Msg[TreeOperation]]()
+  private var messages = List[Event.Msg]()
     
   private val factory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)
   private val interceptor = new TextAppOperationInterceptor(document)
   private val transport = new TextAppTransportActor(onMessageToClient)
-  private val server = new Server[TreeOperation](factory, interceptor, transport)
+  private val server = new Server(factory, interceptor, transport)
 
-  private def onMessageToClient(msg: Event.Msg[TreeOperation]): Unit = messages.synchronized {
+  private def onMessageToClient(msg: Event.Msg): Unit = messages.synchronized {
     messages = messages ::: List(msg)
   }
 
@@ -49,12 +49,12 @@ class DocumentHandler {
     server !? Event.Quit(clientId, channelId)
   }
   
-  def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[TreeOperation]) {
+  def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message) {
     server !? Event.Msg(clientId, channelId, msg)
   }
 
-  def getMessages(clientId: ClientId): (List[Message[TreeOperation]], TextDocument) = messages.synchronized {
-    def isForClient(msg: Event.Msg[_]) = msg match {
+  def getMessages(clientId: ClientId): (List[Message], TextDocument) = messages.synchronized {
+    def isForClient(msg: Event.Msg) = msg match {
       case Event.Msg(id, _, _) if (id == clientId) => true
       case _ => false
     }

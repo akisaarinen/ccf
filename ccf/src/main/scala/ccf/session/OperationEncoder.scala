@@ -16,8 +16,8 @@
 
 package ccf.session
 
-import ccf.operation.Operation
+import ccf.tree.operation.TreeOperation
 
-trait OperationEncoder[T <: Operation] {
-  def encode(op: T): Any
+trait OperationEncoder {
+  def encode(op: TreeOperation): Any
 }

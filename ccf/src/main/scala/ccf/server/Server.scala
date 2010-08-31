@@ -17,25 +17,25 @@
 package ccf.server
 
 import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage, Message}
-import ccf.operation.Operation
 import ccf.transport.{TransportActor, ClientId, ChannelId, Event}
 import java.io.{StringWriter, PrintWriter}
 import scala.actors.Actor
 import scala.actors.Actor._
 import collection.mutable.HashMap
 import ccf.OperationSynchronizerFactory
+import ccf.tree.operation.TreeOperation
 
-trait ServerOperationInterceptor[T <: Operation] {
+trait ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Any
-  def applyOperation(server: Server[T], clientId: ClientId, channelId: ChannelId, op: T): Unit
-  def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: T): List[T]
-  def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: T): List[T]
+  def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit
+  def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation]
+  def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation]
 }
 
-class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
-                             interceptor: ServerOperationInterceptor[T],
+class Server(factory: OperationSynchronizerFactory,
+                             interceptor: ServerOperationInterceptor,
                              transport: TransportActor) extends Actor {
-  val clients = new HashMap[ClientId, ClientState[T]]
+  val clients = new HashMap[ClientId, ClientState]
   transport.initialize(this)
   start
 
@@ -54,7 +54,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
     case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined to any channel"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Joined to different channel"))
-      case Some(state) => reply(onMsg(clientId, channelId, msg.asInstanceOf[Message[T]], state))
+      case Some(state) => reply(onMsg(clientId, channelId, msg.asInstanceOf[Message], state))
     }
     case m => reply(Event.Error("Unknown message %s".format(m)))
   }}
@@ -79,9 +79,9 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
     Event.Ok()
   }
 
-  private def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message[T], state: ClientState[T]): Any = {
+  private def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message, state: ClientState): Any = {
     try {
-      val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage[T]])
+      val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage])
       interceptor.applyOperation(this, clientId, channelId, op)
 
       val others = otherClientsFor(clientId)
@@ -112,7 +112,7 @@ class Server[T <: Operation](factory: OperationSynchronizerFactory[T],
   }
 
   private def onShutdown(channelId: ChannelId, reason: String): Any = {
-    val shutdownMsg = ChannelShutdown[T](reason)
+    val shutdownMsg = ChannelShutdown(reason)
     clientsForChannel(channelId).foreach { clientId =>
       clients.get(clientId).foreach { state =>
         transport !! Event.Msg(clientId, channelId, shutdownMsg)

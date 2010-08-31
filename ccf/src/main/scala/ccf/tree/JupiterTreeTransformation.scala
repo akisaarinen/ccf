@@ -21,7 +21,7 @@ import ccf.tree.indexing._
 import ccf.tree.indexing.transformation._
 import ccf.tree.operation._
 
-object JupiterTreeTransformation extends JupiterTransformer[TreeOperation] {
+object JupiterTreeTransformation extends JupiterTransformer {
   def createNoOp: TreeOperation = NoOperation()
   def transformRemoteOpForLocalExecution(localOp: TreeOperation, remoteOp: TreeOperation, localIsPrimary: Boolean) : TreeOperation = {
     if (isNoOp(localOp) || isNoOp(remoteOp)) {

@@ -16,13 +16,13 @@
 
 package ccf
 
-import ccf.operation.Operation
 import ccf.messaging.ConcurrentOperationMessage
+import tree.operation.TreeOperation
 
-class JupiterOperationSynchronizer[T <: Operation](val isPrimary: Boolean, transformer: JupiterTransformer[T]) extends OperationSynchronizer[T] {
+class JupiterOperationSynchronizer(val isPrimary: Boolean, transformer: JupiterTransformer) extends OperationSynchronizer {
   var lastLocallyCreatedMessage = 0
   var expectedRemoteMessage = 0
-  private var unacknowledgedMessages = List[ConcurrentOperationMessage[T]]()
+  private var unacknowledgedMessages = List[ConcurrentOperationMessage]()
 
   def resetToInitialState {
     lastLocallyCreatedMessage = 0
@@ -30,14 +30,14 @@ class JupiterOperationSynchronizer[T <: Operation](val isPrimary: Boolean, trans
     unacknowledgedMessages = List()
   }
 
-  def createLocalOperation(operation: T) = {
+  def createLocalOperation(operation: TreeOperation) = {
     val messageToSend = ConcurrentOperationMessage(operation, lastLocallyCreatedMessage, expectedRemoteMessage)
     unacknowledgedMessages = unacknowledgedMessages ::: List(messageToSend)
     lastLocallyCreatedMessage = lastLocallyCreatedMessage + 1
     messageToSend
   }
 
-  def receiveRemoteOperation(remoteMessage: ConcurrentOperationMessage[T]): T = {
+  def receiveRemoteOperation(remoteMessage: ConcurrentOperationMessage): TreeOperation = {
     if (remoteMessage.localMessage < expectedRemoteMessage)
       return transformer.createNoOp
     discardAcknowledgedMessages(remoteMessage.expectedRemoteMessage)
@@ -48,7 +48,7 @@ class JupiterOperationSynchronizer[T <: Operation](val isPrimary: Boolean, trans
 
     var transformedRemoteOp = remoteMessage.op
 
-    unacknowledgedMessages = unacknowledgedMessages.map { localMsg : ConcurrentOperationMessage[T] =>
+    unacknowledgedMessages = unacknowledgedMessages.map { localMsg : ConcurrentOperationMessage =>
       val transformedLocalOp = transformLocal(localMsg.op, transformedRemoteOp)
       transformedRemoteOp = transformRemote(localMsg.op, transformedRemoteOp)
       ConcurrentOperationMessage(transformedLocalOp, localMsg.localMessage, localMsg.expectedRemoteMessage)
@@ -62,11 +62,11 @@ class JupiterOperationSynchronizer[T <: Operation](val isPrimary: Boolean, trans
     unacknowledgedMessages = unacknowledgedMessages.filter { m  => (m.localMessage >= acknowledgedMessageIndex) }
   }
 
-  private def transformRemote(localOp: T, remoteOp: T) = {
+  private def transformRemote(localOp: TreeOperation, remoteOp: TreeOperation) = {
     transformer.transformRemoteOpForLocalExecution(localOp, remoteOp, isPrimary)
   }
 
-  private def transformLocal(localOp: T, remoteOp: T) = {
+  private def transformLocal(localOp: TreeOperation, remoteOp: TreeOperation) = {
     transformer.transformRemoteOpForLocalExecution(remoteOp, localOp, !isPrimary)
   }
 }

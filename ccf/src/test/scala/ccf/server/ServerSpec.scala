@@ -18,23 +18,23 @@ package ccf.server
 
 import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
 import ccf.transport.{ClientId, ChannelId, Event}
-import ccf.operation.Operation
 import ccf.transport.TransportActor
 import ccf.OperationSynchronizer
 import ccf.OperationSynchronizerFactory
+import ccf.tree.operation.TreeOperation
 
 import org.specs.Specification
 import org.specs.mock.Mockito
 import org.mockito.Matchers._
 
 class ServerSpec extends Specification with Mockito {
-  val synchronizer = mock[OperationSynchronizer[Operation]]
+  val synchronizer = mock[OperationSynchronizer]
   val transport = mock[TransportActor]
-  val factory = mock[OperationSynchronizerFactory[Operation]]
+  val factory = mock[OperationSynchronizerFactory]
   factory.createSynchronizer returns synchronizer
-  val interceptor = mock[ServerOperationInterceptor[Operation]]
-  interceptor.operationsForCreatingClient(anyObject[ClientId], anyObject[ChannelId], anyObject[Operation]) returns List()
-  interceptor.operationsForAllClients(anyObject[ClientId], anyObject[ChannelId], anyObject[Operation]) returns List()
+  val interceptor = mock[ServerOperationInterceptor]
+  interceptor.operationsForCreatingClient(anyObject[ClientId], anyObject[ChannelId], anyObject[TreeOperation]) returns List()
+  interceptor.operationsForAllClients(anyObject[ClientId], anyObject[ChannelId], anyObject[TreeOperation]) returns List()
   val server = new Server(factory, interceptor, transport)
 
   "Server with no clients" should {
@@ -102,8 +102,8 @@ class ServerSpec extends Specification with Mockito {
     val client2 = ClientId.randomId
     val otherChannel = ChannelId.randomId
     val clientInOtherChannel = ClientId.randomId
-    val msg = mock[ConcurrentOperationMessage[Operation]]
-    val op = mock[Operation]
+    val msg = mock[ConcurrentOperationMessage]
+    val op = mock[TreeOperation]
     synchronizer.receiveRemoteOperation(msg) returns op
     synchronizer.createLocalOperation(op) returns msg
       
@@ -125,8 +125,8 @@ class ServerSpec extends Specification with Mockito {
     }
 
     "propagate operations for creating client" in {
-      val creationOp = mock[Operation]
-      val creationMsg = mock[ConcurrentOperationMessage[Operation]]
+      val creationOp = mock[TreeOperation]
+      val creationMsg = mock[ConcurrentOperationMessage]
       synchronizer.receiveRemoteOperation(creationMsg) returns creationOp
       synchronizer.createLocalOperation(creationOp) returns creationMsg
       interceptor.operationsForCreatingClient(client1, channel, op) returns List(creationOp, creationOp)
@@ -137,8 +137,8 @@ class ServerSpec extends Specification with Mockito {
     }
 
     "propagate operations for all clients" in {
-      val forAllOp = mock[Operation]
-      val forAllMsg = mock[ConcurrentOperationMessage[Operation]]
+      val forAllOp = mock[TreeOperation]
+      val forAllMsg = mock[ConcurrentOperationMessage]
       synchronizer.receiveRemoteOperation(forAllMsg) returns forAllOp
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
       interceptor.operationsForAllClients(client1, channel, op) returns List(forAllOp, forAllOp)
@@ -184,4 +184,4 @@ class ServerSpec extends Specification with Mockito {
       there was no(transport) !! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason"))
     }
   }
-}
+}
