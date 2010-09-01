@@ -19,6 +19,7 @@ package ccf.tree.operation
 import ccf.tree.indexing.{Indexable, UndefinedIndex}
 import ccf.tree.TreeNode
 
+@serializable
 abstract sealed class TreeOperation(val index: Indexable) {
   def encode = TreeOperationEncoder.encode(this)
 }
