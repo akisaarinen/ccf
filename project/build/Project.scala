@@ -15,8 +15,9 @@
  */
 
 import sbt.{Project => SbtProject, _}
-  
-abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) with IdeaProject {
+import de.element34.sbteclipsify._
+
+abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) with IdeaProject with Eclipsify {
   def transitiveDepJars = (jars +++ Path.lazyPathFinder { dependencies.flatMap(jars(_)) }).distinct
   private def jars: PathFinder = mainDependencies.scalaJars +++ projectJar +++ managedDepJars +++ unmanagedDepJars
   private def jars(p: SbtProject): Seq[Path] = p match { case cp: AbstractProject => cp.jars.get.toList; case _ => Nil }
