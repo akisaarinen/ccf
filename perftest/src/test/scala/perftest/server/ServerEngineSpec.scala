@@ -1,11 +1,12 @@
 package perftest.server
 
 import org.specs.Specification
-import org.specs.mock.Mockito
+import org.specs.mock.{Mockito, MockitoMatchers}
 import ccf.transport.Request
+import ccf.session.AbstractRequest
 
 
-class ServerEngineSpec extends Specification with Mockito  {
+class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
     class TestServerEngine extends ServerEngine {
       override def fatalError(msg: String) {}
@@ -32,6 +33,18 @@ class ServerEngineSpec extends Specification with Mockito  {
         request.header("type") returns Some(requestType)
         engine.decodeRequest(Some(request))
         there was one(engine).fatalError("Unknown request type: " + requestType)
+      }
+
+      "AbstractRequest.joinRequestType successfully" in {
+        request.header("type") returns Some(AbstractRequest.joinRequestType)
+        engine.decodeRequest(Some(request))
+        there was no(engine).fatalError(any[String])
+      }
+
+      "AbstractRequest.partRequestType successfully" in {
+        request.header("type") returns Some(AbstractRequest.partRequestType)
+        engine.decodeRequest(Some(request))
+        there was no(engine).fatalError(any[String])
       }
     }
   }
