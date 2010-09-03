@@ -7,10 +7,7 @@ import ccf.tree.operation.TreeOperationDecoder
 
 class ServerEngine {
   def decodeRequest(request: Option[Request]) {
-    val operationDecoder = new TreeOperationDecoder {
-      protected def parseModifier(encodedValue: Any) = null
-      protected def parseNode(encodedValue: Any) = null
-    }
+    val operationDecoder = newOperationDecoder
 
     request match {
       case Some(r: Request) => {
@@ -34,5 +31,10 @@ class ServerEngine {
 
   protected def fatalError(msg: String) {
     error("Unable to decode request")
+  }
+
+  protected def newOperationDecoder = new TreeOperationDecoder {
+    protected def parseModifier(encodedValue: Any) = null
+    protected def parseNode(encodedValue: Any) = null
   }
 }

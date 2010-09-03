@@ -4,14 +4,19 @@ import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
 import ccf.transport.Request
 import ccf.session.AbstractRequest
+import collection.immutable.HashMap
+import ccf.tree.operation.TreeOperationDecoder
 
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
+    val operationDecoderMock = mock[TreeOperationDecoder]
+
     class TestServerEngine extends ServerEngine {
       override def fatalError(msg: String) {}
+      override def newOperationDecoder = operationDecoderMock
     }
-
+    
     val engine = spy(new TestServerEngine)
 
     "decode None as an error" in {
@@ -46,6 +51,18 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
         engine.decodeRequest(Some(request))
         there was no(engine).fatalError(any[String])
       }
+
+      "AbstractRequest.contextRequestType successfully" in {
+        request.header("type") returns Some(AbstractRequest.contextRequestType)
+        val expectedOperation: Any = "ExpectedOperation"
+        val content: Option[Map[String, Any]] = Some(Map[String, Any]("op" -> expectedOperation, "localMsgSeqNo" -> 0, "remoteMsgSeqNo" -> 0))
+        content.get("op") mustBe expectedOperation
+        request.content returns content
+        engine.decodeRequest(Some(request))
+        there was one(operationDecoderMock).decode(expectedOperation)
+        there was no(engine).fatalError(any[String])
+      }
+
     }
   }
 }
