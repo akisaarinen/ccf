@@ -17,22 +17,28 @@
 package perftest.server
 
 import org.eclipse.jetty.server.handler.AbstractHandler
-import org.eclipse.jetty.server.{Server => Jetty7Server, Request, Connector}
+import org.eclipse.jetty.server.{Server => Jetty7Server, Request => Jetty7Request, Connector}
 import org.eclipse.jetty.server.nio.SelectChannelConnector
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import ccf.transport.Response
 import java.net.URL
 import ccf.transport.json.{JsonDecoder, JsonEncoder}
 import java.io.StringWriter
 import ccf.session.AbstractRequest
 import ccf.OperationContext
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
+import ccf.transport.{Request, Response}
 
 class HttpRequestHandler extends AbstractHandler {
-  override def handle(target: String, req: Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
+  override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
     var requestBody = readRequestBody(req)
     val request = JsonDecoder.decodeRequest(requestBody)
+
+    decodeRequest(request)
+    (httpReq.asInstanceOf[Jetty7Request]).setHandled(true)
+  }
+
+  private def decodeRequest(request: Option[Request]) {
     val operationDecoder = new TreeOperationDecoder {
       protected def parseModifier(encodedValue: Any) = null
       protected def parseNode(encodedValue: Any) = null
@@ -56,8 +62,8 @@ class HttpRequestHandler extends AbstractHandler {
       }
       case None => error("Unable to decode request")
     }
-    (httpReq.asInstanceOf[Request]).setHandled(true)
   }
+
   private def readRequestBody(request: HttpServletRequest): String = {
     val reader = request.getReader
     val buf = new Array[Char](4096)
