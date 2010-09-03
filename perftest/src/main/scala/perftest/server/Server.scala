@@ -29,39 +29,13 @@ import ccf.OperationContext
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
 import ccf.transport.{Request, Response}
 
-class HttpRequestHandler extends AbstractHandler {
+class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
   override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
     var requestBody = readRequestBody(req)
     val request = JsonDecoder.decodeRequest(requestBody)
 
-    decodeRequest(request)
+    engine.decodeRequest(request)
     (httpReq.asInstanceOf[Jetty7Request]).setHandled(true)
-  }
-
-  private def decodeRequest(request: Option[Request]) {
-    val operationDecoder = new TreeOperationDecoder {
-      protected def parseModifier(encodedValue: Any) = null
-      protected def parseNode(encodedValue: Any) = null
-    }
-
-    request match {
-      case Some(r: ccf.transport.Request) => {
-        r.header("type") match {
-          case Some(AbstractRequest.joinRequestType) =>
-          case Some(AbstractRequest.partRequestType) =>
-          case Some(AbstractRequest.contextRequestType) => {
-            val encodedContext = r.content.get.asInstanceOf[Map[String, Any]]
-            val op = operationDecoder.decode(encodedContext("op"))
-            val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
-            val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
-            val context = new OperationContext(op, localMsgSeqNo, remoteMsgSeqNo)
-          }
-          case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
-          case None => error("No request type given")
-        }
-      }
-      case None => error("Unable to decode request")
-    }
   }
 
   private def readRequestBody(request: HttpServletRequest): String = {
@@ -88,9 +62,11 @@ object Server {
   def run(url: URL)= { 
     val server = new Jetty7Server(url.getPort)
     val connector = new SelectChannelConnector()
+    val engine = new ServerEngine
+
     connector.setPort(url.getPort)
     server.setConnectors(List[Connector](connector).toArray)
-    server.setHandler(new HttpRequestHandler())
+    server.setHandler(new HttpRequestHandler(engine))
     server.start
   }
 }
