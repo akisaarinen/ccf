@@ -24,8 +24,8 @@ class ServerEngine {
             val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
             val context = new OperationContext(op, localMsgSeqNo, remoteMsgSeqNo)
           }
-          case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
-          case None => error("No request type given")
+          case Some(unknownRequestType) => fatalError("Unknown request type: " + unknownRequestType)
+          case None => fatalError("No request type given")
         }
       }
       case None => fatalError("Unable to decode request")
