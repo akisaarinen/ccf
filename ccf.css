@@ -2,6 +2,9 @@ body { font-family: Georgia, times, serif; font-size: 12px; }
 h1 { font-size: 14px; border-bottom: 1px dashed #666; }
 h2 { font-size: 16px; }
 h3 { font-size: 13px; margin-left: 10px; }
-p, pre { margin-left: 10px; width: 500px; }
+p, pre, ul { width: 500px; }
+#content > p, #content > pre { margin-left: 10px; }
+#content > ul { margin-left: 20px; padding-left: 5px; }
+li > ul { margin-left: 5px; padding-left: 5px; }
 p.copyright { font-size: 9px; color: #666; margin-left: 0px; }
 p.author { font-size: 10px; color: #888; }

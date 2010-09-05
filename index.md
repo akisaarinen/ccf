@@ -41,8 +41,9 @@ Our current maintainers are:
 To contribute, please do the following:
 
 1. [Fork](http://help.github.com/forking/) your own clone of [CCF repository](http://github.com/akisaarinen/ccf)
-2. Make and commit your changes to your own forked repository. 
-3. Submit patches using git-generate-patches and git-send-email to our [Google Group](http://groups.google.com/group/scala-ccf) (scala-ccf@googlegroups.com) for peer review.
-4. When acked in the discussion group, make a [pull request in github](http://help.github.com/pull-requests/).
-5. Enjoy seeing your work in CCF!
+2. Take a look at our [guidelines](submitting-patches.html).
+3. Make and commit your changes to your own forked repository. 
+4. Submit patches using git-generate-patches and git-send-email to our [Google Group](http://groups.google.com/group/scala-ccf) (scala-ccf@googlegroups.com) for peer review.
+5. When acked in the discussion group, make a [pull request in github](http://help.github.com/pull-requests/).
+6. Enjoy seeing your work in CCF!
 
