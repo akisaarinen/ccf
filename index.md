@@ -3,6 +3,7 @@ title: Concurrency Control Framework for Scala
 layout: default
 ---
 
+<a id="whatisccf"></a>
 What is CCF?
 ------------
 
@@ -14,6 +15,7 @@ level APIs for synchronization of tree-like documents between multiple
 clients over HTTP/1.1 protocol. CCF is distributed under the 
 [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) license.
 
+<a id="download"></a>
 Download
 --------
 The latest version of CCF is 0.2.0 and it was released on the 3rd of
@@ -22,3 +24,25 @@ September, 2010. You can download the
 clone the Git [repository](http://github.com/akisaarinen/ccf) by running:
 
     $ git clone http://github.com/akisaarinen/ccf.git
+
+<a id="contributing"></a>
+Contributing
+------------
+
+If you'd like to contribute to the CCF project, please feel free to do so!
+We're currently working with a maintainer workflow, where two maintainers are
+responsible for merging any changes to the master branch. 
+
+Our current maintainers are:
+
+* Aki Saarinen ([akisaarinen](http://github.com/akisaarinen/))
+* Karim Osman ([kro](http://github.com/kro/))
+
+To contribute, please do the following:
+
+1. [Fork](http://help.github.com/forking/) your own clone of [CCF repository](http://github.com/akisaarinen/ccf)
+2. Make and commit your changes to your own forked repository. 
+3. Submit patches using git-generate-patches and git-send-email to our [Google Group](http://groups.google.com/group/scala-ccf) (scala-ccf@googlegroups.com) for peer review.
+4. When acked in the discussion group, make a [pull request in github](http://help.github.com/pull-requests/).
+5. Enjoy seeing your work in CCF!
+
