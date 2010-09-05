@@ -9,7 +9,7 @@ h1 { font-size: 14px; border-bottom: 1px dashed #666; }
 h2 { font-size: 16px; }
 h3 { font-size: 13px; margin-left: 10px; }
 p, pre, ul { width: 500px; }
-#content > p, #content > pre { margin-left: 10px; }
+#content > p, #content > pre { margin-left: 10px; }
 #content > ul { margin-left: 20px; padding-left: 5px; }
 li > ul { margin-left: 5px; padding-left: 5px; }
 
