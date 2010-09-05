@@ -1,4 +1,10 @@
 body { font-family: Georgia, times, serif; font-size: 12px; }
+
+#menu { margin: 0; padding: 0; }
+#menu li { display: inline; list-style-type: none; }
+#menu li a { padding: 5px; margin: 0; color: blue; }
+#menu li a:hover { background-color: #aae; }
+
 h1 { font-size: 14px; border-bottom: 1px dashed #666; }
 h2 { font-size: 16px; }
 h3 { font-size: 13px; margin-left: 10px; }
@@ -6,5 +12,6 @@ p, pre, ul { width: 500px; }
 #content > p, #content > pre { margin-left: 10px; }
 #content > ul { margin-left: 20px; padding-left: 5px; }
 li > ul { margin-left: 5px; padding-left: 5px; }
+
 p.copyright { font-size: 9px; color: #666; margin-left: 0px; }
 p.author { font-size: 10px; color: #888; }
