@@ -3,6 +3,29 @@ title: Submitting Patches
 layout: default
 ---
 
+<a id="contributing"></a>
+Contributing
+------------
+
+If you'd like to contribute to the CCF project, please feel free to do so!
+We're currently working with a maintainer workflow, where two maintainers are
+responsible for merging any changes to the master branch. 
+
+Our current maintainers are:
+
+* Aki Saarinen ([akisaarinen](http://github.com/akisaarinen/))
+* Karim Osman ([kro](http://github.com/kro/))
+
+To contribute, please do the following:
+
+1. [Fork](http://help.github.com/forking/) your own clone of [CCF repository](http://github.com/akisaarinen/ccf)
+2. Take a look at our [guidelines](submitting-patches.html).
+3. Make and commit your changes to your own forked repository. 
+4. Submit patches using git-generate-patches and git-send-email to our [Google Group](http://groups.google.com/group/scala-ccf) (scala-ccf@googlegroups.com) for peer review.
+5. When acked in the discussion group, make a [pull request in github](http://help.github.com/pull-requests/).
+6. Enjoy seeing your work in CCF!
+
+
 Generic guidelines
 ------------------
 
