@@ -16,11 +16,11 @@
 
 package ccf.session
 
-import ccf.transport.Request
+import ccf.transport
 import ccf.OperationContext
 
 abstract class AbstractRequest {
-  protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request = Request(
+  protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request = transport.Request(
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
         "channelId" -> channelId.toString, "type" -> requestType),
     content
@@ -34,29 +34,29 @@ object AbstractRequest {
 }
 
 abstract class SessionControlRequest extends AbstractRequest {
-  protected def request(s: Session, channelId: ChannelId): Request = request(s, requestType, channelId, content(channelId))
+  protected def request(s: Session, channelId: ChannelId): transport.Request = request(s, requestType, channelId, content(channelId))
   private def content(channelId: ChannelId) = Some(Map("channelId" -> channelId.toString))
   protected val requestType: String
 }
 
 class JoinRequest extends SessionControlRequest {
-  def create(s: Session, channelId: ChannelId): Request = request(s, channelId)
+  def create(s: Session, channelId: ChannelId): transport.Request = request(s, channelId)
   protected val requestType = AbstractRequest.joinRequestType
 }
 
 class PartRequest extends SessionControlRequest  {
   def create
-  (s: Session, channelId: ChannelId): Request = request(s, channelId)
+  (s: Session, channelId: ChannelId): transport.Request = request(s, channelId)
   protected val requestType = AbstractRequest.partRequestType
 }
 
 class InChannelRequest extends AbstractRequest {
-  def create(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): Request =
+  def create(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request =
     request(s, requestType, channelId, content)
 }
 
 class OperationContextRequest extends InChannelRequest {
-  def create(s: Session, channelId: ChannelId, context: OperationContext): Request =
+  def create(s: Session, channelId: ChannelId, context: OperationContext): transport.Request =
     request(s, requestType, channelId, Some(context.encode))
   protected val requestType = AbstractRequest.contextRequestType
 }
