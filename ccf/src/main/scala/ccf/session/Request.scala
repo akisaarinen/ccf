@@ -20,18 +20,19 @@ import ccf.transport
 import ccf.OperationContext
 
 abstract class AbstractRequest {
-  protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request = transport.Request(
-    Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
-        "channelId" -> channelId.toString, "type" -> requestType),
-    content
-  )
+  protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request = AbstractRequest.transportRequest(s, requestType, channelId, content)
 }
 
 object AbstractRequest {
   val joinRequestType = "channel/join"
   val partRequestType = "channel/part"
   val contextRequestType = "channel/context"
-}
+
+  def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request = transport.Request(
+    Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
+        "channelId" -> channelId.toString, "type" -> requestType),
+    content
+  )}
 
 abstract class SessionControlRequest extends AbstractRequest {
   protected def request(s: Session, channelId: ChannelId): transport.Request = request(s, requestType, channelId, content(channelId))
