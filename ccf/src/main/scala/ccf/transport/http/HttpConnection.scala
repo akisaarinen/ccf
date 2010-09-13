@@ -23,7 +23,7 @@ import ccf.transport.Connection
 import ccf.transport.json.{JsonEncoder, JsonDecoder}
 import ccf.transport.{ConnectionException, InvalidRequestException}
 import ccf.transport.{Encoder, Decoder}
-import ccf.transport.{TransportRequest, Response}
+import ccf.transport.{TransportRequest, TransportResponse}
 
 object HttpConnection {
   private val timeoutMillis = 1000
@@ -31,7 +31,7 @@ object HttpConnection {
 }
 
 class HttpConnection(url: URL, client: HttpClient, decoder: Decoder, encoder: Encoder) extends Connection {
-  def send(request: TransportRequest): Option[Response] = try {
+  def send(request: TransportRequest): Option[TransportResponse] = try {
     decoder.decodeResponse(post(request))
   } catch {
     case e: IOException => throw new ConnectionException(e.toString)

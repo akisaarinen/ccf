@@ -16,7 +16,7 @@
 
 package ccf.session
 
-import ccf.transport.{Connection, Response, ConnectionException}
+import ccf.transport.{Connection, TransportResponse, ConnectionException}
 import org.specs.Specification
 import org.specs.mock.Mockito
 
@@ -31,7 +31,7 @@ class SessionActorSpec extends Specification with Mockito {
     val joinRequest = new JoinRequest(session, channelId).transportRequest
     val sa = new SessionActor(connection, clientId, version)
     "reply with Success(...) when server returns valid response request" in {
-      connection.send(joinRequest) returns Some(Response(joinRequest.headers, None))
+      connection.send(joinRequest) returns Some(TransportResponse(joinRequest.headers, None))
       sa !? joinMessage must equalTo(Right(Success(joinMessage, None)))
     }
     "reply with Success(...) when server returns no response to request" in {
@@ -53,7 +53,7 @@ class SessionActorSpec extends Specification with Mockito {
     val partRequest = new PartRequest(session, channelId).transportRequest
     val sa = new SessionActor(connection, clientId, version, session)
     "reply with Success(...) when server returns valid response to request" in {
-      connection.send(partRequest) returns Some(Response(partRequest.headers, None))
+      connection.send(partRequest) returns Some(TransportResponse(partRequest.headers, None))
       sa !? partMessage must equalTo(Right(Success(partMessage, None)))
     }
     "reply with Success(...) when server returns no response to request" in {
@@ -85,7 +85,7 @@ class SessionActorSpec extends Specification with Mockito {
     val inChannelRequest = new InChannelRequest(session, requestType, channelId, content).transportRequest
     "reply with Success(...) when server returns valid response to request" in {
       val sa = new SessionActor(connection, clientId, version, session)
-      connection.send(inChannelRequest) returns Some(Response(inChannelRequest.headers, content))
+      connection.send(inChannelRequest) returns Some(TransportResponse(inChannelRequest.headers, content))
       sa !? inChannelMessage must equalTo(Right(Success(inChannelMessage, content)))
     }
   }

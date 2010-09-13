@@ -27,7 +27,7 @@ import java.io.StringWriter
 import ccf.session.SessionRequest
 import ccf.OperationContext
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
-import ccf.transport.{TransportRequest, Response}
+import ccf.transport.{TransportRequest, TransportResponse}
 
 class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
   override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
@@ -49,7 +49,7 @@ class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
     writer.toString
   }
   private def writeTestResponse(httpResp: HttpServletResponse) {
-    val response = Response(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
+    val response = TransportResponse(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
     val body = JsonEncoder.encodeResponse(response)
     httpResp.setContentType("application/json")
     httpResp.setStatus(HttpServletResponse.SC_OK);

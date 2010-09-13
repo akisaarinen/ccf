@@ -20,5 +20,5 @@ trait Connection {
   @throws(classOf[InvalidRequestException])
   @throws(classOf[MalformedDataException])
   @throws(classOf[ConnectionException])
-  def send(request: TransportRequest): Option[Response]
+  def send(request: TransportRequest): Option[TransportResponse]
 }

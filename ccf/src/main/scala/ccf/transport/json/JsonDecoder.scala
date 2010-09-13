@@ -18,11 +18,11 @@ package ccf.transport.json
 
 import ccf.transport.Decoder
 import ccf.transport.MalformedDataException
-import ccf.transport.{TransportRequest, Response}
+import ccf.transport.{TransportRequest, TransportResponse}
 import com.twitter.json.{Json, JsonException}
 
 object JsonDecoder extends Decoder {
-  def decodeResponse(m: String) = decodeMessage[Response](m, toResponse)
+  def decodeResponse(m: String) = decodeMessage[TransportResponse](m, toResponse)
   def decodeRequest(m: String) = decodeMessage[TransportRequest](m, toRequest)
   private def decodeMessage[T](m: String, f: (Map[String, String], Option[Any]) => T) = {
     try { if (m.isEmpty) None else { Some(parse(m, f)) } }
@@ -44,7 +44,7 @@ object JsonDecoder extends Decoder {
     case _                => malformedDataException("Invalid message header")
   }
   private def content(m: Map[Any, Any]): Option[Any] = m.get("content")
-  private def toResponse(h: Map[String, String], c: Option[Any]) = Response(h, c)
+  private def toResponse(h: Map[String, String], c: Option[Any]) = TransportResponse(h, c)
   private def toRequest(h: Map[String, String], c: Option[Any]) = TransportRequest(h, c)
   private def malformedDataException(s: String) = throw new MalformedDataException(s)
 }

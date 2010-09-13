@@ -18,7 +18,7 @@ package ccf.transport
 
 trait Decoder {
   @throws(classOf[MalformedDataException])
-  def decodeResponse(msg: String): Option[Response]
+  def decodeResponse(msg: String): Option[TransportResponse]
   @throws(classOf[MalformedDataException])
   def decodeRequest(msg: String): Option[TransportRequest]
 }

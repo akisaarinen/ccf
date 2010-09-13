@@ -18,5 +18,5 @@ package ccf.transport
 
 trait Encoder {
   def encodeRequest(request: TransportRequest): String
-  def encodeResponse(response: Response): String
+  def encodeResponse(response: TransportResponse): String
 }
