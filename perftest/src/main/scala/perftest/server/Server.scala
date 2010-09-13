@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse
 import java.net.URL
 import ccf.transport.json.{JsonDecoder, JsonEncoder}
 import java.io.StringWriter
-import ccf.session.AbstractRequest
+import ccf.session.SessionRequest
 import ccf.OperationContext
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
 import ccf.transport.{Request, Response}

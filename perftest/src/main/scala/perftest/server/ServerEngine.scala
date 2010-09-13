@@ -3,14 +3,14 @@ package perftest.server
 import ccf.transport.Request
 import ccf.OperationContext
 import ccf.tree.operation.TreeOperationDecoder
-import ccf.session.{OperationContextRequest, PartRequest, JoinRequest, AbstractRequest}
+import ccf.session.{OperationContextRequest, PartRequest, JoinRequest, SessionRequest}
 
 class ServerEngine {
   def decodeRequest(request: Option[Request]) {
     request match {
       case Some(r: Request) => {
         try {
-          handleRequest(AbstractRequest.sessionRequest(r))
+          handleRequest(SessionRequest.sessionRequest(r))
         } catch {
           case ex: Exception => fatalError(ex.getMessage)
         }
@@ -19,7 +19,7 @@ class ServerEngine {
     }
   }
 
-  private def handleRequest(sessionRequest: AbstractRequest) {
+  private def handleRequest(sessionRequest: SessionRequest) {
     sessionRequest match {
       case r: JoinRequest =>
       case r: PartRequest =>

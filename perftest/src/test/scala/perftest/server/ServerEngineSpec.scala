@@ -3,7 +3,7 @@ package perftest.server
 import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
 import ccf.transport.Request
-import ccf.session.AbstractRequest
+import ccf.session.SessionRequest
 import collection.immutable.HashMap
 import ccf.tree.operation.TreeOperationDecoder
 
@@ -40,20 +40,20 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
         there was one(engine).fatalError("Unknown request type: " + requestType)
       }
 
-      "AbstractRequest.joinRequestType successfully" in {
-        request.header("type") returns Some(AbstractRequest.joinRequestType)
+      "SessionRequest.joinRequestType successfully" in {
+        request.header("type") returns Some(SessionRequest.joinRequestType)
         engine.decodeRequest(Some(request))
         there was no(engine).fatalError(any[String])
       }
 
-      "AbstractRequest.partRequestType successfully" in {
-        request.header("type") returns Some(AbstractRequest.partRequestType)
+      "SessionRequest.partRequestType successfully" in {
+        request.header("type") returns Some(SessionRequest.partRequestType)
         engine.decodeRequest(Some(request))
         there was no(engine).fatalError(any[String])
       }
 
-      "AbstractRequest.contextRequestType successfully" in {
-        request.header("type") returns Some(AbstractRequest.contextRequestType)
+      "SessionRequest.contextRequestType successfully" in {
+        request.header("type") returns Some(SessionRequest.contextRequestType)
         val expectedOperation: Any = "ExpectedOperation"
         val content: Option[Map[String, Any]] = Some(Map[String, Any]("op" -> expectedOperation, "localMsgSeqNo" -> 0, "remoteMsgSeqNo" -> 0))
         content.get("op") mustBe expectedOperation
