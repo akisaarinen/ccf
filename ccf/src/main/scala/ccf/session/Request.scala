@@ -31,6 +31,16 @@ object AbstractRequest {
         "channelId" -> channelId.toString, "type" -> requestType),
     content
   )
+
+  def sessionRequest(transportRequest: transport.Request): AbstractRequest = {
+    transportRequest.header("type") match {
+      case Some(AbstractRequest.joinRequestType) => new JoinRequest(transportRequest)
+      case Some(AbstractRequest.partRequestType) => new PartRequest(transportRequest)
+      case Some(AbstractRequest.contextRequestType) => new OperationContextRequest(transportRequest)
+      case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
+      case None => error("No request type given")
+    }
+  }
 }
 
 abstract class SessionControlRequest(transportRequest: transport.Request) extends AbstractRequest(transportRequest)
