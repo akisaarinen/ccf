@@ -28,7 +28,7 @@ class SessionActorSpec extends Specification with Mockito {
   "SessionActor on Join" should {
     val session = newSession(0, Set())
     val joinMessage = Join(channelId)
-    val joinRequest = new JoinRequest().create(session, channelId)
+    val joinRequest = new JoinRequest(session, channelId).transportRequest
     val sa = new SessionActor(connection, clientId, version)
     "reply with Success(...) when server returns valid response request" in {
       connection.send(joinRequest) returns Some(Response(joinRequest.headers, None))
@@ -50,7 +50,7 @@ class SessionActorSpec extends Specification with Mockito {
   "SessionActor on Part" should {
     val session = newSession(1, Set(channelId))
     val partMessage = Part(channelId)
-    val partRequest = new PartRequest().create(session, channelId)
+    val partRequest = new PartRequest(session, channelId).transportRequest
     val sa = new SessionActor(connection, clientId, version, session)
     "reply with Success(...) when server returns valid response to request" in {
       connection.send(partRequest) returns Some(Response(partRequest.headers, None))
@@ -73,7 +73,7 @@ class SessionActorSpec extends Specification with Mockito {
     val message = Join(channelId)
     "reply with Failure(...) when message send fails" in {
       val sa = new SessionActor(connection, clientId, version)
-      doThrow(new ConnectionException("Error")).when(connection).send(new JoinRequest().create(session, channelId))
+      doThrow(new ConnectionException("Error")).when(connection).send(new JoinRequest(session, channelId).transportRequest)
       sa !? message must equalTo(Left(Failure(message, "ccf.transport.ConnectionException: Error")))
     }
   }
@@ -82,7 +82,7 @@ class SessionActorSpec extends Specification with Mockito {
     val content = Some(Map("a" -> "b", "c" -> Map("d" -> 3)))
     val requestType = "app/custom"
     val inChannelMessage = InChannelMessage(requestType, channelId, content)
-    val inChannelRequest = new InChannelRequest().create(session, requestType, channelId, content)
+    val inChannelRequest = new InChannelRequest(session, requestType, channelId, content).transportRequest
     "reply with Success(...) when server returns valid response to request" in {
       val sa = new SessionActor(connection, clientId, version, session)
       connection.send(inChannelRequest) returns Some(Response(inChannelRequest.headers, content))

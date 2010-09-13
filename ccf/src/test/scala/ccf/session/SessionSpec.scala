@@ -38,7 +38,7 @@ object SessionSpec extends Specification with Mockito {
   }
   "Session send(...)" should {
     "send valid Join message, sending correct Request and producing correct Session" in {
-      val joinRequest = new JoinRequest().create(session, newChannelId)
+      val joinRequest = new JoinRequest(session, newChannelId).transportRequest
       val joinMessage = Join(newChannelId)
       connection.send(joinRequest) returns None
       val (nextSession, result) = session.send(joinMessage)
@@ -49,7 +49,7 @@ object SessionSpec extends Specification with Mockito {
       there was one(connection).send(joinRequest)
     }
     "send Part message, sending correct Request and producing correct Session" in {
-      val partRequest = new PartRequest().create(session, existingChannelId)
+      val partRequest = new PartRequest(session, existingChannelId).transportRequest
       val partMessage = Part(existingChannelId)
       connection.send(partRequest) returns None
       val (nextSession, result) = session.send(partMessage)
@@ -60,7 +60,7 @@ object SessionSpec extends Specification with Mockito {
       there was one(connection).send(partRequest)
     }
     "report failure and keep current session state, if transport layer fails with ConnectException" in {
-      val request = new JoinRequest().create(session, newChannelId)
+      val request = new JoinRequest(session, newChannelId).transportRequest
       val message = Join(newChannelId)
       doThrow(new ConnectionException("Error")).when(connection).send(request)
       val (nextSession, result) = session.send(message)

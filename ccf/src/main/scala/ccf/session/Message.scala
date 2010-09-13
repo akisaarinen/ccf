@@ -32,18 +32,18 @@ trait Message {
 
 case class Join(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = 
-    if (!s.channels(channelId)) send(s, new JoinRequest().create(s, channelId), s.channels + channelId) else (s, None)
+    if (!s.channels(channelId)) send(s, new JoinRequest(s, channelId).transportRequest, s.channels + channelId) else (s, None)
 }
 case class Part(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[Response]) = 
-    if (s.channels(channelId)) send(s, new PartRequest().create(s, channelId), s.channels - channelId) else (s, None)
+    if (s.channels(channelId)) send(s, new PartRequest(s, channelId).transportRequest, s.channels - channelId) else (s, None)
 }
 case class InChannelMessage(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
   def send(s: Session): (Session, Option[Response]) =
-    if (s.channels(channelId)) send(s, new InChannelRequest().create(s, requestType, channelId, content), s.channels) else (s, None)
+    if (s.channels(channelId)) send(s, new InChannelRequest(s, requestType, channelId, content).transportRequest, s.channels) else (s, None)
 }
 case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
   def send(s: Session): (Session, Option[Response]) = {
-    if (s.channels(channelId)) send(s, new OperationContextRequest().create(s, channelId, context), s.channels) else (s, None)
+    if (s.channels(channelId)) send(s, new OperationContextRequest(s, channelId, context).transportRequest, s.channels) else (s, None)
   }
 }
