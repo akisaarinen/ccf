@@ -2,30 +2,34 @@ package perftest.server
 
 import ccf.transport.Request
 import ccf.OperationContext
-import ccf.session.AbstractRequest
 import ccf.tree.operation.TreeOperationDecoder
+import ccf.session.{OperationContextRequest, PartRequest, JoinRequest, AbstractRequest}
 
 class ServerEngine {
   def decodeRequest(request: Option[Request]) {
-    val operationDecoder = newOperationDecoder
-
     request match {
       case Some(r: Request) => {
-        r.header("type") match {
-          case Some(AbstractRequest.joinRequestType) =>
-          case Some(AbstractRequest.partRequestType) =>
-          case Some(AbstractRequest.contextRequestType) => {
-            val encodedContext = r.content.get.asInstanceOf[Map[String, Any]]
-            val op = operationDecoder.decode(encodedContext("op"))
-            val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
-            val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
-            val context = new OperationContext(op, localMsgSeqNo, remoteMsgSeqNo)
-          }
-          case Some(unknownRequestType) => fatalError("Unknown request type: " + unknownRequestType)
-          case None => fatalError("No request type given")
+        try {
+          handleRequest(AbstractRequest.sessionRequest(r))
+        } catch {
+          case ex: Exception => fatalError(ex.getMessage)
         }
       }
       case None => fatalError("Unable to decode request")
+    }
+  }
+
+  private def handleRequest(sessionRequest: AbstractRequest) {
+    sessionRequest match {
+      case r: JoinRequest =>
+      case r: PartRequest =>
+      case r: OperationContextRequest => {
+        val encodedContext = r.transportRequest.content.get.asInstanceOf[Map[String, Any]]
+        val op = newOperationDecoder.decode(encodedContext("op"))
+        val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
+        val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
+        val context = new OperationContext(op, localMsgSeqNo, remoteMsgSeqNo)
+      }
     }
   }
 
