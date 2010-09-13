@@ -1,14 +1,14 @@
 package perftest.server
 
-import ccf.transport.Request
+import ccf.transport.TransportRequest
 import ccf.OperationContext
 import ccf.tree.operation.TreeOperationDecoder
 import ccf.session.{OperationContextRequest, PartRequest, JoinRequest, SessionRequest}
 
 class ServerEngine {
-  def decodeRequest(request: Option[Request]) {
+  def decodeRequest(request: Option[TransportRequest]) {
     request match {
-      case Some(r: Request) => {
+      case Some(r: TransportRequest) => {
         try {
           handleRequest(SessionRequest.sessionRequest(r))
         } catch {

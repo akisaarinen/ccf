@@ -22,7 +22,7 @@ import org.specs.mock.Mockito
 import java.io.IOException
 import java.net.URL
 
-import ccf.transport.Request
+import ccf.transport.TransportRequest
 import ccf.transport.{ConnectionException, InvalidRequestException}
 import ccf.transport.{Encoder, Decoder}
 
@@ -34,7 +34,7 @@ object HttpConnectionSpec extends Specification with Mockito {
       val parser = mock[Decoder]
       val formatter = mock[Encoder]
       val conn = new HttpConnection(url, client, parser, formatter) 
-      conn.send(new Request(Map[String, String](), None)) must throwA[InvalidRequestException]
+      conn.send(new TransportRequest(Map[String, String](), None)) must throwA[InvalidRequestException]
     }
   }
   "IOException thrown from HttpClient#post" should {
@@ -42,7 +42,7 @@ object HttpConnectionSpec extends Specification with Mockito {
     val spec = "spec"
     val url = new URL("http://www.url")
     "cause a ConnectionException" in {
-      val request = mock[Request]
+      val request = mock[TransportRequest]
       request.header("type") returns Some(spec)
       val formatter = mock[Encoder]
       formatter.encodeRequest(request) returns requestData

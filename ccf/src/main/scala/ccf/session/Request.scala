@@ -16,23 +16,23 @@
 
 package ccf.session
 
-import ccf.transport
+import ccf.transport.TransportRequest
 import ccf.OperationContext
 
-abstract class SessionRequest(val transportRequest: transport.Request)
+abstract class SessionRequest(val transportRequest: TransportRequest)
 
 object SessionRequest {
   val joinRequestType = "channel/join"
   val partRequestType = "channel/part"
   val contextRequestType = "channel/context"
 
-  def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request = transport.Request(
+  def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest = TransportRequest(
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
         "channelId" -> channelId.toString, "type" -> requestType),
     content
   )
 
-  def sessionRequest(transportRequest: transport.Request): SessionRequest = {
+  def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header("type") match {
       case Some(SessionRequest.joinRequestType) => new JoinRequest(transportRequest)
       case Some(SessionRequest.partRequestType) => new PartRequest(transportRequest)
@@ -43,33 +43,33 @@ object SessionRequest {
   }
 }
 
-abstract class SessionControlRequest(transportRequest: transport.Request) extends SessionRequest(transportRequest)
+abstract class SessionControlRequest(transportRequest: TransportRequest) extends SessionRequest(transportRequest)
 
 object SessionControlRequest {
-  def transportRequest(s: Session, requestType: String, channelId: ChannelId): transport.Request = {
+  def transportRequest(s: Session, requestType: String, channelId: ChannelId): TransportRequest = {
     SessionRequest.transportRequest(s, requestType, channelId, Some(Map("channelId" -> channelId.toString)))
   }
 }
 
-class JoinRequest(transportRequest: transport.Request) extends SessionControlRequest(transportRequest) {
+class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequest(transportRequest) {
   def this(s: Session, channelId: ChannelId) = {
     this(SessionControlRequest.transportRequest(s, SessionRequest.joinRequestType, channelId))
   }
 }
 
-class PartRequest(transportRequest: transport.Request) extends SessionControlRequest(transportRequest) {
+class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest(transportRequest) {
   def this(s: Session, channelId: ChannelId) = {
     this(SessionControlRequest.transportRequest(s, SessionRequest.partRequestType, channelId))
   }
 }
 
-class InChannelRequest(transportRequest: transport.Request) extends SessionRequest(transportRequest) {
+class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest(transportRequest) {
   def this(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = {
     this(SessionRequest.transportRequest(s, requestType, channelId, content))
   }
 }
 
-class OperationContextRequest(transportRequest: transport.Request) extends InChannelRequest(transportRequest) {
+class OperationContextRequest(transportRequest: TransportRequest) extends InChannelRequest(transportRequest) {
   def this(s: Session, channelId: ChannelId, context: OperationContext) = {
      this(SessionRequest.transportRequest(s, SessionRequest.contextRequestType, channelId, Some(context.encode)))
   }

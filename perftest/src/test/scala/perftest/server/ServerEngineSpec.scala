@@ -2,7 +2,7 @@ package perftest.server
 
 import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
-import ccf.transport.Request
+import ccf.transport.TransportRequest
 import ccf.session.SessionRequest
 import collection.immutable.HashMap
 import ccf.tree.operation.TreeOperationDecoder
@@ -25,7 +25,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
     }
 
     "decode request header type" in {
-      val request = mock[Request]
+      val request = mock[TransportRequest]
 
       "None as an error" in {
         request.header("type") returns None

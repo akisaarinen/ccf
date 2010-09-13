@@ -27,7 +27,7 @@ import java.io.StringWriter
 import ccf.session.SessionRequest
 import ccf.OperationContext
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
-import ccf.transport.{Request, Response}
+import ccf.transport.{TransportRequest, Response}
 
 class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
   override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {

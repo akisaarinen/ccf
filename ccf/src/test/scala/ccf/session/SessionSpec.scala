@@ -37,7 +37,7 @@ object SessionSpec extends Specification with Mockito {
     }
   }
   "Session send(...)" should {
-    "send valid Join message, sending correct Request and producing correct Session" in {
+    "send valid Join message, sending correct TransportRequest and producing correct Session" in {
       val joinRequest = new JoinRequest(session, newChannelId).transportRequest
       val joinMessage = Join(newChannelId)
       connection.send(joinRequest) returns None
@@ -48,7 +48,7 @@ object SessionSpec extends Specification with Mockito {
       nextSession.channels must equalTo(Set(existingChannelId, newChannelId))
       there was one(connection).send(joinRequest)
     }
-    "send Part message, sending correct Request and producing correct Session" in {
+    "send Part message, sending correct TransportRequest and producing correct Session" in {
       val partRequest = new PartRequest(session, existingChannelId).transportRequest
       val partMessage = Part(existingChannelId)
       connection.send(partRequest) returns None
