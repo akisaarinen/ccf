@@ -19,9 +19,7 @@ package ccf.session
 import ccf.transport
 import ccf.OperationContext
 
-abstract class AbstractRequest {
-  protected def request(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request = AbstractRequest.transportRequest(s, requestType, channelId, content)
-}
+abstract class AbstractRequest
 
 object AbstractRequest {
   val joinRequestType = "channel/join"
@@ -35,7 +33,7 @@ object AbstractRequest {
   )}
 
 abstract class SessionControlRequest extends AbstractRequest {
-  protected def request(s: Session, channelId: ChannelId): transport.Request = request(s, requestType, channelId, content(channelId))
+  protected def request(s: Session, channelId: ChannelId): transport.Request = AbstractRequest.transportRequest(s, requestType, channelId, content(channelId))
   private def content(channelId: ChannelId) = Some(Map("channelId" -> channelId.toString))
   protected val requestType: String
 }
@@ -53,12 +51,12 @@ class PartRequest extends SessionControlRequest  {
 
 class InChannelRequest extends AbstractRequest {
   def create(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): transport.Request =
-    request(s, requestType, channelId, content)
+    AbstractRequest.transportRequest(s, requestType, channelId, content)
 }
 
 class OperationContextRequest extends InChannelRequest {
   def create(s: Session, channelId: ChannelId, context: OperationContext): transport.Request =
-    request(s, requestType, channelId, Some(context.encode))
+    AbstractRequest.transportRequest(s, requestType, channelId, Some(context.encode))
   protected val requestType = AbstractRequest.contextRequestType
 }
 
