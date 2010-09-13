@@ -1,7 +1,7 @@
 #!/bin/bash
 SMTP_SERVER=smtp.reaktor.fi
 SMTP_SERVER_PORT=25
-MAIL_ADDR=ccf-git@reaktor.fi
+MAIL_ADDR=scala-ccf@googlegroups.com
 
 if [ $1 == '--proxy' ] 
 then
