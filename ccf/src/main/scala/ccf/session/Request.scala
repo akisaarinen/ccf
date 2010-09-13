@@ -33,19 +33,36 @@ object AbstractRequest {
   )
 }
 
-abstract class SessionControlRequest(s: Session, requestType: String, channelId: ChannelId)
-        extends AbstractRequest(AbstractRequest.transportRequest(s, requestType, channelId, Some(Map("channelId" -> channelId.toString))))
+abstract class SessionControlRequest(transportRequest: transport.Request) extends AbstractRequest(transportRequest)
 
-class JoinRequest(s: Session, channelId: ChannelId)
-        extends SessionControlRequest(s: Session, AbstractRequest.joinRequestType, channelId: ChannelId)
+object SessionControlRequest {
+  def transportRequest(s: Session, requestType: String, channelId: ChannelId): transport.Request = {
+    AbstractRequest.transportRequest(s, requestType, channelId, Some(Map("channelId" -> channelId.toString)))
+  }
+}
 
-class PartRequest(s: Session, channelId: ChannelId)
-        extends SessionControlRequest(s: Session, AbstractRequest.partRequestType, channelId: ChannelId)
+class JoinRequest(transportRequest: transport.Request) extends SessionControlRequest(transportRequest) {
+  def this(s: Session, channelId: ChannelId) = {
+    this(SessionControlRequest.transportRequest(s, AbstractRequest.joinRequestType, channelId))
+  }
+}
 
-class InChannelRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any])
-        extends AbstractRequest(AbstractRequest.transportRequest(s, requestType, channelId, content))
+class PartRequest(transportRequest: transport.Request) extends SessionControlRequest(transportRequest) {
+  def this(s: Session, channelId: ChannelId) = {
+    this(SessionControlRequest.transportRequest(s, AbstractRequest.partRequestType, channelId))
+  }
+}
 
-class OperationContextRequest(s: Session, channelId: ChannelId, context: OperationContext)
-        extends InChannelRequest(s, AbstractRequest.contextRequestType, channelId, Some(context.encode))
+class InChannelRequest(transportRequest: transport.Request) extends AbstractRequest(transportRequest) {
+  def this(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = {
+    this(AbstractRequest.transportRequest(s, requestType, channelId, content))
+  }
+}
+
+class OperationContextRequest(transportRequest: transport.Request) extends InChannelRequest(transportRequest) {
+  def this(s: Session, channelId: ChannelId, context: OperationContext) = {
+     this(AbstractRequest.transportRequest(s, AbstractRequest.contextRequestType, channelId, Some(context.encode)))
+  }
+}
 
 
