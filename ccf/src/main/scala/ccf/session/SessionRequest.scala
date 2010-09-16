@@ -21,7 +21,8 @@ import ccf.session.SessionRequest.successResponseContent
 import ccf.session.SessionRequest.failureResponseContent
 import ccf.transport.{TransportRequestType, TransportResponse, TransportRequest}
 
-abstract class SessionRequest(val transportRequest: TransportRequest) {
+sealed abstract class SessionRequest {
+  val transportRequest: TransportRequest
   def successResponse(result: Option[Any]): SessionResponse
   def failureResponse(reason: String): SessionResponse
   protected def transportResponse(content: Option[Any]): TransportResponse = {
@@ -40,11 +41,10 @@ trait DefaultSessionResponse extends SessionRequest {
 
   private def sessionResponse(sessionRequest: SessionRequest, transportResponse: TransportResponse, result: Either[Success, Failure]): SessionResponse = {
     sessionRequest match {
-      case r: JoinRequest => JoinResponse(transportResponse, result)
-      case r: PartRequest => PartResponse(transportResponse, result)
-      case r: OperationContextRequest => OperationContextResponse(transportResponse, result)
-      case r: InChannelRequest => InChannelResponse(transportResponse, result)
-      case _ => error("Unknown request type")
+      case JoinRequest(_) => JoinResponse(transportResponse, result)
+      case PartRequest(_) => PartResponse(transportResponse, result)
+      case InChannelRequest(_) => InChannelResponse(transportResponse, result)
+      case OperationContextRequest(_) => OperationContextResponse(transportResponse, result)
     }
   }
 }
@@ -62,16 +62,16 @@ object SessionRequest {
 
   def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header("type") match {
-      case Some(TransportRequestType.join) => new JoinRequest(transportRequest)
-      case Some(TransportRequestType.part) => new PartRequest(transportRequest)
-      case Some(TransportRequestType.context) => new OperationContextRequest(transportRequest)
+      case Some(TransportRequestType.join) => JoinRequest(transportRequest)
+      case Some(TransportRequestType.part) => PartRequest(transportRequest)
+      case Some(TransportRequestType.context) => OperationContextRequest(transportRequest)
       case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
       case None => error("No request type given")
     }
   }
 }
 
-abstract class SessionControlRequest(transportRequest: TransportRequest) extends SessionRequest(transportRequest)
+abstract class SessionControlRequest extends SessionRequest
 
 object SessionControlRequest {
   def transportRequest(s: Session, requestType: String, channelId: ChannelId): TransportRequest = {
@@ -79,7 +79,7 @@ object SessionControlRequest {
   }
 }
 
-class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequest(transportRequest) with DefaultSessionResponse {
+case class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
   require(transportRequest.header("type") == Some(TransportRequestType.join))
 
   def this(s: Session, channelId: ChannelId) = {
@@ -87,7 +87,7 @@ class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequ
   }
 }
 
-class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest(transportRequest) with DefaultSessionResponse {
+case class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
   require(transportRequest.header("type") == Some(TransportRequestType.part))
 
   def this(s: Session, channelId: ChannelId) = {
@@ -95,7 +95,7 @@ class PartRequest(transportRequest: TransportRequest) extends SessionControlRequ
   }
 }
 
-class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest(transportRequest) with DefaultSessionResponse {
+case class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
   require(transportRequest.header("type").isDefined)
   require(!TransportRequestType.sessionControlTypes.contains(transportRequest.header("type").get))
 
@@ -104,12 +104,10 @@ class InChannelRequest(transportRequest: TransportRequest) extends SessionReques
   }
 }
 
-class OperationContextRequest(transportRequest: TransportRequest) extends InChannelRequest(transportRequest) with DefaultSessionResponse {
+case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
   require(transportRequest.header("type") == Some(TransportRequestType.context))
 
   def this(s: Session, channelId: ChannelId, context: OperationContext) = {
      this(SessionRequest.transportRequest(s, TransportRequestType.context, channelId, Some(context.encode)))
   }
 }
-
-

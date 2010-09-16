@@ -19,7 +19,7 @@ package perftest.server
 import ccf.transport.TransportRequest
 import ccf.OperationContext
 import ccf.tree.operation.TreeOperationDecoder
-import ccf.session.{OperationContextRequest, PartRequest, JoinRequest, SessionRequest}
+import ccf.session._
 
 class ServerEngine {
   def decodeRequest(request: Option[TransportRequest]) {
@@ -37,10 +37,11 @@ class ServerEngine {
 
   private def handleRequest(sessionRequest: SessionRequest) {
     sessionRequest match {
-      case r: JoinRequest =>
-      case r: PartRequest =>
-      case r: OperationContextRequest => {
-        val encodedContext = r.transportRequest.content.get.asInstanceOf[Map[String, Any]]
+      case JoinRequest(_) =>
+      case PartRequest(_) =>
+      case InChannelRequest(_) =>
+      case OperationContextRequest(tr) => {
+        val encodedContext = tr.content.get.asInstanceOf[Map[String, Any]]
         val op = newOperationDecoder.decode(encodedContext("op"))
         val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
         val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
