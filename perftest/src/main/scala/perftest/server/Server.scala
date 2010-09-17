@@ -34,7 +34,7 @@ class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
     var requestBody = readRequestBody(req)
     val request = JsonDecoder.decodeRequest(requestBody)
 
-    engine.decodeRequest(request)
+    writeResponse(engine.decodeRequest(request), httpResp)
     (httpReq.asInstanceOf[Jetty7Request]).setHandled(true)
   }
 
@@ -48,8 +48,8 @@ class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
     }
     writer.toString
   }
-  private def writeTestResponse(httpResp: HttpServletResponse) {
-    val response = TransportResponse(Map[String, String](), Some((0 to 1023).map(x => 0).mkString("")))
+  
+  private def writeResponse(response: TransportResponse, httpResp: HttpServletResponse) {
     val body = JsonEncoder.encodeResponse(response)
     httpResp.setContentType("application/json")
     httpResp.setStatus(HttpServletResponse.SC_OK);

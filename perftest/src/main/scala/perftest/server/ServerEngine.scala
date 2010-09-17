@@ -16,42 +16,39 @@
 
 package perftest.server
 
-import ccf.transport.TransportRequest
 import ccf.OperationContext
 import ccf.tree.operation.TreeOperationDecoder
 import ccf.session._
+import ccf.transport.{TransportResponse, TransportRequest}
 
 class ServerEngine {
-  def decodeRequest(request: Option[TransportRequest]) {
+  def decodeRequest(request: Option[TransportRequest]) : TransportResponse = {
     request match {
       case Some(r: TransportRequest) => {
         try {
-          handleRequest(SessionRequest.sessionRequest(r))
+          handleRequest(SessionRequest.sessionRequest(r)).transportResponse
         } catch {
-          case ex: Exception => fatalError(ex.getMessage)
+          case ex: Exception => error(ex.getMessage)
         }
       }
-      case None => fatalError("Unable to decode request")
+      case None => error("Unable to decode request")
     }
   }
 
-  private def handleRequest(sessionRequest: SessionRequest) {
+  private def handleRequest(sessionRequest: SessionRequest) : SessionResponse = {
     sessionRequest match {
-      case JoinRequest(_) =>
-      case PartRequest(_) =>
-      case InChannelRequest(_) =>
+      case JoinRequest(_) => sessionRequest.successResponse(None)
+      case PartRequest(_) => sessionRequest.successResponse(None)
+      case InChannelRequest(_) => sessionRequest.successResponse(None)
       case OperationContextRequest(tr) => {
         val encodedContext = tr.content.get.asInstanceOf[Map[String, Any]]
         val op = newOperationDecoder.decode(encodedContext("op"))
         val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
         val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
         val context = new OperationContext(op, localMsgSeqNo, remoteMsgSeqNo)
+        sessionRequest.successResponse(None)
       }
     }
-  }
-
-  protected def fatalError(msg: String) {
-    error("Unable to decode request")
   }
 
   protected def newOperationDecoder = new TreeOperationDecoder {
