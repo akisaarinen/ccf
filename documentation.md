@@ -5,6 +5,109 @@ layout: default
 
 This page contains documentation for the CCF library.
 
+<ul>
+    <li><a href="#messaging_in_ccf">Messaging in CCF</a></li>
+    <li><a href="#performance_analysis">Performance analysis</a></li>
+    <li><a href="#introductiontosynchronization">Introduction to synchronization in collaborative editing (DRAFT)</a></li>
+</ul>
+
+Messaging in CCF
+----------------
+
+In addition to concurrency control, CCF provides interfaces for exchanging
+information with a remote server in a robust way. These interfaces can be
+categorized into three layers: transport, session, and application layer.
+
+### Transport Layer
+
+The transport layer specifies a connection interface for accessing remote
+services by means of a message exchange pattern known as request-response. The
+connection interface specifies a method, #send, that sends a request and blocks
+until a response has been received or an error occurs. The connection interface
+unifies possible error conditions, such as disconnections and timeouts, by
+throwing an exception of type ConnectionException upon detection of an error.
+
+The transport layer is responsible for performing serialization and
+deserialization of requests and responses. However, in order to meet the
+requirements of the session and application layer, as little as possible is
+assumed of the structure of requests and responses while bearing in mind that
+the actual wire format is specified by the transport layer. Currently, it seems
+that a hierarchical data structure of strings serves this purpose well.
+
+Protocols that rely on request-response message exchange patterns inherently
+assume that no request can be carried out over the same communication path
+until a response for the current response has been received. This obviously has
+an impact on the maximum number of requests per second. Although, this comes
+with a price, it complies with the requirement of delivering all messages over
+HTTP. This requirement is set forth by network related restrictions of various
+production environments. Also, HTTP/1.1 connections are by default persistent,
+and thus, the only overhead of using HTTP in comparison to some other TCP/IP
+request-response protocol is caused by the HTTP request headers. Surely, the
+request-response is inferior to other messaging protocols that allow multiple
+requests before a single response is received, however, benchmarking HTTP/1.1
+shows that a protocol relying on request-response message exchange pattern is
+viable for concurrency control among multiple clients (see the results below).
+
+### Session Layer
+
+As the transport layer cannot guarantee successful requests, the session layer
+introduces semantics for recovering from errors or inconsistent states between
+the client and server. This in turn allows the application layer rely on the
+session layer for robust delivery of requests and notification of
+disconnections and reconnections.
+
+The session layer introduces the concept of channels in which operations
+subject to operation transformation are exchanged. If the application layer
+wishes to access a remote service specific to the application, it is required
+to carry out this request within a channel. Only the session layer is allowed
+to perform out-of-channel requests on a remote service, for example, heartbeats
+and joinin and parting to and from a channel. Currently, a single session
+instance maps to a single channel, but this limitation is not by design, only
+an implementation detail.
+
+For ensuring robust client-server communication, the session layer specifies a
+set of fields that must be present in each request: unique client id, version
+number, and channel id. The unique client id is used for identifying a single
+client, while a single client may maintain one or more sessions. The version
+number is introduced for ensuring that a request can be assumed to be valid. If
+the server-side detects that the version number does not match the expected
+one, the request is rejected and the error condition is signalled in the
+response. Also, the session layer enforces that all communication is sequential
+within the request-response context, that is, both the client and server must
+process messages in order, and inconsistencies in the sequence result into
+execution of recovery procedures.
+
+The requests over the session layer may or may not be authenticated, and is
+specific to the application. For example, the remote service may require each
+request to include credidentials, such as a session key obtained by
+out-of-session communication.
+
+### Application Layer
+
+The application layer relies on the session layer for performing requests and
+for receiving notifications about the current state of the communication path.
+
+If the session layer detects that the remote service may be unavailable, the
+application layer is notified about it. Although, the application is allowed to
+queue requests, it must prepare for the event that the remote service will not
+become available.
+
+
+Performance analysis
+--------------------
+
+### Request-Response Latencies over HTTP/1.1
+
+On average a request-response took 18.8 ms with a standard deviation of 19.2
+ms. The maximum response-request took 184 ms and the minimum 1 ms. The results
+were obtained by performing 10,000 requests from a client to the server running
+in their own processes. Both the request and response had a content length of
+1024 bytes. The client was written in Scala using HttpClient version 4.0.1 of
+Jakarta Commons, whereas the server used Sun's Java HTTP server. The client and
+server ran on the same computer (Ubuntu 9.04, Intel Core 2 Duo 2.4 GHz),
+however, the loopback device was not used.
+
+
 <a id="introductiontosynchronization"></a>
 Introduction to synchronization in collaborative editing (DRAFT)
 ----------------------------------------------------------------
