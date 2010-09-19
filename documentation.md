@@ -8,7 +8,7 @@ This page contains documentation for the CCF library.
 <ul>
     <li><a href="#messaging_in_ccf">Messaging in CCF</a></li>
     <li><a href="#performance_analysis">Performance analysis</a></li>
-    <li><a href="#introductiontosynchronization">Introduction to synchronization in collaborative editing (DRAFT)</a></li>
+    <li><a href="#introductiontosynchronization">Synchronization in real-time collaborative editing/a></li>
 </ul>
 
 Messaging in CCF
@@ -109,10 +109,14 @@ however, the loopback device was not used.
 
 
 <a id="introductiontosynchronization"></a>
-Introduction to synchronization in collaborative editing (DRAFT)
+Synchronization in real-time collaborative editing
 ----------------------------------------------------------------
 
-<p class="author">Aki Saarinen, 5.9.2010</p>
+<p class="author">Aki Saarinen, 5.9.2010, updated 19.9.2010.</p>
+
+<b>Disclaimer:</b> This article is intended for those interested in the inner
+workings of real-time collaborative software, and is a good read for those who
+want to get familiar with how CCF and similar libraries work. 
 
 Synchronization between multiple parties in a collaborative
 group-editing system is an interesting problem that can be described
@@ -122,12 +126,15 @@ approaches for solving this problem include various locking schemes,
 global serialization of actions by a single party (usually the server)
 and finally what's called operational transformations (OT).
 
-CCF is based on one of these OT algorithms, which allow users to make
-instant changes to a local copy of the data, and then provide
-mechanisms for eventually synchronizing all of these clients in such a
-way, that intentions of all users are preserved whenever it's possible.
-Conflict situations are usually merged automatically, even though user
-interaction could be implemented when necessary.
+CCF is based on one of these OT algorithms. The main difference between OT and
+other traditional approacehes is that OT algorithms allow users to make instant
+changes to a local copy of the data, and then provide mechanisms for eventually
+synchronizing all of these clients in such a way, that intentions of all users
+are preserved whenever it's possible.  Conflict situations are usually merged
+automatically, even though user interaction could be implemented when
+necessary. This allows us to implement software with very short response times
+to local changes, while still allowing real-time collaboration with any number
+of users.
 
 ### CCF and Jupiter
 
@@ -139,11 +146,14 @@ platform. Even though various more advanced algorithms have been
 developed since the introduction of Jupiter, the relative simplicity of
 this algorithm still makes it a powerful tool even today.
 
-### Limitations in CCF
+### Limitations in the Jupiter algorithm and CCF
 
-CCF is suitable for synchronizing tree-like documents between multiple
-clients using one central server. There are algorithms that work in a
-pure peer-to-peer setting, but CCF won't.
+CCF is suitable for synchronizing tree-like documents between multiple clients
+using one central server. There are algorithms that work in a pure peer-to-peer
+setting, but CCF won't. This restriction simplifies both the problem of
+synchronization both from a theoretical and practical viewpoints. It's a
+tradeoff that we wanted to make in order to reduce the complexity in CCF and
+programs that use it.
 
 ### How it works? 
 
