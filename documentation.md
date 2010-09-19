@@ -8,7 +8,7 @@ This page contains documentation for the CCF library.
 <ul>
     <li><a href="#messaging_in_ccf">Messaging in CCF</a></li>
     <li><a href="#performance_analysis">Performance analysis</a></li>
-    <li><a href="#introductiontosynchronization">Synchronization in real-time collaborative editing/a></li>
+    <li><a href="#introductiontosynchronization">Synchronization in real-time collaborative editing</a></li>
 </ul>
 
 Messaging in CCF
@@ -114,7 +114,7 @@ Synchronization in real-time collaborative editing
 
 <p class="author">Aki Saarinen, 5.9.2010, updated 19.9.2010.</p>
 
-<b>Disclaimer:</b> This article is intended for those interested in the inner
+**Disclaimer:** This article is intended for those interested in the inner
 workings of real-time collaborative software, and is a good read for those who
 want to get familiar with how CCF and similar libraries work. 
 
