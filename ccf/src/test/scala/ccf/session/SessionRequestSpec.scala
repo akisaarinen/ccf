@@ -37,16 +37,6 @@ class SessionRequestSpec extends Specification with Mockito {
   val emptyTransportRequest = TransportRequest(Map(), None)
   val transportRequestWithUnknownType = TransportRequest(Map("type" -> "wrong type"), None)
 
-  "Session request factory" should {
-    "not create request without type" in {
-      SessionRequest.sessionRequest(emptyTransportRequest) must throwAn[RuntimeException]
-    }
-
-    "not create request with unknown type" in {
-      SessionRequest.sessionRequest(transportRequestWithUnknownType) must throwAn[RuntimeException]
-    }
-  }
-
   "JoinRequest" should {
     "not construct without type" in {
       new JoinRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
@@ -60,7 +50,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.join), channelIdContent)
 
     "be constructible by session request factory" in {
-      SessionRequest.sessionRequest(expectedTransportRequest) must haveClass[JoinRequest]
+      new SessionRequestFactory().create(expectedTransportRequest) must haveClass[JoinRequest]
     }
 
     "have correct transport request" in {
@@ -95,7 +85,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.part), channelIdContent)
 
     "be constructible by session request factory" in {
-      SessionRequest.sessionRequest(expectedTransportRequest) must haveClass[PartRequest]
+      new SessionRequestFactory().create(expectedTransportRequest) must haveClass[PartRequest]
     }
 
     "have correct transport request" in {
@@ -169,7 +159,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.context), transportRequestContent)
 
     "be constructible by session request factory" in {
-      SessionRequest.sessionRequest(expectedTransportRequest) must haveClass[OperationContextRequest]
+      new SessionRequestFactory().create(expectedTransportRequest) must haveClass[OperationContextRequest]
     }
 
     "have correct transport request" in {

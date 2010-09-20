@@ -22,11 +22,15 @@ import ccf.session._
 import ccf.transport.{TransportResponse, TransportRequest}
 
 class ServerEngine {
+  private val sessionRequestFactory = new SessionRequestFactory
+
   def decodeRequest(request: Option[TransportRequest]) : TransportResponse = {
     request match {
       case Some(r: TransportRequest) => {
         try {
-          handleRequest(SessionRequest.sessionRequest(r)).transportResponse
+          val sessionRequest = sessionRequestFactory.create(r)
+          val sessionReply = handleRequest(sessionRequest)
+          sessionReply.transportResponse
         } catch {
           case ex: Exception => error(ex.getMessage)
         }
