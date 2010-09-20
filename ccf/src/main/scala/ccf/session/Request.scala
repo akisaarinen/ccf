@@ -28,7 +28,7 @@ object SessionRequest {
 
   def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest = TransportRequest(
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
-        "channelId" -> channelId.toString, "type" -> requestType),
+        "channelId" -> channelId.id.toString, "type" -> requestType),
     content
   )
 
