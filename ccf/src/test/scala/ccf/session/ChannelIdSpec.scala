@@ -25,4 +25,16 @@ object ChannelIdSpec extends Specification {
       clientId must not equalTo(ChannelId.randomId)
     }
   }
+
+  "ChannelId" should {
+    "encode and decode transport representation of channelId" in {
+      val channelId = ChannelId.randomId
+      val transportRepresentation = channelId.toString
+      ChannelId(transportRepresentation) must equalTo(Some(channelId))
+    }
+    "return None for invalid representation of channel id" in {
+      val invalidId = "not an uuid"
+      ChannelId(invalidId) mustBe None
+    }
+  }
 }
