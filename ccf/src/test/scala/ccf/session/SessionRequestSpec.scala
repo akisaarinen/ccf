@@ -84,14 +84,14 @@ class SessionRequestSpec extends Specification with Mockito {
 
   "PartRequest" should {
     "not construct without type" in {
-      new PartRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
+      PartRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
     }
 
     "not construct with unknown type" in {
-      new PartRequest(transportRequestWithUnknownType) must throwAn[IllegalArgumentException]
+      PartRequest(transportRequestWithUnknownType) must throwAn[IllegalArgumentException]
     }
 
-    val partRequest = new PartRequest(session, channelId)
+    val partRequest = PartRequest(session, channelId)
     val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.part), channelIdContent)
 
     "be constructible by session request factory" in {

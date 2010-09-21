@@ -36,7 +36,7 @@ case class Join(channelId: ChannelId) extends Message {
 }
 case class Part(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[TransportResponse]) =
-    if (s.channels(channelId)) send(s, new PartRequest(s, channelId), s.channels - channelId) else (s, None)
+    if (s.channels(channelId)) send(s, PartRequest(s, channelId), s.channels - channelId) else (s, None)
 }
 case class InChannelMessage(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
   def send(s: Session): (Session, Option[TransportResponse]) =

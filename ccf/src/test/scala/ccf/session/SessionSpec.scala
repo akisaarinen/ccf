@@ -49,7 +49,7 @@ object SessionSpec extends Specification with Mockito {
       there was one(connection).send(joinRequest)
     }
     "send Part message, sending correct TransportRequest and producing correct Session" in {
-      val partRequest = new PartRequest(session, existingChannelId).transportRequest
+      val partRequest = PartRequest(session, existingChannelId).transportRequest
       val partMessage = Part(existingChannelId)
       connection.send(partRequest) returns None
       val (nextSession, result) = session.send(partMessage)
