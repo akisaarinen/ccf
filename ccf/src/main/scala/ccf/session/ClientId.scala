@@ -18,8 +18,19 @@ package ccf.session
 
 import java.util.UUID
 
-case class ClientId(id: UUID)
+case class ClientId(id: UUID) {
+  override def toString = id.toString
+}
 
 object ClientId {
+  def apply(str: String): Option[ClientId] = {
+    try {
+      Some(ClientId(UUID.fromString(str)))
+    }
+    catch {
+      case _ => None
+    }
+  }
+
   def randomId = ClientId(UUID.randomUUID)
 }
