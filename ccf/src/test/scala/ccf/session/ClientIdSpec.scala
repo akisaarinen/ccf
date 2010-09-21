@@ -25,4 +25,16 @@ object ClientIdSpec extends Specification {
       clientId must not equalTo(ClientId.randomId)
     }
   }
+
+  "ClientId" should {
+    "encode and decode transport representation of client id" in {
+      val clientId = ClientId.randomId
+      val tranportRepresentation = clientId.toString
+      ClientId(tranportRepresentation) must equalTo(Some(clientId))
+    }
+    "return None for invalid representation of client id" in {
+      val invalidId = "not an uuid"
+      ClientId(invalidId) mustBe None
+    }
+  }
 }
