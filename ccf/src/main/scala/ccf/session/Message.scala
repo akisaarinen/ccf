@@ -40,7 +40,7 @@ case class Part(channelId: ChannelId) extends Message {
 }
 case class InChannelMessage(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
   def send(s: Session): (Session, Option[TransportResponse]) =
-    if (s.channels(channelId)) send(s, new InChannelRequest(s, requestType, channelId, content), s.channels) else (s, None)
+    if (s.channels(channelId)) send(s, InChannelRequest(s, requestType, channelId, content), s.channels) else (s, None)
 }
 case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
   def send(s: Session): (Session, Option[TransportResponse]) = {

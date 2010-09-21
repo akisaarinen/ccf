@@ -98,10 +98,10 @@ object PartRequest {
 case class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
   require(transportRequest.header("type").isDefined)
   require(!TransportRequestType.sessionControlTypes.contains(transportRequest.header("type").get))
+}
 
-  def this(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = {
-    this(SessionRequest.transportRequest(s, requestType, channelId, content))
-  }
+object InChannelRequest {
+  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = new InChannelRequest(SessionRequest.transportRequest(s, requestType, channelId, content))
 }
 
 case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {

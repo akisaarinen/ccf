@@ -119,20 +119,20 @@ class SessionRequestSpec extends Specification with Mockito {
 
   "InChannelRequest" should {
     "not construct without type" in {
-      new InChannelRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
+      InChannelRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
     }
 
     "not construct with session control request type" in {
       TransportRequestType.sessionControlTypes map { (requestType) => {
         val sessionControlTransportRequest = TransportRequest(Map("type" -> requestType), None)
-        new InChannelRequest(sessionControlTransportRequest) must throwAn[IllegalArgumentException]
+        InChannelRequest(sessionControlTransportRequest) must throwAn[IllegalArgumentException]
         }
       }
     }
 
     val transportRequestType = "requestType"
     val transportRequestContent = Some(Map("content" -> "data"))
-    val inChannelRequest = new InChannelRequest(session, transportRequestType, channelId, transportRequestContent)
+    val inChannelRequest = InChannelRequest(session, transportRequestType, channelId, transportRequestContent)
     val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> transportRequestType), transportRequestContent)
 
     "have correct transport request" in {
