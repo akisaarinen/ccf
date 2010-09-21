@@ -81,10 +81,10 @@ object SessionControlRequest {
 
 case class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
   require(transportRequest.header("type") == Some(TransportRequestType.join))
+}
 
-  def this(s: Session, channelId: ChannelId) = {
-    this(SessionControlRequest.transportRequest(s, TransportRequestType.join, channelId))
-  }
+object JoinRequest {
+  def apply(s: Session, channelId: ChannelId) = new JoinRequest(SessionControlRequest.transportRequest(s, TransportRequestType.join, channelId))
 }
 
 case class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
