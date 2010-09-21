@@ -106,8 +106,8 @@ object InChannelRequest {
 
 case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
   require(transportRequest.header("type") == Some(TransportRequestType.context))
+}
 
-  def this(s: Session, channelId: ChannelId, context: OperationContext) = {
-     this(SessionRequest.transportRequest(s, TransportRequestType.context, channelId, Some(context.encode)))
-  }
+object OperationContextRequest {
+  def apply(s: Session, channelId: ChannelId, context: OperationContext) = new OperationContextRequest(SessionRequest.transportRequest(s, TransportRequestType.context, channelId, Some(context.encode)))
 }

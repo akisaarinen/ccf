@@ -44,6 +44,6 @@ case class InChannelMessage(requestType: String, channelId: ChannelId, content: 
 }
 case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
   def send(s: Session): (Session, Option[TransportResponse]) = {
-    if (s.channels(channelId)) send(s, new OperationContextRequest(s, channelId, context), s.channels) else (s, None)
+    if (s.channels(channelId)) send(s, OperationContextRequest(s, channelId, context), s.channels) else (s, None)
   }
 }
