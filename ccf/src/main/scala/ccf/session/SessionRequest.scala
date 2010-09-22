@@ -17,8 +17,6 @@
 package ccf.session
 
 import ccf.OperationContext
-import ccf.session.SessionRequest.successResponseContent
-import ccf.session.SessionRequest.failureResponseContent
 import ccf.transport.{TransportRequestType, TransportResponse, TransportRequest}
 
 sealed abstract class SessionRequest {
@@ -32,11 +30,11 @@ sealed abstract class SessionRequest {
 
 trait DefaultSessionResponse extends SessionRequest {
   def successResponse(result: Option[Any]): SessionResponse = {
-    sessionResponse(this, transportResponse(successResponseContent), Left(Success(this, result)))
+    sessionResponse(this, transportResponse(SessionResponse.SuccessContent), Left(Success(this, result)))
   }
 
   def failureResponse(reason: String): SessionResponse = {
-    sessionResponse(this, transportResponse(failureResponseContent(reason)), Right(Failure(this, reason)))
+    sessionResponse(this, transportResponse(SessionResponse.failureContent(reason)), Right(Failure(this, reason)))
   }
 
   private def sessionResponse(sessionRequest: SessionRequest, transportResponse: TransportResponse, result: Either[Success, Failure]): SessionResponse = {
@@ -50,10 +48,6 @@ trait DefaultSessionResponse extends SessionRequest {
 }
 
 object SessionRequest {
-  val successResponseContent = Some(Map("result" -> "OK"))
-
-  def failureResponseContent(reason: String) = Some(Map("result" -> "FAIL", "reason" -> reason))
-
   def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest = TransportRequest(
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
         "channelId" -> channelId.toString, "type" -> requestType),

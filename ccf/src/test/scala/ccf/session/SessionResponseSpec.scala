@@ -75,7 +75,7 @@ class SessionResponseSpec extends Specification with Mockito {
     val responseHeaders = Map("type" -> requestType)
 
     "successful transport response" in {
-      val transportResponse = TransportResponse(responseHeaders, SessionRequest.successResponseContent)
+      val transportResponse = TransportResponse(responseHeaders, SessionResponse.SuccessContent)
       SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Success(request, None)))
     }
   }
@@ -86,7 +86,7 @@ class SessionResponseSpec extends Specification with Mockito {
 
     "failure transport response" in {
       val reason = "test reason"
-      val transportResponse = TransportResponse(responseHeaders, SessionRequest.failureResponseContent(reason))
+      val transportResponse = TransportResponse(responseHeaders, SessionResponse.failureContent(reason))
       SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, reason)))
     }
 
@@ -107,17 +107,17 @@ class SessionResponseSpec extends Specification with Mockito {
     }
 
     "transport response with mistyped content map" in {
-      val transportResponse = TransportResponse(responseHeaders, Some(Map[String,Int]("result" -> 42)))
+      val transportResponse = TransportResponse(responseHeaders, Some(Map[String,Int](SessionResponse.StatusKey -> 42)))
       SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Mistyped response content")))
     }
 
     "transport response with missing status" in {
-      val transportResponse = TransportResponse(responseHeaders, Some(Map[String,String]("reason" -> "test reason")))
+      val transportResponse = TransportResponse(responseHeaders, Some(Map[String,String](SessionResponse.ReasonKey -> "test reason")))
       SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Unkown response status")))
     }
 
     "transport response with unrecognized status" in {
-      val transportResponse = TransportResponse(responseHeaders, Some(Map[String,String]("result" -> "TEST")))
+      val transportResponse = TransportResponse(responseHeaders, Some(Map[String,String](SessionResponse.StatusKey -> "TEST")))
       SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Unkown response status")))
     }
   }

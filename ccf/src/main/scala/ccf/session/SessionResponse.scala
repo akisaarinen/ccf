@@ -25,6 +25,13 @@ sealed abstract class SessionResponse {
 }
 
 object SessionResponse {
+  val StatusKey = "status"
+  val SuccessStatus = "OK"
+  val FailureStatus = "FAIL"
+  val ReasonKey = "reason"
+  val SuccessContent = Some(Map(StatusKey -> SuccessStatus))
+  def failureContent(reason: String) = Some(Map(StatusKey -> FailureStatus, ReasonKey -> reason))
+
   def apply(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = {
     transportResponse.header("type") match {
       case Some(TransportRequestType.join) => JoinResponse(transportResponse, result(transportResponse, request))
@@ -49,9 +56,9 @@ object SessionResponse {
         case contentMap: Map[_,_] if !isNonEmptyStringToStringMap(contentMap) => Right(Failure(request, "Mistyped response content"))
         case contentMap: Map[_,_] => {
           val contents = contentMap.asInstanceOf[Map[String,String]]
-          contents.get("result") match {
-            case Some("OK") => Left(Success(request, None))
-            case Some("FAIL") => Right(Failure(request, contents.get("reason").getOrElse("")))
+          contents.get(StatusKey) match {
+            case Some(SuccessStatus) => Left(Success(request, None))
+            case Some(FailureStatus) => Right(Failure(request, contents.get(ReasonKey).getOrElse("")))
             case _ => Right(Failure(request, "Unkown response status"))
           }
         }
