@@ -21,7 +21,6 @@ import ccf.transport.{TransportRequestType, TransportResponse}
 sealed abstract class SessionResponse {
   val transportResponse: TransportResponse
   val result: Either[Success, Failure]
-  val content = transportResponse.content
 }
 
 object SessionResponse {

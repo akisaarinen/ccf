@@ -19,6 +19,7 @@ package ccf.session
 import org.specs.Specification
 import org.specs.mock.Mockito
 import ccf.transport.{Connection, ConnectionException}
+import ccf.OperationContext
 
 object SessionSpec extends Specification with Mockito {
   val connection = mock[Connection]
@@ -28,6 +29,8 @@ object SessionSpec extends Specification with Mockito {
   val newChannelId = ChannelId.randomId
   val channels = Set(existingChannelId)
   val session = Session(connection, version, clientId, 0, channels)
+  val testResult = Some("test result")
+  val testReason = "test reason"
   "Session next(...)" should {
     "produce new session with incremented seqId" in {
       session.next(Set()).seqId must equalTo(1)
@@ -37,35 +40,115 @@ object SessionSpec extends Specification with Mockito {
     }
   }
   "Session send(...)" should {
-    "send valid Join message, sending correct TransportRequest and producing correct Session" in {
-      val joinRequest = JoinRequest(session, newChannelId).transportRequest
+    "with any message" in {
+      val msg = mock[Message]
+      val mockReq = mock[SessionRequest]
+      val mockRes = mock[SessionResponse]
+      val newSession = session.copy(seqId = session.seqId+1)
+
+      "Return success and new session on empty response" in {
+        msg.send(session) returns((newSession, None))
+
+        val (nextSession, result) = session.send(msg)
+        there was one(msg).send(session)
+        result must equalTo(Right(Success(msg, None)))
+        nextSession must equalTo(newSession)
+      }
+      "Return success and new session on success response without result" in {
+        mockRes.result returns Left(Success(mockReq, None))
+        msg.send(session) returns((newSession, Some(mockRes)))
+
+        val (nextSession, result) = session.send(msg)
+        there was one(msg).send(session)
+        result must equalTo(Right(Success(msg, None)))
+        nextSession must equalTo(newSession)
+      }
+      "Return success and new session on success response with result" in {
+        mockRes.result returns Left(Success(mockReq, testResult))
+        msg.send(session) returns((newSession, Some(mockRes)))
+
+        val (nextSession, result) = session.send(msg)
+        there was one(msg).send(session)
+        result must equalTo(Right(Success(msg, testResult)))
+        nextSession must equalTo(newSession)
+      }
+      "Return failure and retain session state on failure response" in {
+        mockRes.result returns Right(Failure(mockReq, testReason))
+        msg.send(session) returns((newSession, Some(mockRes)))
+
+        val (nextSession, result) = session.send(msg)
+        there was one(msg).send(session)
+        result must equalTo(Left(Failure(msg, testReason)))
+        nextSession must equalTo(session)
+      }
+      "Return failure and retain session state on exception in Message#send" in {
+        val ex = new RuntimeException(testReason)
+        msg.send(session) throws ex
+
+        val (nextSession, result) = session.send(msg)
+        there was one(msg).send(session)
+        result must equalTo(Left(Failure(msg, ex.toString)))
+        nextSession must equalTo(session)
+      }
+    }
+    "with Join message" in {
+      val joinRequest = JoinRequest(session, newChannelId)
       val joinMessage = Join(newChannelId)
-      connection.send(joinRequest) returns None
-      val (nextSession, result) = session.send(joinMessage)
 
-      result must equalTo(Right(Success(joinMessage, None)))
-      nextSession.seqId must equalTo(1)
-      nextSession.channels must equalTo(Set(existingChannelId, newChannelId))
-      there was one(connection).send(joinRequest)
+      "send valid request, sending correct TransportRequest and producing correct Session" in {
+        connection.send(joinRequest.transportRequest) returns None
+        val (nextSession, result) = session.send(joinMessage)
+
+        result must equalTo(Right(Success(joinMessage, None)))
+        nextSession.seqId must equalTo(1)
+        nextSession.channels must equalTo(Set(existingChannelId, newChannelId))
+        there was one(connection).send(joinRequest.transportRequest)
+      }
     }
-    "send Part message, sending correct TransportRequest and producing correct Session" in {
-      val partRequest = PartRequest(session, existingChannelId).transportRequest
+    "with Part message" in {
+      val partRequest = PartRequest(session, existingChannelId)
       val partMessage = Part(existingChannelId)
-      connection.send(partRequest) returns None
-      val (nextSession, result) = session.send(partMessage)
 
-      result must equalTo(Right(Success(partMessage, None)))
-      nextSession.seqId must equalTo(1)
-      nextSession.channels must equalTo(Set())
-      there was one(connection).send(partRequest)
+      "send valid request, sending correct TransportRequest and producing correct Session" in {
+        connection.send(partRequest.transportRequest) returns None
+        val (nextSession, result) = session.send(partMessage)
+
+        result must equalTo(Right(Success(partMessage, None)))
+        nextSession.seqId must equalTo(1)
+        nextSession.channels must equalTo(Set())
+        there was one(connection).send(partRequest.transportRequest)
+      }
     }
-    "report failure and keep current session state, if transport layer fails with ConnectException" in {
-      val request = JoinRequest(session, newChannelId).transportRequest
-      val message = Join(newChannelId)
-      doThrow(new ConnectionException("Error")).when(connection).send(request)
-      val (nextSession, result) = session.send(message)
-      nextSession must equalTo(session)
-      result must equalTo(Left(Failure(message, "ccf.transport.ConnectionException: Error")))
+    "with InChannel message" in {
+      val content = Some("test content")
+      val requestType = "test/type"
+      val inChannelRequest = InChannelRequest(session, requestType, existingChannelId, content)
+      val inChannelMessage = InChannelMessage(requestType, existingChannelId, content)
+
+      "send valid request, sending correct TransportRequest and producing correct Session" in {
+        connection.send(inChannelRequest.transportRequest) returns None
+        val (nextSession, result) = session.send(inChannelMessage)
+
+        result must equalTo(Right(Success(inChannelMessage, None)))
+        nextSession.seqId must equalTo(1)
+        nextSession.channels must equalTo(Set(existingChannelId))
+        there was one(connection).send(inChannelRequest.transportRequest)
+      }
+    }
+    "with OperationContextMessage message" in {
+      val context = mock[OperationContext]
+      val operationContextRequest = OperationContextRequest(session, existingChannelId, context)
+      val operationContextMessage = OperationContextMessage(existingChannelId, context)
+
+      "send valid request, sending correct TransportRequest and producing correct Session" in {
+        connection.send(operationContextRequest.transportRequest) returns None
+        val (nextSession, result) = session.send(operationContextMessage)
+
+        result must equalTo(Right(Success(operationContextMessage, None)))
+        nextSession.seqId must equalTo(1)
+        nextSession.channels must equalTo(Set(existingChannelId))
+        there was one(connection).send(operationContextRequest.transportRequest)
+      }
     }
   }
 }
