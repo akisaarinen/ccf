@@ -16,7 +16,7 @@
 
 package textapp.client
 
-import ccf.transport.ClientId
+import ccf.session.ClientId
 import ccf.tree.operation.TreeOperation
 
 import dispatch.{:/, Http, Logger, Request}

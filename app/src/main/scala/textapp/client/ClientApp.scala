@@ -18,7 +18,7 @@ package textapp.client
 
 import ccf.JupiterOperationSynchronizer
 import ccf.tree.JupiterTreeTransformation
-import ccf.transport.ClientId
+import ccf.session.ClientId
 import ccf.tree.operation.TreeOperation
 import java.util.{Timer, TimerTask}
 import textapp.messaging.MessageCoder

@@ -16,13 +16,14 @@
 
 package textapp.server
 
-import ccf.transport.{ClientId, ChannelId}
+import ccf.transport.ChannelId
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 import java.net.URI
 import java.util.UUID
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
 import textapp.messaging.MessageCoder
+import ccf.session.ClientId
 
 class TextAppRequestHandler extends HttpHandler {
   private val page404 = 

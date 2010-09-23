@@ -17,6 +17,7 @@
 package ccf.transport
 
 import ccf.messaging.Message
+import ccf.session.ClientId
 
 object Event {
   case class Ok()
