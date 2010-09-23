@@ -21,7 +21,7 @@ import ccf.messaging.Message
 import ccf.server.Server
 import org.specs.Specification
 import org.specs.mock.Mockito
-import ccf.session.ClientId
+import ccf.session.{ChannelId, ClientId}
 
 object ExampleTransportSpec extends Specification with Mockito {
   val listener = mock[ExampleTransportListener]

@@ -20,7 +20,7 @@ import ccf.messaging.ConcurrentOperationMessage
 import collection.mutable.ArrayBuffer
 import ccf.OperationSynchronizer
 import ccf.tree.operation.TreeOperation
-import ccf.transport.ChannelId
+import ccf.session.ChannelId
 
 class ClientState(val channel: ChannelId, synchronizer: OperationSynchronizer) {
   def receive(msg: ConcurrentOperationMessage): TreeOperation = {

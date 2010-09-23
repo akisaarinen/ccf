@@ -19,12 +19,11 @@ package textapp.server
 import ccf.messaging.Message
 import ccf.server.Server
 import ccf.transport.Event
-import ccf.transport.ChannelId
 import ccf.tree.JupiterTreeTransformation
 import ccf.tree.operation.TreeOperation
 import ccf.JupiterOperationSynchronizerFactory
 import textapp.TextDocument
-import ccf.session.ClientId
+import ccf.session.{ChannelId, ClientId}
 
 class DocumentHandler {
   private val document = new TextDocument("")

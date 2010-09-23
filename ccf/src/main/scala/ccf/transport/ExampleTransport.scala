@@ -18,7 +18,7 @@ package ccf.transport
 
 import ccf.messaging.Message
 import ccf.server.Server
-import ccf.session.ClientId
+import ccf.session.{ChannelId, ClientId}
 
 trait ExampleTransportListener {
   def onInitialize(server: Server): Unit

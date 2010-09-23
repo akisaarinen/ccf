@@ -17,16 +17,15 @@
 package ccf.server
 
 import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
-import ccf.transport.{ChannelId, Event}
+import ccf.transport.Event
 import ccf.transport.TransportActor
 import ccf.OperationSynchronizer
 import ccf.OperationSynchronizerFactory
 import ccf.tree.operation.TreeOperation
-import ccf.session.ClientId
-
 import org.specs.Specification
 import org.specs.mock.Mockito
 import org.mockito.Matchers._
+import ccf.session.{ChannelId, ClientId}
 
 
 class ServerSpec extends Specification with Mockito {

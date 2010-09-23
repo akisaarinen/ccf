@@ -18,9 +18,8 @@ package textapp.server
 
 import ccf.tree.operation.TreeOperation
 import ccf.server.{ServerOperationInterceptor, Server}
-import ccf.transport.ChannelId
 import textapp.TextDocument
-import ccf.session.ClientId
+import ccf.session.{ChannelId, ClientId}
 
 class TextAppOperationInterceptor(document: TextDocument) extends ServerOperationInterceptor {
   override def currentStateFor(channelId: ChannelId): Any = {

@@ -23,8 +23,8 @@ import scala.actors.Actor._
 import collection.mutable.HashMap
 import ccf.OperationSynchronizerFactory
 import ccf.tree.operation.TreeOperation
-import ccf.session.{ClientId}
-import ccf.transport.{ChannelId, TransportActor, Event}
+import ccf.transport.{TransportActor, Event}
+import ccf.session.{ChannelId, ClientId}
 
 trait ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Any
