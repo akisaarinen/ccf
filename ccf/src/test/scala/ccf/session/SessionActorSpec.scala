@@ -25,6 +25,7 @@ class SessionActorSpec extends Specification with Mockito {
   val clientId = ClientId.randomId
   val version = Version(1, 2)
   val channelId = ChannelId.randomId
+
   "SessionActor on Join" should {
     val session = newSession(0, Set())
     val joinMessage = Join(channelId)
@@ -77,16 +78,17 @@ class SessionActorSpec extends Specification with Mockito {
       sa !? message must equalTo(Left(Failure(message, "ccf.transport.ConnectionException: Error")))
     }
   }
+
   "SessionActor on InChannelMsg" should {
     val session = newSession(1, Set(channelId))
     val content = Some(Map("a" -> "b", "c" -> Map("d" -> 3)))
     val requestType = "app/custom"
     val inChannelMessage = InChannelMessage(requestType, channelId, content)
-    val inChannelRequest = InChannelRequest(session, requestType, channelId, content).transportRequest
+    val inChannelRequest = InChannelRequest(session, requestType, channelId, content)
     "reply with Success(...) when server returns valid response to request" in {
       val sa = new SessionActor(connection, clientId, version, session)
-      connection.send(inChannelRequest) returns Some(TransportResponse(inChannelRequest.headers, content))
-      sa !? inChannelMessage must equalTo(Right(Success(inChannelMessage, content)))
+      connection.send(inChannelRequest.transportRequest) returns None
+      sa !? inChannelMessage must equalTo(Right(Success(inChannelMessage, None)))
     }
   }
 

@@ -22,28 +22,28 @@ import ccf.OperationContext
 case object Shutdown
 
 trait Message {
-  def send(s: Session): (Session, Option[TransportResponse])
-  protected def send(s: Session, request: SessionRequest, channels: Set[ChannelId]): (Session, Option[TransportResponse]) = {
+  def send(s: Session): (Session, Option[SessionResponse])
+  protected def send(s: Session, request: SessionRequest, channels: Set[ChannelId]): (Session, Option[SessionResponse]) = {
     val nextSession = s.next(channels)
-    val response = s.connection.send(request.transportRequest)
+    val response = s.connection.send(request.transportRequest).map(SessionResponse(_, request))
     (nextSession, response)
   }
 }
 
 case class Join(channelId: ChannelId) extends Message {
-  def send(s: Session): (Session, Option[TransportResponse]) =
+  def send(s: Session): (Session, Option[SessionResponse]) =
     if (!s.channels(channelId)) send(s, JoinRequest(s, channelId), s.channels + channelId) else (s, None)
 }
 case class Part(channelId: ChannelId) extends Message {
-  def send(s: Session): (Session, Option[TransportResponse]) =
+  def send(s: Session): (Session, Option[SessionResponse]) =
     if (s.channels(channelId)) send(s, PartRequest(s, channelId), s.channels - channelId) else (s, None)
 }
 case class InChannelMessage(requestType: String, channelId: ChannelId, content: Option[Any]) extends Message {
-  def send(s: Session): (Session, Option[TransportResponse]) =
+  def send(s: Session): (Session, Option[SessionResponse]) =
     if (s.channels(channelId)) send(s, InChannelRequest(s, requestType, channelId, content), s.channels) else (s, None)
 }
 case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
-  def send(s: Session): (Session, Option[TransportResponse]) = {
+  def send(s: Session): (Session, Option[SessionResponse]) = {
     if (s.channels(channelId)) send(s, OperationContextRequest(s, channelId, context), s.channels) else (s, None)
   }
 }
