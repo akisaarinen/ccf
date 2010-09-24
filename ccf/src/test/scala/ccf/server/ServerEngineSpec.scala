@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package perftest.server
+package ccf.server
 
 import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}

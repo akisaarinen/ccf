@@ -28,6 +28,7 @@ import ccf.session.SessionRequest
 import ccf.OperationContext
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
 import ccf.transport.{TransportRequest, TransportResponse}
+import ccf.server.ServerEngine
 
 class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
   override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {

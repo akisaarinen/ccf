@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package perftest.server
+package ccf.server
 
 import ccf.OperationContext
 import ccf.tree.operation.TreeOperationDecoder
