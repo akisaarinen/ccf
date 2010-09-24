@@ -28,8 +28,17 @@ object SessionResponse {
   val StatusKey = "status"
   val SuccessStatus = "OK"
   val FailureStatus = "FAIL"
+  val ResultKey = "result"
   val ReasonKey = "reason"
-  val SuccessContent = Some(Map(StatusKey -> SuccessStatus))
+
+  def successContent(result: Option[String]) = {
+    val content = Map(StatusKey -> SuccessStatus)
+    result match {
+      case Some(str) => Some(content + (ResultKey -> str))
+      case None => Some(content)
+    }
+  }
+
   def failureContent(reason: String) = Some(Map(StatusKey -> FailureStatus, ReasonKey -> reason))
 
   def apply(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = {
@@ -57,7 +66,7 @@ object SessionResponse {
         case contentMap: Map[_,_] => {
           val contents = contentMap.asInstanceOf[Map[String,String]]
           contents.get(StatusKey) match {
-            case Some(SuccessStatus) => Left(Success(request, None))
+            case Some(SuccessStatus) => Left(Success(request, contents.get(ResultKey)))
             case Some(FailureStatus) => Right(Failure(request, contents.get(ReasonKey).getOrElse("")))
             case _ => Right(Failure(request, "Unkown response status"))
           }

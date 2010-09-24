@@ -30,7 +30,7 @@ sealed abstract class SessionRequest {
 
 trait DefaultSessionResponse extends SessionRequest {
   def successResponse(result: Option[Any]): SessionResponse = {
-    sessionResponse(this, transportResponse(SessionResponse.SuccessContent), Left(Success(this, result)))
+    sessionResponse(this, transportResponse(SessionResponse.successContent(None)), Left(Success(this, result)))
   }
 
   def failureResponse(reason: String): SessionResponse = {

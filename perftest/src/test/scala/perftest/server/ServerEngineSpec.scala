@@ -59,14 +59,14 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
 
       "join request" in {
         val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.join), channelIdContent)
-        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.SuccessContent)
+        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
       }
 
       "part request" in {
         val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.part), channelIdContent)
-        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.SuccessContent)
+        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
       }
@@ -75,7 +75,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
         val context = OperationContext(NoOperation(), 1, 2)
         val transportRequestContent = Some(context.encode)
         val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.context), transportRequestContent)
-        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.SuccessContent)
+        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
       }

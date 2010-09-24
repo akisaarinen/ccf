@@ -74,9 +74,15 @@ class SessionResponseSpec extends Specification with Mockito {
                                   expectedResponse: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
     val responseHeaders = Map("type" -> requestType)
 
-    "successful transport response" in {
-      val transportResponse = TransportResponse(responseHeaders, SessionResponse.SuccessContent)
+    "successful transport response without result" in {
+      val transportResponse = TransportResponse(responseHeaders, SessionResponse.successContent(None))
       SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Success(request, None)))
+    }
+
+    "successful transport response with result" in {
+      val testResult = Some("test result")
+      val transportResponse = TransportResponse(responseHeaders, SessionResponse.successContent(testResult))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Success(request, testResult)))
     }
   }
 
