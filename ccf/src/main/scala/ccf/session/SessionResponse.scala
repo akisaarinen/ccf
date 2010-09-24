@@ -16,11 +16,50 @@
 
 package ccf.session
 
-import ccf.transport.TransportResponse
+import ccf.transport.{TransportRequestType, TransportResponse}
 
 sealed abstract class SessionResponse {
   val transportResponse: TransportResponse
-  val result: Either[Success, Failure] 
+  val result: Either[Success, Failure]
+  val content = transportResponse.content
+}
+
+object SessionResponse {
+  def apply(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = {
+    transportResponse.header("type") match {
+      case Some(TransportRequestType.join) => JoinResponse(transportResponse, result(transportResponse, request))
+      case Some(TransportRequestType.part) => PartResponse(transportResponse, result(transportResponse, request))
+      case Some(TransportRequestType.context) => OperationContextResponse(transportResponse, result(transportResponse, request))
+      case Some(customRequestType) => InChannelResponse(transportResponse, result(transportResponse, request))
+      case None => error("No response type found")
+    }
+  }
+
+  private def result(transportResponse: TransportResponse, request: SessionRequest): Either[Success, Failure] = {
+    def isNonEmptyStringToStringMap(map: Map[_,_]): Boolean = {
+      map.head match {
+        case (key: String, value: String) => true
+        case _ => false
+      }
+    }
+
+    transportResponse.content match {
+      case Some(content) => content match {
+        case contentMap: Map[_,_] if contentMap.isEmpty => Right(Failure(request, "Empty response content"))
+        case contentMap: Map[_,_] if !isNonEmptyStringToStringMap(contentMap) => Right(Failure(request, "Mistyped response content"))
+        case contentMap: Map[_,_] => {
+          val contents = contentMap.asInstanceOf[Map[String,String]]
+          contents.get("result") match {
+            case Some("OK") => Left(Success(request, None))
+            case Some("FAIL") => Right(Failure(request, contents.get("reason").getOrElse("")))
+            case _ => Right(Failure(request, "Unkown response status"))
+          }
+        }
+        case _ => Right(Failure(request, "Unrecognized response content"))
+      }
+    case _ => Right(Failure(request, "Response missing content"))
+    }
+  }
 }
 
 case class JoinResponse(transportResponse: TransportResponse, result: Either[Success, Failure]) extends SessionResponse
