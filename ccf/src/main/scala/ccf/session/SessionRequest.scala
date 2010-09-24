@@ -21,7 +21,7 @@ import ccf.transport.{TransportRequestType, TransportResponse, TransportRequest}
 
 sealed abstract class SessionRequest {
   val transportRequest: TransportRequest
-  def successResponse(result: Option[Any]): SessionResponse
+  def successResponse(result: Option[String]): SessionResponse
   def failureResponse(reason: String): SessionResponse
   protected def transportResponse(content: Option[Any]): TransportResponse = {
     TransportResponse(transportRequest.headers, content)
@@ -29,8 +29,8 @@ sealed abstract class SessionRequest {
 }
 
 trait DefaultSessionResponse extends SessionRequest {
-  def successResponse(result: Option[Any]): SessionResponse = {
-    sessionResponse(this, transportResponse(SessionResponse.successContent(None)), Left(Success(this, result)))
+  def successResponse(result: Option[String]): SessionResponse = {
+    sessionResponse(this, transportResponse(SessionResponse.successContent(result)), Left(Success(this, result)))
   }
 
   def failureResponse(reason: String): SessionResponse = {

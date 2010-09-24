@@ -67,8 +67,15 @@ class SessionRequestSpec extends Specification with Mockito {
       joinRequest.transportRequest mustEqual expectedTransportRequest
     }
 
-    "return correct success response" in {
+    "return correct success response without result" in {
       val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedResponse = JoinResponse(expectedTransportResponse, Left(Success(joinRequest, None)))
+
+      joinRequest.successResponse(None) mustEqual expectedResponse
+    }
+
+    "return correct success response with result" in {
+      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
       val expectedResponse = JoinResponse(expectedTransportResponse, Left(Success(joinRequest, responseResult)))
       
       joinRequest.successResponse(responseResult) mustEqual expectedResponse
@@ -102,8 +109,15 @@ class SessionRequestSpec extends Specification with Mockito {
       partRequest.transportRequest mustEqual expectedTransportRequest
     }
 
-    "return correct success response" in {
+    "return correct success response without result" in {
       val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedResponse = PartResponse(expectedTransportResponse, Left(Success(partRequest, None)))
+
+      partRequest.successResponse(None) mustEqual expectedResponse
+    }
+
+    "return correct success response with result" in {
+      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
       val expectedResponse = PartResponse(expectedTransportResponse, Left(Success(partRequest, responseResult)))
 
       partRequest.successResponse(responseResult) mustEqual expectedResponse
@@ -139,8 +153,15 @@ class SessionRequestSpec extends Specification with Mockito {
       inChannelRequest.transportRequest mustEqual expectedTransportRequest
     }
 
-    "return correct success response" in {
+    "return correct success response without result" in {
       val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedResponse = InChannelResponse(expectedTransportResponse, Left(Success(inChannelRequest, None)))
+
+      inChannelRequest.successResponse(None) mustEqual expectedResponse
+    }
+
+    "return correct success response with result" in {
+      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
       val expectedResponse = InChannelResponse(expectedTransportResponse, Left(Success(inChannelRequest, responseResult)))
 
       inChannelRequest.successResponse(responseResult) mustEqual expectedResponse
@@ -176,8 +197,15 @@ class SessionRequestSpec extends Specification with Mockito {
       operationContextRequest.transportRequest mustEqual expectedTransportRequest
     }
 
-    "return correct success response" in {
+    "return correct success response without result" in {
       val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedResponse = OperationContextResponse(expectedTransportResponse, Left(Success(operationContextRequest, None)))
+
+      operationContextRequest.successResponse(None) mustEqual expectedResponse
+    }
+
+    "return correct success response with result" in {
+      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
       val expectedResponse = OperationContextResponse(expectedTransportResponse, Left(Success(operationContextRequest, responseResult)))
 
       operationContextRequest.successResponse(responseResult) mustEqual expectedResponse
