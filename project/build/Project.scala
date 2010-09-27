@@ -32,6 +32,9 @@ class Project(info: ProjectInfo) extends ParentProject(info) with IdeaProject { 
 
   class CcfLibraryProject(info: ProjectInfo) extends AbstractProject(info) {
     override def mainClass = Some("TestMain")
+  
+    override def managedStyle = ManagedStyle.Maven
+    lazy val publishTo = Resolver.file("github-pages-repo", new java.io.File("../ccf-pages/maven-repo/"))
 
     val testScopeDependency = "test"
 
