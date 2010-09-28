@@ -24,11 +24,12 @@ object SessionRequestFactory {
   val SessionControlTypes = Set(JoinType, PartType)
   val OperationContextType = "channel/context"
 
-  def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest = TransportRequest(
+  def transportRequestHeaders(s: Session, requestType: String, channelId: ChannelId): Map[String, String] =
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
-        "channelId" -> channelId.toString, "type" -> requestType),
-    content
-  )
+        "channelId" -> channelId.toString, "type" -> requestType)
+
+  def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest =
+    TransportRequest(transportRequestHeaders(s, requestType, channelId), content)
 
   private[session] def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header("type") match {
