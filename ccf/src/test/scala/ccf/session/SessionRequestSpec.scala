@@ -64,21 +64,21 @@ class SessionRequestSpec extends Specification with Mockito {
     }
 
     "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
       val expectedResponse = JoinResponse(expectedTransportResponse, Left(Success(joinRequest, None)))
 
       joinRequest.successResponse(None) mustEqual expectedResponse
     }
 
     "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
+      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
       val expectedResponse = JoinResponse(expectedTransportResponse, Left(Success(joinRequest, responseResult)))
       
       joinRequest.successResponse(responseResult) mustEqual expectedResponse
     }
 
     "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponse.failureContent(expectedReason))
+      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
       val expectedResponse = JoinResponse(expectedTransportResponse, Right(Failure(joinRequest, expectedReason)))
 
       joinRequest.failureResponse(expectedReason) mustEqual expectedResponse
@@ -106,21 +106,21 @@ class SessionRequestSpec extends Specification with Mockito {
     }
 
     "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
       val expectedResponse = PartResponse(expectedTransportResponse, Left(Success(partRequest, None)))
 
       partRequest.successResponse(None) mustEqual expectedResponse
     }
 
     "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
+      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
       val expectedResponse = PartResponse(expectedTransportResponse, Left(Success(partRequest, responseResult)))
 
       partRequest.successResponse(responseResult) mustEqual expectedResponse
     }
 
     "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponse.failureContent(expectedReason))
+      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
       val expectedResponse = PartResponse(expectedTransportResponse, Right(Failure(partRequest, expectedReason)))
 
       partRequest.failureResponse(expectedReason) mustEqual expectedResponse
@@ -154,21 +154,21 @@ class SessionRequestSpec extends Specification with Mockito {
     }
 
     "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
       val expectedResponse = InChannelResponse(expectedTransportResponse, Left(Success(inChannelRequest, None)))
 
       inChannelRequest.successResponse(None) mustEqual expectedResponse
     }
 
     "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
+      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
       val expectedResponse = InChannelResponse(expectedTransportResponse, Left(Success(inChannelRequest, responseResult)))
 
       inChannelRequest.successResponse(responseResult) mustEqual expectedResponse
     }
 
     "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponse.failureContent(expectedReason))
+      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
       val expectedResponse = InChannelResponse(expectedTransportResponse, Right(Failure(inChannelRequest, expectedReason)))
 
       inChannelRequest.failureResponse(expectedReason) mustEqual expectedResponse
@@ -198,21 +198,21 @@ class SessionRequestSpec extends Specification with Mockito {
     }
 
     "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponse.successContent(None))
+      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
       val expectedResponse = OperationContextResponse(expectedTransportResponse, Left(Success(operationContextRequest, None)))
 
       operationContextRequest.successResponse(None) mustEqual expectedResponse
     }
 
     "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponse.successContent(responseResult))
+      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
       val expectedResponse = OperationContextResponse(expectedTransportResponse, Left(Success(operationContextRequest, responseResult)))
 
       operationContextRequest.successResponse(responseResult) mustEqual expectedResponse
     }
 
     "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponse.failureContent(expectedReason))
+      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
       val expectedResponse = OperationContextResponse(expectedTransportResponse, Right(Failure(operationContextRequest, expectedReason)))
 
       operationContextRequest.failureResponse(expectedReason) mustEqual expectedResponse

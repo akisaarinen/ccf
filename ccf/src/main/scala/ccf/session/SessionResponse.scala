@@ -24,57 +24,8 @@ sealed abstract class SessionResponse {
 }
 
 object SessionResponse {
-  val StatusKey = "status"
-  val SuccessStatus = "OK"
-  val FailureStatus = "FAIL"
-  val ResultKey = "result"
-  val ReasonKey = "reason"
-
-  def successContent(result: Option[String]) = {
-    val content = Map(StatusKey -> SuccessStatus)
-    result match {
-      case Some(str) => Some(content + (ResultKey -> str))
-      case None => Some(content)
-    }
-  }
-
-  def failureContent(reason: String) = Some(Map(StatusKey -> FailureStatus, ReasonKey -> reason))
-
-  def apply(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = {
-    transportResponse.header("type") match {
-      case Some(TransportRequestType.join) => JoinResponse(transportResponse, result(transportResponse, request))
-      case Some(TransportRequestType.part) => PartResponse(transportResponse, result(transportResponse, request))
-      case Some(TransportRequestType.context) => OperationContextResponse(transportResponse, result(transportResponse, request))
-      case Some(customRequestType) => InChannelResponse(transportResponse, result(transportResponse, request))
-      case None => error("No response type found")
-    }
-  }
-
-  private def result(transportResponse: TransportResponse, request: SessionRequest): Either[Success, Failure] = {
-    def isNonEmptyStringToStringMap(map: Map[_,_]): Boolean = {
-      map.head match {
-        case (key: String, value: String) => true
-        case _ => false
-      }
-    }
-
-    transportResponse.content match {
-      case Some(content) => content match {
-        case contentMap: Map[_,_] if contentMap.isEmpty => Right(Failure(request, "Empty response content"))
-        case contentMap: Map[_,_] if !isNonEmptyStringToStringMap(contentMap) => Right(Failure(request, "Mistyped response content"))
-        case contentMap: Map[_,_] => {
-          val contents = contentMap.asInstanceOf[Map[String,String]]
-          contents.get(StatusKey) match {
-            case Some(SuccessStatus) => Left(Success(request, contents.get(ResultKey)))
-            case Some(FailureStatus) => Right(Failure(request, contents.get(ReasonKey).getOrElse("")))
-            case _ => Right(Failure(request, "Unkown response status"))
-          }
-        }
-        case _ => Right(Failure(request, "Unrecognized response content"))
-      }
-    case _ => Right(Failure(request, "Response missing content"))
-    }
-  }
+  def apply(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = 
+    SessionResponseFactory.sessionResponse(transportResponse, request)
 }
 
 case class JoinResponse(transportResponse: TransportResponse, result: Either[Success, Failure]) extends SessionResponse
