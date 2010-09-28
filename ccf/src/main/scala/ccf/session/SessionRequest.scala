@@ -48,28 +48,14 @@ trait DefaultSessionResponse extends SessionRequest {
 }
 
 object SessionRequest {
-  def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest = TransportRequest(
-    Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
-        "channelId" -> channelId.toString, "type" -> requestType),
-    content
-  )
-
-  def apply(transportRequest: TransportRequest): SessionRequest = {
-    transportRequest.header("type") match {
-      case Some(TransportRequestType.join) => JoinRequest(transportRequest)
-      case Some(TransportRequestType.part) => PartRequest(transportRequest)
-      case Some(TransportRequestType.context) => OperationContextRequest(transportRequest)
-      case Some(requestType) => InChannelRequest(transportRequest)
-      case None => error("No request type given")
-    }
-  }
+  def apply(transportRequest: TransportRequest): SessionRequest = SessionRequestFactory.sessionRequest(transportRequest)
 }
 
 abstract class SessionControlRequest extends SessionRequest
 
 object SessionControlRequest {
   def transportRequest(s: Session, requestType: String, channelId: ChannelId): TransportRequest = {
-    SessionRequest.transportRequest(s, requestType, channelId, Some(Map("channelId" -> channelId.toString)))
+    SessionRequestFactory.transportRequest(s, requestType, channelId, Some(Map("channelId" -> channelId.toString)))
   }
 }
 
@@ -95,7 +81,7 @@ case class InChannelRequest(transportRequest: TransportRequest) extends SessionR
 }
 
 object InChannelRequest {
-  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = new InChannelRequest(SessionRequest.transportRequest(s, requestType, channelId, content))
+  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = new InChannelRequest(SessionRequestFactory.transportRequest(s, requestType, channelId, content))
 }
 
 case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
@@ -103,5 +89,5 @@ case class OperationContextRequest(transportRequest: TransportRequest) extends S
 }
 
 object OperationContextRequest {
-  def apply(s: Session, channelId: ChannelId, context: OperationContext) = new OperationContextRequest(SessionRequest.transportRequest(s, TransportRequestType.context, channelId, Some(context.encode)))
+  def apply(s: Session, channelId: ChannelId, context: OperationContext) = new OperationContextRequest(SessionRequestFactory.transportRequest(s, TransportRequestType.context, channelId, Some(context.encode)))
 }
