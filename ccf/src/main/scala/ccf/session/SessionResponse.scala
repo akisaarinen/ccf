@@ -16,7 +16,7 @@
 
 package ccf.session
 
-import ccf.transport.{TransportRequestType, TransportResponse}
+import ccf.transport.TransportResponse
 
 sealed abstract class SessionResponse {
   val transportResponse: TransportResponse

@@ -16,13 +16,6 @@
 
 package ccf.transport
 
-object TransportRequestType {
-  val join = "channel/join"
-  val part = "channel/part"
-  val sessionControlTypes = Set(join, part)
-  val context = "channel/context"
-}
-
 case class TransportRequest(headers: Map[String, String], content: Option[Any]) {
   def header(key: String): Option[String] = headers.get(key)
 }

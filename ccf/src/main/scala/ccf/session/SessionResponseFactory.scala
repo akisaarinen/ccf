@@ -16,7 +16,7 @@
 
 package ccf.session
 
-import ccf.transport.{TransportRequestType, TransportResponse}
+import ccf.transport.TransportResponse
 
 object SessionResponseFactory {
   val StatusKey = "status"
@@ -38,9 +38,9 @@ object SessionResponseFactory {
 
   private[session] def sessionResponse(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = {
     transportResponse.header("type") match {
-      case Some(TransportRequestType.join) => JoinResponse(transportResponse, result(transportResponse, request))
-      case Some(TransportRequestType.part) => PartResponse(transportResponse, result(transportResponse, request))
-      case Some(TransportRequestType.context) => OperationContextResponse(transportResponse, result(transportResponse, request))
+      case Some(SessionRequestFactory.JoinType) => JoinResponse(transportResponse, result(transportResponse, request))
+      case Some(SessionRequestFactory.PartType) => PartResponse(transportResponse, result(transportResponse, request))
+      case Some(SessionRequestFactory.OperationContextType) => OperationContextResponse(transportResponse, result(transportResponse, request))
       case Some(customRequestType) => InChannelResponse(transportResponse, result(transportResponse, request))
       case None => error("No response type found")
     }

@@ -16,20 +16,25 @@
 
 package ccf.session
 
-import ccf.transport.{TransportRequestType, TransportRequest}
+import ccf.transport.TransportRequest
 
-private object SessionRequestFactory {
+object SessionRequestFactory {
+  val JoinType = "channel/join"
+  val PartType = "channel/part"
+  val SessionControlTypes = Set(JoinType, PartType)
+  val OperationContextType = "channel/context"
+
   def transportRequest(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]): TransportRequest = TransportRequest(
     Map("sequenceId" -> s.seqId.toString, "version" -> s.version.toString, "clientId" -> s.clientId.id.toString,
         "channelId" -> channelId.toString, "type" -> requestType),
     content
   )
 
-  def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
+  private[session] def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header("type") match {
-      case Some(TransportRequestType.join) => JoinRequest(transportRequest)
-      case Some(TransportRequestType.part) => PartRequest(transportRequest)
-      case Some(TransportRequestType.context) => OperationContextRequest(transportRequest)
+      case Some(JoinType) => JoinRequest(transportRequest)
+      case Some(PartType) => PartRequest(transportRequest)
+      case Some(OperationContextType) => OperationContextRequest(transportRequest)
       case Some(requestType) => InChannelRequest(transportRequest)
       case None => error("No request type given")
     }

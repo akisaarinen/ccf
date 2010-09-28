@@ -18,7 +18,7 @@ package ccf.session
 
 import org.specs.Specification
 import org.specs.mock.Mockito
-import ccf.transport.{TransportRequestType, TransportResponse}
+import ccf.transport.TransportResponse
 
 class SessionResponseSpec extends Specification with Mockito {
   "Session response factory" should {
@@ -30,22 +30,22 @@ class SessionResponseSpec extends Specification with Mockito {
     }
 
     "create successful join response from" in {
-      successCreationSpec(mock[JoinRequest], TransportRequestType.join,
+      successCreationSpec(mock[JoinRequest], SessionRequestFactory.JoinType,
         (transportResponse: TransportResponse, result: Either[Success, Failure]) => JoinResponse(transportResponse, result))
     }
 
     "create failure join response from" in {
-      failureCreationSpec(mock[JoinRequest], TransportRequestType.join,
+      failureCreationSpec(mock[JoinRequest], SessionRequestFactory.JoinType,
         (transportResponse: TransportResponse, result: Either[Success, Failure]) => JoinResponse(transportResponse, result))
     }
 
     "create successful part response from" in {
-      successCreationSpec(mock[PartRequest], TransportRequestType.part,
+      successCreationSpec(mock[PartRequest], SessionRequestFactory.PartType,
         (transportResponse: TransportResponse, result: Either[Success, Failure]) => PartResponse(transportResponse, result))
     }
 
     "create failure part response from" in {
-      failureCreationSpec(mock[PartRequest], TransportRequestType.part,
+      failureCreationSpec(mock[PartRequest], SessionRequestFactory.PartType,
         (transportResponse: TransportResponse, result: Either[Success, Failure]) => PartResponse(transportResponse, result))
     }
 
@@ -60,12 +60,12 @@ class SessionResponseSpec extends Specification with Mockito {
     }
 
     "create successful operation context response from" in {
-      successCreationSpec(mock[OperationContextRequest], TransportRequestType.context,
+      successCreationSpec(mock[OperationContextRequest], SessionRequestFactory.OperationContextType,
         (transportResponse: TransportResponse, result: Either[Success, Failure]) => OperationContextResponse(transportResponse, result))
     }
 
     "create failure operation context response from" in {
-      failureCreationSpec(mock[OperationContextRequest], TransportRequestType.context,
+      failureCreationSpec(mock[OperationContextRequest], SessionRequestFactory.OperationContextType,
         (transportResponse: TransportResponse, result: Either[Success, Failure]) => OperationContextResponse(transportResponse, result))
     }
   }

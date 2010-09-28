@@ -17,7 +17,7 @@
 package ccf.session
 
 import ccf.OperationContext
-import ccf.transport.{TransportRequestType, TransportResponse, TransportRequest}
+import ccf.transport.{TransportResponse, TransportRequest}
 
 sealed abstract class SessionRequest {
   val transportRequest: TransportRequest
@@ -60,34 +60,36 @@ object SessionControlRequest {
 }
 
 case class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
-  require(transportRequest.header("type") == Some(TransportRequestType.join))
+  require(transportRequest.header("type") == Some(SessionRequestFactory.JoinType))
 }
 
 object JoinRequest {
-  def apply(s: Session, channelId: ChannelId) = new JoinRequest(SessionControlRequest.transportRequest(s, TransportRequestType.join, channelId))
+  def apply(s: Session, channelId: ChannelId) = new JoinRequest(SessionControlRequest.transportRequest(s, SessionRequestFactory.JoinType, channelId))
 }
 
 case class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
-  require(transportRequest.header("type") == Some(TransportRequestType.part))
+  require(transportRequest.header("type") == Some(SessionRequestFactory.PartType))
 }
 
 object PartRequest {
-  def apply(s: Session, channelId: ChannelId) = new PartRequest(SessionControlRequest.transportRequest(s, TransportRequestType.part, channelId))
+  def apply(s: Session, channelId: ChannelId) = new PartRequest(SessionControlRequest.transportRequest(s, SessionRequestFactory.PartType, channelId))
 }
 
 case class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
   require(transportRequest.header("type").isDefined)
-  require(!TransportRequestType.sessionControlTypes.contains(transportRequest.header("type").get))
+  require(!SessionRequestFactory.SessionControlTypes.contains(transportRequest.header("type").get))
 }
 
 object InChannelRequest {
-  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) = new InChannelRequest(SessionRequestFactory.transportRequest(s, requestType, channelId, content))
+  def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) =
+    new InChannelRequest(SessionRequestFactory.transportRequest(s, requestType, channelId, content))
 }
 
 case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
-  require(transportRequest.header("type") == Some(TransportRequestType.context))
+  require(transportRequest.header("type") == Some(SessionRequestFactory.OperationContextType))
 }
 
 object OperationContextRequest {
-  def apply(s: Session, channelId: ChannelId, context: OperationContext) = new OperationContextRequest(SessionRequestFactory.transportRequest(s, TransportRequestType.context, channelId, Some(context.encode)))
+  def apply(s: Session, channelId: ChannelId, context: OperationContext) =
+    new OperationContextRequest(SessionRequestFactory.transportRequest(s, SessionRequestFactory.OperationContextType, channelId, Some(context.encode)))
 }

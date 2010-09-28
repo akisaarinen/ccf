@@ -18,10 +18,10 @@ package perftest.server
 
 import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
-import ccf.transport.{TransportResponse, TransportRequestType, TransportRequest}
+import ccf.transport.{TransportResponse, TransportRequest}
 import ccf.tree.operation.{NoOperation, TreeOperationDecoder}
 import ccf.OperationContext
-import ccf.session.SessionResponseFactory
+import ccf.session.{SessionRequestFactory, SessionResponseFactory}
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -52,14 +52,14 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val channelIdContent = Some(Map("channelId" -> "5"))
 
       "join request" in {
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.join), channelIdContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.JoinType), channelIdContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
       }
 
       "part request" in {
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.part), channelIdContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.PartType), channelIdContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
@@ -76,7 +76,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       "context request" in {
         val context = OperationContext(NoOperation(), 1, 2)
         val transportRequestContent = Some(context.encode)
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.context), transportRequestContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.OperationContextType), transportRequestContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
