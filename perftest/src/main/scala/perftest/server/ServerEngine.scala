@@ -26,7 +26,7 @@ class ServerEngine {
     request match {
       case Some(r: TransportRequest) => {
         try {
-          handleRequest(SessionRequest.sessionRequest(r)).transportResponse
+          handleRequest(SessionRequest(r)).transportResponse
         } catch {
           case ex: Exception => error(ex.getMessage)
         }

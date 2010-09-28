@@ -54,7 +54,7 @@ object SessionRequest {
     content
   )
 
-  def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
+  def apply(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header("type") match {
       case Some(TransportRequestType.join) => JoinRequest(transportRequest)
       case Some(TransportRequestType.part) => PartRequest(transportRequest)

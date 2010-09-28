@@ -86,7 +86,7 @@ class RequestResponseIntegrationSpec extends Specification with Mockito {
     val transportRequest = request.transportRequest
     val encodedRequest = JsonEncoder.encodeRequest(transportRequest)
     val decodedRequest = JsonDecoder.decodeRequest(encodedRequest).get
-    SessionRequest.sessionRequest(decodedRequest)
+    SessionRequest(decodedRequest)
   }
 
   def encodeAndDecodeResponse(response: SessionResponse, request: SessionRequest): SessionResponse = {
