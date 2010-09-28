@@ -37,7 +37,7 @@ object SessionResponseFactory {
     Some(Map(StatusKey -> FailureStatus, ReasonKey -> reason))
 
   private[session] def sessionResponse(transportResponse: TransportResponse, request: SessionRequest): SessionResponse = {
-    transportResponse.header("type") match {
+    transportResponse.header(SessionRequestFactory.TypeKey) match {
       case Some(SessionRequestFactory.JoinType) => JoinResponse(transportResponse, result(transportResponse, request))
       case Some(SessionRequestFactory.PartType) => PartResponse(transportResponse, result(transportResponse, request))
       case Some(SessionRequestFactory.OperationContextType) => OperationContextResponse(transportResponse, result(transportResponse, request))

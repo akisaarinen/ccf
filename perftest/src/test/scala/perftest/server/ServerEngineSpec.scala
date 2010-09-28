@@ -41,25 +41,25 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val request = mock[TransportRequest]
 
       "None as an error" in {
-        request.header("type") returns None
+        request.header(SessionRequestFactory.TypeKey) returns None
         engine.decodeRequest(Some(request)) must throwAn(new RuntimeException("No request type given"))
       }
     }
 
     "return correct response for" in {
-      val commonTransportHeaders = Map("sequenceId" -> "1", "version" -> "2",
-        "clientId" -> "3", "channelId" -> "4")
-      val channelIdContent = Some(Map("channelId" -> "5"))
+      val commonTransportHeaders = Map(SessionRequestFactory.SequenceIdKey -> "1", SessionRequestFactory.VersionKey -> "2",
+        SessionRequestFactory.ClientIdKey -> "3", SessionRequestFactory.ChannelIdKey -> "4")
+      val channelIdContent = Some(Map(SessionRequestFactory.ChannelIdKey -> "5"))
 
       "join request" in {
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.JoinType), channelIdContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + (SessionRequestFactory.TypeKey -> SessionRequestFactory.JoinType), channelIdContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
       }
 
       "part request" in {
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.PartType), channelIdContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + (SessionRequestFactory.TypeKey -> SessionRequestFactory.PartType), channelIdContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
@@ -67,7 +67,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
 
       "in-channel request" in {
         val requestType = "test/type"
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> requestType), channelIdContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + (SessionRequestFactory.TypeKey -> requestType), channelIdContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
@@ -76,7 +76,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       "context request" in {
         val context = OperationContext(NoOperation(), 1, 2)
         val transportRequestContent = Some(context.encode)
-        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.OperationContextType), transportRequestContent)
+        val transportRequest = TransportRequest(commonTransportHeaders + (SessionRequestFactory.TypeKey -> SessionRequestFactory.OperationContextType), transportRequestContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponseFactory.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)

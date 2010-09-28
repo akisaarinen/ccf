@@ -72,7 +72,7 @@ class SessionResponseSpec extends Specification with Mockito {
 
   def successCreationSpec(request: SessionRequest, requestType: String,
                                   expectedResponse: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
-    val responseHeaders = Map("type" -> requestType)
+    val responseHeaders = Map(SessionRequestFactory.TypeKey -> requestType)
 
     "successful transport response without result" in {
       val transportResponse = TransportResponse(responseHeaders, SessionResponseFactory.successContent(None))
@@ -88,7 +88,7 @@ class SessionResponseSpec extends Specification with Mockito {
 
   def failureCreationSpec(request: SessionRequest, requestType: String,
                                   expectedResponse: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
-    val responseHeaders = Map("type" -> requestType)
+    val responseHeaders = Map(SessionRequestFactory.TypeKey -> requestType)
 
     "failure transport response" in {
       val reason = "test reason"

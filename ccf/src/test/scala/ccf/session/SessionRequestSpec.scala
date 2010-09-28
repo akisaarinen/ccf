@@ -29,11 +29,11 @@ class SessionRequestSpec extends Specification with Mockito {
   session.version returns Version(2, 3)
   session.clientId returns ClientId(new UUID(4, 5))
   val channelId = new ChannelId(new UUID(6, 7))
-  val channelIdContent = Some(Map("channelId" -> channelId.toString))
+  val channelIdContent = Some(Map(SessionRequestFactory.ChannelIdKey -> channelId.toString))
   val responseResult = Some("response result")
   val expectedReason = "expected reason"
   val emptyTransportRequest = TransportRequest(Map(), None)
-  val transportRequestWithUnknownType = TransportRequest(Map("type" -> "wrong type"), None)
+  val transportRequestWithUnknownType = TransportRequest(Map(SessionRequestFactory.TypeKey -> "wrong type"), None)
 
   "Session request factory" should {
     "not create request without type" in {

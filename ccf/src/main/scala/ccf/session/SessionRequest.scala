@@ -55,12 +55,12 @@ abstract class SessionControlRequest extends SessionRequest
 
 object SessionControlRequest {
   def transportRequest(s: Session, requestType: String, channelId: ChannelId): TransportRequest = {
-    SessionRequestFactory.transportRequest(s, requestType, channelId, Some(Map("channelId" -> channelId.toString)))
+    SessionRequestFactory.transportRequest(s, requestType, channelId, Some(Map(SessionRequestFactory.ChannelIdKey -> channelId.toString)))
   }
 }
 
 case class JoinRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
-  require(transportRequest.header("type") == Some(SessionRequestFactory.JoinType))
+  require(transportRequest.header(SessionRequestFactory.TypeKey) == Some(SessionRequestFactory.JoinType))
 }
 
 object JoinRequest {
@@ -68,7 +68,7 @@ object JoinRequest {
 }
 
 case class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
-  require(transportRequest.header("type") == Some(SessionRequestFactory.PartType))
+  require(transportRequest.header(SessionRequestFactory.TypeKey) == Some(SessionRequestFactory.PartType))
 }
 
 object PartRequest {
@@ -76,8 +76,8 @@ object PartRequest {
 }
 
 case class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
-  require(transportRequest.header("type").isDefined)
-  require(!SessionRequestFactory.SessionControlTypes.contains(transportRequest.header("type").get))
+  require(transportRequest.header(SessionRequestFactory.TypeKey).isDefined)
+  require(!SessionRequestFactory.SessionControlTypes.contains(transportRequest.header(SessionRequestFactory.TypeKey).get))
 }
 
 object InChannelRequest {
@@ -86,7 +86,7 @@ object InChannelRequest {
 }
 
 case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
-  require(transportRequest.header("type") == Some(SessionRequestFactory.OperationContextType))
+  require(transportRequest.header(SessionRequestFactory.TypeKey) == Some(SessionRequestFactory.OperationContextType))
 }
 
 object OperationContextRequest {
