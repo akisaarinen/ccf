@@ -41,10 +41,6 @@ class SessionRequestSpec extends Specification with Mockito {
     "not create request without type" in {
       SessionRequest.sessionRequest(emptyTransportRequest) must throwAn[RuntimeException]
     }
-
-    "not create request with unknown type" in {
-      SessionRequest.sessionRequest(transportRequestWithUnknownType) must throwAn[RuntimeException]
-    }
   }
 
   "JoinRequest" should {
@@ -148,6 +144,10 @@ class SessionRequestSpec extends Specification with Mockito {
     val transportRequestContent = Some(Map("content" -> "data"))
     val inChannelRequest = InChannelRequest(session, transportRequestType, channelId, transportRequestContent)
     val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> transportRequestType), transportRequestContent)
+
+    "be constructible by session request factory" in {
+      SessionRequest.sessionRequest(expectedTransportRequest) must haveClass[InChannelRequest]
+    }
 
     "have correct transport request" in {
       inChannelRequest.transportRequest mustEqual expectedTransportRequest

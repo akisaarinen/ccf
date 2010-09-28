@@ -59,7 +59,7 @@ object SessionRequest {
       case Some(TransportRequestType.join) => JoinRequest(transportRequest)
       case Some(TransportRequestType.part) => PartRequest(transportRequest)
       case Some(TransportRequestType.context) => OperationContextRequest(transportRequest)
-      case Some(unknownRequestType) => error("Unknown request type: " + unknownRequestType)
+      case Some(requestType) => InChannelRequest(transportRequest)
       case None => error("No request type given")
     }
   }

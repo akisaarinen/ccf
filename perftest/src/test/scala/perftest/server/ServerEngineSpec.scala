@@ -44,12 +44,6 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
         request.header("type") returns None
         engine.decodeRequest(Some(request)) must throwAn(new RuntimeException("No request type given"))
       }
-
-      "Unknown request type as an error" in {
-        val requestType: String = "Unknown"
-        request.header("type") returns Some(requestType)
-        engine.decodeRequest(Some(request)) must throwAn(new RuntimeException("Unknown request type: " + requestType))
-      }
     }
 
     "return correct response for" in {
@@ -66,6 +60,14 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
 
       "part request" in {
         val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> TransportRequestType.part), channelIdContent)
+        val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.successContent(None))
+
+        engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
+      }
+
+      "in-channel request" in {
+        val requestType = "test/type"
+        val transportRequest = TransportRequest(commonTransportHeaders + ("type" -> requestType), channelIdContent)
         val expectedTransportResponse = TransportResponse(transportRequest.headers, SessionResponse.successContent(None))
 
         engine.decodeRequest(Some(transportRequest)) must equalTo(expectedTransportResponse)
