@@ -29,8 +29,6 @@ class SessionRequestSpec extends Specification with Mockito {
   session.version returns Version(2, 3)
   session.clientId returns ClientId(new UUID(4, 5))
   val channelId = new ChannelId(new UUID(6, 7))
-  val commonTransportHeaders = Map("sequenceId" -> session.seqId.toString, "version" -> session.version.toString,
-      "clientId" -> session.clientId.id.toString, "channelId" -> channelId.toString)
   val channelIdContent = Some(Map("channelId" -> channelId.toString))
   val responseResult = Some("response result")
   val expectedReason = "expected reason"
@@ -53,7 +51,7 @@ class SessionRequestSpec extends Specification with Mockito {
     }
 
     val joinRequest = JoinRequest(session, channelId)
-    val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.JoinType), channelIdContent)
+    val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, SessionRequestFactory.JoinType, channelId), channelIdContent)
 
     "be constructible by session request factory" in {
       SessionRequest(expectedTransportRequest) must haveClass[JoinRequest]
@@ -95,7 +93,7 @@ class SessionRequestSpec extends Specification with Mockito {
     }
 
     val partRequest = PartRequest(session, channelId)
-    val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.PartType), channelIdContent)
+    val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, SessionRequestFactory.PartType, channelId), channelIdContent)
 
     "be constructible by session request factory" in {
       SessionRequest(expectedTransportRequest) must haveClass[PartRequest]
@@ -134,7 +132,7 @@ class SessionRequestSpec extends Specification with Mockito {
 
     "not construct with session control request type" in {
       SessionRequestFactory.SessionControlTypes map { (requestType) => {
-        val sessionControlTransportRequest = TransportRequest(Map("type" -> requestType), None)
+        val sessionControlTransportRequest = SessionRequestFactory.transportRequest(session, requestType, channelId, None)
         InChannelRequest(sessionControlTransportRequest) must throwAn[IllegalArgumentException]
         }
       }
@@ -143,7 +141,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val transportRequestType = "requestType"
     val transportRequestContent = Some(Map("content" -> "data"))
     val inChannelRequest = InChannelRequest(session, transportRequestType, channelId, transportRequestContent)
-    val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> transportRequestType), transportRequestContent)
+    val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, transportRequestType, channelId), transportRequestContent)
 
     "be constructible by session request factory" in {
       SessionRequest(expectedTransportRequest) must haveClass[InChannelRequest]
@@ -187,7 +185,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val context = OperationContext(NoOperation(), 1, 2)
     val operationContextRequest = OperationContextRequest(session, channelId, context)
     val transportRequestContent = Some(context.encode)
-    val expectedTransportRequest = TransportRequest(commonTransportHeaders + ("type" -> SessionRequestFactory.OperationContextType), transportRequestContent)
+    val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, SessionRequestFactory.OperationContextType, channelId), transportRequestContent)
 
     "be constructible by session request factory" in {
       SessionRequest(expectedTransportRequest) must haveClass[OperationContextRequest]
