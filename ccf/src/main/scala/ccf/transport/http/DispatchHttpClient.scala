@@ -18,12 +18,14 @@ package ccf.transport.http
 
 import org.apache.http.params.HttpConnectionParams
 
-import dispatch.{Http => DispatchHttp}
 import dispatch.Http._
 
 import java.net.URL
+import dispatch.{Http => DispatchHttp}
+import org.apache.http.conn.scheme.Scheme
 
-class DispatchHttpClient(timeoutMillis: Int) extends HttpClient {
+class DispatchHttpClient(timeoutMillis: Int, scheme: Option[Scheme]) extends HttpClient {
+  def this(timeoutMillis: Int) = this(timeoutMillis, None)
   private val http = new DispatchHttp
   init
   def post(url: URL, data: String): String = http(url.toString.POST << data >- { x => x })
