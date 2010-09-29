@@ -34,4 +34,5 @@ class DispatchHttpClient(timeoutMillis: Int, scheme: Option[Scheme]) extends Htt
     HttpConnectionParams.setSoTimeout(httpClientParams, timeoutMillis)
   }
   private def httpClientParams = http.client.getParams
+  private[http] def getConnectionManager = http.client.getConnectionManager
 }
