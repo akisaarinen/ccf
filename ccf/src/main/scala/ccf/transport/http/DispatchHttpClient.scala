@@ -32,6 +32,7 @@ class DispatchHttpClient(timeoutMillis: Int, scheme: Option[Scheme]) extends Htt
   private def init {
     HttpConnectionParams.setConnectionTimeout(httpClientParams, timeoutMillis)
     HttpConnectionParams.setSoTimeout(httpClientParams, timeoutMillis)
+    scheme.foreach(getConnectionManager.getSchemeRegistry.register(_))
   }
   private def httpClientParams = http.client.getParams
   private[http] def getConnectionManager = http.client.getConnectionManager
