@@ -23,6 +23,7 @@ abstract class AbstractProject(info: ProjectInfo) extends DefaultProject(info) w
   private def projectJar = ((outputPath ##) / defaultJarName)
   private def managedDepJars = descendents(managedDependencyPath / "compile" ##, "*.jar")
   private def unmanagedDepJars = descendents(info.projectPath / "lib" ##, "*.jar")
+  override def compileOptions = super.compileOptions ++ Seq(Unchecked)
 }
 
 class Project(info: ProjectInfo) extends ParentProject(info) with IdeaProject { rootProject =>
