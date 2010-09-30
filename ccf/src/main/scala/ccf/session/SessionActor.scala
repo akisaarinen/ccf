@@ -35,10 +35,9 @@ class SessionActor(connection: Connection, clientId: ClientId, version: Version,
       exit
     }
   }}
-  private def handleMessage(session: Session, msg: Message): Session = session.send(msg) match {
-    case (nextSession: Session, result: Either[Failure, Success]) => {
-      sender ! result
-      nextSession
-    }
+  private def handleMessage(session: Session, msg: Message): Session = {
+    val (nextSession, result) = session.send(msg)
+    sender ! result
+    nextSession
   }
 }
