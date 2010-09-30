@@ -28,16 +28,21 @@ object JsonDecoder extends Decoder {
     try { if (m.isEmpty) None else { Some(parse(m, f)) } }
     catch { case e: JsonException => malformedDataException(e.toString) }
   }
-  private def parse[T](msg: String, f: (Map[String, String], Option[Any]) => T) = Json.parse(msg) match {
-    case m: Map[Any, Any] => f(headers(m), content(m))
-    case _                => malformedDataException("Invalid message frame")
+  private def parse[T](msg: String, f: (Map[String, String], Option[Any]) => T) = {
+    Json.parse(msg) match {
+      case m: Map[_, _] => {
+        val typedMap = m.asInstanceOf[Map[Any, Any]]
+        f(headers(typedMap), content(typedMap))
+      }
+      case _                => malformedDataException("Invalid message frame")
+    }
   }
   private def headers(m: Map[Any, Any]): Map[String, String] = m.get("headers") match {
     case Some(headers) => headersToMap(headers)
     case None          => malformedDataException("Missing message header")
   }
   private def headersToMap(headers: Any): Map[String, String] = headers match {
-    case m: Map[Any, Any] => {
+    case m: Map[_, _] => {
       val seqOfHeaders = for ((k, v) <- m) yield (k.toString, v.toString)
       Map[String, String](seqOfHeaders.toList: _*)
     }
