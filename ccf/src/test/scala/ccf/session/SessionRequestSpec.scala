@@ -53,34 +53,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val joinRequest = JoinRequest(session, channelId)
     val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, SessionRequestFactory.JoinType, channelId), channelIdContent)
 
-    "be constructible by session request factory" in {
-      SessionRequest(expectedTransportRequest) must haveClass[JoinRequest]
-    }
-
-    "have correct transport request" in {
-      joinRequest.transportRequest mustEqual expectedTransportRequest
-    }
-
-    "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
-      val expectedResponse = JoinResponse(expectedTransportResponse, Left(Success(joinRequest, None)))
-
-      joinRequest.successResponse(None) mustEqual expectedResponse
-    }
-
-    "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
-      val expectedResponse = JoinResponse(expectedTransportResponse, Left(Success(joinRequest, responseResult)))
-      
-      joinRequest.successResponse(responseResult) mustEqual expectedResponse
-    }
-
-    "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(joinRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
-      val expectedResponse = JoinResponse(expectedTransportResponse, Right(Failure(joinRequest, expectedReason)))
-
-      joinRequest.failureResponse(expectedReason) mustEqual expectedResponse
-    }
+    commonRequestSpec(joinRequest, expectedTransportRequest, JoinResponse.apply _)
   }
 
   "PartRequest" should {
@@ -95,34 +68,7 @@ class SessionRequestSpec extends Specification with Mockito {
     val partRequest = PartRequest(session, channelId)
     val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, SessionRequestFactory.PartType, channelId), channelIdContent)
 
-    "be constructible by session request factory" in {
-      SessionRequest(expectedTransportRequest) must haveClass[PartRequest]
-    }
-
-    "have correct transport request" in {
-      partRequest.transportRequest mustEqual expectedTransportRequest
-    }
-
-    "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
-      val expectedResponse = PartResponse(expectedTransportResponse, Left(Success(partRequest, None)))
-
-      partRequest.successResponse(None) mustEqual expectedResponse
-    }
-
-    "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
-      val expectedResponse = PartResponse(expectedTransportResponse, Left(Success(partRequest, responseResult)))
-
-      partRequest.successResponse(responseResult) mustEqual expectedResponse
-    }
-
-    "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(partRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
-      val expectedResponse = PartResponse(expectedTransportResponse, Right(Failure(partRequest, expectedReason)))
-
-      partRequest.failureResponse(expectedReason) mustEqual expectedResponse
-    }
+    commonRequestSpec(partRequest, expectedTransportRequest, PartResponse.apply _)
   }
 
   "InChannelRequest" should {
@@ -142,35 +88,8 @@ class SessionRequestSpec extends Specification with Mockito {
     val transportRequestContent = Some(Map("content" -> "data"))
     val inChannelRequest = InChannelRequest(session, transportRequestType, channelId, transportRequestContent)
     val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, transportRequestType, channelId), transportRequestContent)
-
-    "be constructible by session request factory" in {
-      SessionRequest(expectedTransportRequest) must haveClass[InChannelRequest]
-    }
-
-    "have correct transport request" in {
-      inChannelRequest.transportRequest mustEqual expectedTransportRequest
-    }
-
-    "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
-      val expectedResponse = InChannelResponse(expectedTransportResponse, Left(Success(inChannelRequest, None)))
-
-      inChannelRequest.successResponse(None) mustEqual expectedResponse
-    }
-
-    "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
-      val expectedResponse = InChannelResponse(expectedTransportResponse, Left(Success(inChannelRequest, responseResult)))
-
-      inChannelRequest.successResponse(responseResult) mustEqual expectedResponse
-    }
-
-    "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(inChannelRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
-      val expectedResponse = InChannelResponse(expectedTransportResponse, Right(Failure(inChannelRequest, expectedReason)))
-
-      inChannelRequest.failureResponse(expectedReason) mustEqual expectedResponse
-    }
+    
+    commonRequestSpec(inChannelRequest, expectedTransportRequest, InChannelResponse.apply _)
   }
 
   "OperationContextRequest" should {
@@ -187,33 +106,38 @@ class SessionRequestSpec extends Specification with Mockito {
     val transportRequestContent = Some(context.encode)
     val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, SessionRequestFactory.OperationContextType, channelId), transportRequestContent)
 
+    commonRequestSpec(operationContextRequest, expectedTransportRequest, OperationContextResponse.apply _)
+  }
+
+  def commonRequestSpec(request: SessionRequest, expectedTransportRequest: TransportRequest,
+                        expectedResponseFactory: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
     "be constructible by session request factory" in {
-      SessionRequest(expectedTransportRequest) must haveClass[OperationContextRequest]
+      SessionRequest(expectedTransportRequest) must equalTo(request)
     }
 
     "have correct transport request" in {
-      operationContextRequest.transportRequest mustEqual expectedTransportRequest
+      request.transportRequest mustEqual expectedTransportRequest
     }
 
     "return correct success response without result" in {
-      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponseFactory.successContent(None))
-      val expectedResponse = OperationContextResponse(expectedTransportResponse, Left(Success(operationContextRequest, None)))
+      val expectedTransportResponse = TransportResponse(expectedTransportRequest.headers, SessionResponseFactory.successContent(None))
+      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Left(Success(request, None)))
 
-      operationContextRequest.successResponse(None) mustEqual expectedResponse
+      request.successResponse(None) mustEqual expectedResponse
     }
 
     "return correct success response with result" in {
-      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponseFactory.successContent(responseResult))
-      val expectedResponse = OperationContextResponse(expectedTransportResponse, Left(Success(operationContextRequest, responseResult)))
+      val expectedTransportResponse = TransportResponse(expectedTransportRequest.headers, SessionResponseFactory.successContent(responseResult))
+      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Left(Success(request, responseResult)))
 
-      operationContextRequest.successResponse(responseResult) mustEqual expectedResponse
+      request.successResponse(responseResult) mustEqual expectedResponse
     }
 
     "return correct failure response" in {
-      val expectedTransportResponse = TransportResponse(operationContextRequest.transportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
-      val expectedResponse = OperationContextResponse(expectedTransportResponse, Right(Failure(operationContextRequest, expectedReason)))
+      val expectedTransportResponse = TransportResponse(expectedTransportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
+      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Right(Failure(request, expectedReason)))
 
-      operationContextRequest.failureResponse(expectedReason) mustEqual expectedResponse
+      request.failureResponse(expectedReason) mustEqual expectedResponse
     }
   }
 }
