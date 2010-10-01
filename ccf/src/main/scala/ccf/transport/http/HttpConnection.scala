@@ -24,13 +24,15 @@ import ccf.transport.json.{JsonEncoder, JsonDecoder}
 import ccf.transport.{ConnectionException, InvalidRequestException}
 import ccf.transport.{Encoder, Decoder}
 import ccf.transport.{TransportRequest, TransportResponse}
+import org.apache.http.conn.scheme.Scheme
 
 object HttpConnection {
   private val timeoutMillis = 1000
-  def create(url: URL) = new HttpConnection(url, new DispatchHttpClient(timeoutMillis), JsonDecoder, JsonEncoder)
+  def create(url: URL, scheme: Option[Scheme] = None) = new HttpConnection(url, new DispatchHttpClient(timeoutMillis, scheme), JsonDecoder, JsonEncoder)
 }
 
-class HttpConnection(url: URL, client: HttpClient, decoder: Decoder, encoder: Encoder) extends Connection {
+class HttpConnection(url: URL, client: HttpClient, decoder: Decoder, encoder: Encoder, scheme: Option[Scheme]) extends Connection {
+  def this(url: URL, client: HttpClient, decoder: Decoder, encoder: Encoder) = this(url, client, decoder, encoder, None)
   def send(request: TransportRequest): Option[TransportResponse] = try {
     decoder.decodeResponse(post(request))
   } catch {
