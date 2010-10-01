@@ -20,6 +20,7 @@ object MessageFactory {
   private[session] def message(request: SessionRequest): Message = request match {
     case JoinRequest(_, channelId) => Message.Join(channelId)
     case PartRequest(_, channelId) => Message.Part(channelId)
+    case InChannelRequest(_, requestType, channelId, content) => Message.InChannel(requestType, channelId, content)
     case _ => null
   }
 }

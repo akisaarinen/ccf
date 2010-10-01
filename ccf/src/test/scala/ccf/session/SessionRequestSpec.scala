@@ -76,23 +76,26 @@ class SessionRequestSpec extends Specification with Mockito {
   }
 
   "InChannelRequest" should {
+    val requestType = "requestType"
+    
     "not construct without type" in {
-      InChannelRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
+      InChannelRequest(emptyTransportRequest, requestType, channelId, None) must throwAn[IllegalArgumentException]
     }
 
     "not construct with session control request type" in {
       SessionRequestFactory.SessionControlTypes map { (requestType) => {
         val sessionControlTransportRequest = SessionRequestFactory.transportRequest(session, requestType, channelId, None)
-        InChannelRequest(sessionControlTransportRequest) must throwAn[IllegalArgumentException]
+        InChannelRequest(sessionControlTransportRequest, requestType, channelId, None) must throwAn[IllegalArgumentException]
         }
       }
     }
 
-    val transportRequestType = "requestType"
-    val transportRequestContent = Some(Map("content" -> "data"))
-    val inChannelRequest = InChannelRequest(session, transportRequestType, channelId, transportRequestContent)
-    val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, transportRequestType, channelId), transportRequestContent)
-    
+    commonChannelIdInHeadersSpec(requestType)
+
+    val requestContent = Some(Map("content" -> "data"))
+    val inChannelRequest = InChannelRequest(session, requestType, channelId, requestContent)
+    val expectedTransportRequest = TransportRequest(SessionRequestFactory.transportRequestHeaders(session, requestType, channelId), requestContent)
+
     commonRequestSpec(inChannelRequest, expectedTransportRequest, InChannelResponse.apply _)
   }
 
@@ -133,6 +136,22 @@ class SessionRequestSpec extends Specification with Mockito {
 
     "not construct with invalid channel id in transport request content" in {
       val transportRequestWithInvalidChannelId = TransportRequest(headers, Some(Map(SessionRequestFactory.ChannelIdKey -> "##Invalid channel id##")))
+      SessionRequest(transportRequestWithInvalidChannelId) must throwAn[RuntimeException]
+    }
+  }
+
+  def commonChannelIdInHeadersSpec(requestType: String) {
+    "not construct without channel id in transport request headers" in {
+      val transportRequestWithoutChannelId = TransportRequest(
+        SessionRequestFactory.transportRequestHeaders(session, requestType, channelId) - SessionRequestFactory.ChannelIdKey,
+        None)
+      SessionRequest(transportRequestWithoutChannelId) must throwAn[RuntimeException]
+    }
+
+    "not construct with invalid channel id in transport request headers" in {
+      val transportRequestWithInvalidChannelId = TransportRequest(
+        SessionRequestFactory.transportRequestHeaders(session, requestType, channelId) + (SessionRequestFactory.ChannelIdKey -> "##Invalid channel id##"),
+        None)
       SessionRequest(transportRequestWithInvalidChannelId) must throwAn[RuntimeException]
     }
   }

@@ -41,7 +41,7 @@ trait DefaultSessionResponse extends SessionRequest {
     sessionRequest match {
       case JoinRequest(_, _) => JoinResponse(transportResponse, result)
       case PartRequest(_, _) => PartResponse(transportResponse, result)
-      case InChannelRequest(_) => InChannelResponse(transportResponse, result)
+      case req: InChannelRequest => InChannelResponse(transportResponse, result)
       case OperationContextRequest(_) => OperationContextResponse(transportResponse, result)
     }
   }
@@ -75,14 +75,15 @@ object PartRequest {
   def apply(s: Session, channelId: ChannelId) = new PartRequest(SessionControlRequest.transportRequest(s, SessionRequestFactory.PartType, channelId), channelId)
 }
 
-case class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {
+case class InChannelRequest(transportRequest: TransportRequest, requestType: String, channelId: ChannelId, content: Option[Any])
+        extends SessionRequest with DefaultSessionResponse {
   require(transportRequest.header(SessionRequestFactory.TypeKey).isDefined)
   require(!SessionRequestFactory.SessionControlTypes.contains(transportRequest.header(SessionRequestFactory.TypeKey).get))
 }
 
 object InChannelRequest {
   def apply(s: Session, requestType: String, channelId: ChannelId, content: Option[Any]) =
-    new InChannelRequest(SessionRequestFactory.transportRequest(s, requestType, channelId, content))
+    new InChannelRequest(SessionRequestFactory.transportRequest(s, requestType, channelId, content), requestType, channelId, content)
 }
 
 case class OperationContextRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {

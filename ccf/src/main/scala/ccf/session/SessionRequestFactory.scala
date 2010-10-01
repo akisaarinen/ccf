@@ -41,7 +41,7 @@ object SessionRequestFactory {
       case Some(JoinType) => JoinRequest(transportRequest, channelIdFromContent(transportRequest))
       case Some(PartType) => PartRequest(transportRequest, channelIdFromContent(transportRequest))
       case Some(OperationContextType) => OperationContextRequest(transportRequest)
-      case Some(requestType) => InChannelRequest(transportRequest)
+      case Some(requestType: String) => InChannelRequest(transportRequest, requestType, channelIdFromHeaders(transportRequest), transportRequest.content)
       case None => error("No request type given")
     }
   }
@@ -64,5 +64,9 @@ object SessionRequestFactory {
       case Some(m: Map[_, _]) if (isNonEmptyStringToStringMap(m)) => channelIdFromMap(m.asInstanceOf[Map[String, String]])
       case _ => error("Unknown request content type")
     }
+  }
+
+  private def channelIdFromHeaders(transportRequest: TransportRequest): ChannelId = {
+    channelIdFromMap(transportRequest.headers)
   }
 }

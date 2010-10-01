@@ -39,5 +39,13 @@ class MessageFactorySpec extends Specification with Mockito {
       val expectedMsg = Message.Part(channelId)
       Message(request) mustEqual expectedMsg
     }
+
+    "create in-channel message from in-channel request" in {
+      val requestType = "test/requestType"
+      val content = Some("test content")
+      val request = InChannelRequest(session, requestType, channelId, content)
+      val expectedMsg = Message.InChannel(requestType, channelId, content)
+      Message(request) mustEqual expectedMsg
+    }
   }
 }
