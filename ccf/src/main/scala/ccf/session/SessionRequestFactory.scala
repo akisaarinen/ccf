@@ -38,11 +38,31 @@ object SessionRequestFactory {
 
   private[session] def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header(TypeKey) match {
-      case Some(JoinType) => JoinRequest(transportRequest)
+      case Some(JoinType) => JoinRequest(transportRequest, channelIdFromContent(transportRequest))
       case Some(PartType) => PartRequest(transportRequest)
       case Some(OperationContextType) => OperationContextRequest(transportRequest)
       case Some(requestType) => InChannelRequest(transportRequest)
       case None => error("No request type given")
+    }
+  }
+
+  private def channelIdFromMap(map: Map[String, String]): ChannelId = {
+    val channelIdValue = map.get(ChannelIdKey).getOrElse(error(ChannelIdKey + " missing"))
+    ChannelId(channelIdValue).getOrElse(error("Invalid value for " + ChannelIdKey))
+  }
+
+  private def channelIdFromContent(transportRequest: TransportRequest): ChannelId = {
+    def isNonEmptyStringToStringMap(map: Map[_, _]) = {
+      map.head match {
+        case (_: String, _: String) => true
+        case _ => false
+      }
+    }
+
+    transportRequest.content match {
+      case Some(m: Map[_, _]) if (m.isEmpty) => error("Empty request content")
+      case Some(m: Map[_, _]) if (isNonEmptyStringToStringMap(m)) => channelIdFromMap(m.asInstanceOf[Map[String, String]])
+      case _ => error("Unknown request content type")
     }
   }
 }

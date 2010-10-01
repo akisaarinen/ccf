@@ -20,7 +20,7 @@ import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
 import javax.activation.MimeType
 import ccf.session.{SessionResponse, SessionRequest}
-import ccf.transport.{TransportResponse, Codec, TransportRequest}
+import ccf.transport.{TransportRequest, TransportResponse, Codec}
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {

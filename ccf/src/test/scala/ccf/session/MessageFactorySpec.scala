@@ -16,9 +16,22 @@
 
 package ccf.session
 
-object MessageFactory {
-  private[session] def message(request: SessionRequest): Message = request match {
-    case JoinRequest(_, channelId) => Message.Join(channelId)
-    case _ => null
+import java.util.UUID
+import org.specs.Specification
+import org.specs.mock.Mockito
+
+class MessageFactorySpec extends Specification with Mockito {
+  val session = mock[Session]
+  session.seqId returns 1
+  session.version returns Version(2, 3)
+  session.clientId returns ClientId(new UUID(4, 5))
+  val channelId = new ChannelId(new UUID(6, 7))
+
+  "MessageFactory#message" should {
+    "create join message from join request" in {
+      val request = JoinRequest(session, channelId)
+      val expectedMsg = Message.Join(channelId)
+      Message(request) mustEqual expectedMsg
+    }
   }
 }
