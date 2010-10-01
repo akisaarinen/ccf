@@ -33,5 +33,11 @@ class MessageFactorySpec extends Specification with Mockito {
       val expectedMsg = Message.Join(channelId)
       Message(request) mustEqual expectedMsg
     }
+
+    "create part message from part request" in {
+      val request = PartRequest(session, channelId)
+      val expectedMsg = Message.Part(channelId)
+      Message(request) mustEqual expectedMsg
+    }
   }
 }

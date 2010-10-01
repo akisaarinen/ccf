@@ -40,7 +40,7 @@ trait DefaultSessionResponse extends SessionRequest {
   private def sessionResponse(sessionRequest: SessionRequest, transportResponse: TransportResponse, result: Either[Failure, Success]): SessionResponse = {
     sessionRequest match {
       case JoinRequest(_, _) => JoinResponse(transportResponse, result)
-      case PartRequest(_) => PartResponse(transportResponse, result)
+      case PartRequest(_, _) => PartResponse(transportResponse, result)
       case InChannelRequest(_) => InChannelResponse(transportResponse, result)
       case OperationContextRequest(_) => OperationContextResponse(transportResponse, result)
     }
@@ -67,12 +67,12 @@ object JoinRequest {
   def apply(s: Session, channelId: ChannelId) = new JoinRequest(SessionControlRequest.transportRequest(s, SessionRequestFactory.JoinType, channelId), channelId)
 }
 
-case class PartRequest(transportRequest: TransportRequest) extends SessionControlRequest with DefaultSessionResponse {
+case class PartRequest(transportRequest: TransportRequest, channelId: ChannelId) extends SessionControlRequest with DefaultSessionResponse {
   require(transportRequest.header(SessionRequestFactory.TypeKey) == Some(SessionRequestFactory.PartType))
 }
 
 object PartRequest {
-  def apply(s: Session, channelId: ChannelId) = new PartRequest(SessionControlRequest.transportRequest(s, SessionRequestFactory.PartType, channelId))
+  def apply(s: Session, channelId: ChannelId) = new PartRequest(SessionControlRequest.transportRequest(s, SessionRequestFactory.PartType, channelId), channelId)
 }
 
 case class InChannelRequest(transportRequest: TransportRequest) extends SessionRequest with DefaultSessionResponse {

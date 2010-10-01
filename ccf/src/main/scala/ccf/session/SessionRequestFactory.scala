@@ -39,7 +39,7 @@ object SessionRequestFactory {
   private[session] def sessionRequest(transportRequest: TransportRequest): SessionRequest = {
     transportRequest.header(TypeKey) match {
       case Some(JoinType) => JoinRequest(transportRequest, channelIdFromContent(transportRequest))
-      case Some(PartType) => PartRequest(transportRequest)
+      case Some(PartType) => PartRequest(transportRequest, channelIdFromContent(transportRequest))
       case Some(OperationContextType) => OperationContextRequest(transportRequest)
       case Some(requestType) => InChannelRequest(transportRequest)
       case None => error("No request type given")

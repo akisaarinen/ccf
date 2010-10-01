@@ -19,6 +19,7 @@ package ccf.session
 object MessageFactory {
   private[session] def message(request: SessionRequest): Message = request match {
     case JoinRequest(_, channelId) => Message.Join(channelId)
+    case PartRequest(_, channelId) => Message.Part(channelId)
     case _ => null
   }
 }
