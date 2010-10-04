@@ -22,7 +22,7 @@ import ccf.session._
 import ccf.transport.{TransportResponse, TransportRequest}
 
 class ServerEngine {
-  def decodeRequest(request: Option[TransportRequest]) : TransportResponse = {
+  def decodeRequest(request: Option[TransportRequest]): TransportResponse = {
     request match {
       case Some(r: TransportRequest) => {
         try {
@@ -35,7 +35,7 @@ class ServerEngine {
     }
   }
 
-  private def handleRequest(sessionRequest: SessionRequest) : SessionResponse = {
+  private def handleRequest(sessionRequest: SessionRequest): SessionResponse = {
     sessionRequest match {
       case JoinRequest(_) => sessionRequest.successResponse(None)
       case PartRequest(_) => sessionRequest.successResponse(None)
