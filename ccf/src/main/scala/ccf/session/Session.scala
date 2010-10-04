@@ -23,8 +23,8 @@ case class Session(connection: Connection, version: Version, clientId: ClientId,
 
   def send(msg: Message): (Session, Either[Failure, Success]) = handleException(msg) { msg.send(this) match {
     case (session: Session, Some(response)) => response.result match {
-      case Left(Success(_, result))  => success(session, msg, result)
-      case Right(Failure(_, reason)) => failure(msg, reason)
+      case Right(Success(_, result))  => success(session, msg, result)
+      case Left(Failure(_, reason)) => failure(msg, reason)
     }
     case (session: Session, None)           => success(session, msg, None)
     case _                                  => error("Session got invalid response from #send")

@@ -58,7 +58,7 @@ object SessionSpec extends Specification with Mockito {
     }
 
     "return success and new session on success response without result" in {
-      mockRes.result returns Left(Success(mockReq, None))
+      mockRes.result returns Right(Success(mockReq, None))
       msg.send(session) returns((newSession, Some(mockRes)))
 
       val (nextSession, result) = session.send(msg)
@@ -68,7 +68,7 @@ object SessionSpec extends Specification with Mockito {
     }
 
     "return success and new session on success response with result" in {
-      mockRes.result returns Left(Success(mockReq, testResult))
+      mockRes.result returns Right(Success(mockReq, testResult))
       msg.send(session) returns((newSession, Some(mockRes)))
 
       val (nextSession, result) = session.send(msg)
@@ -78,7 +78,7 @@ object SessionSpec extends Specification with Mockito {
     }
 
     "return failure and retain session state on failure response" in {
-      mockRes.result returns Right(Failure(mockReq, testReason))
+      mockRes.result returns Left(Failure(mockReq, testReason))
       msg.send(session) returns((newSession, Some(mockRes)))
 
       val (nextSession, result) = session.send(msg)

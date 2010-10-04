@@ -46,7 +46,7 @@ object SessionResponseFactory {
     }
   }
 
-  private def result(transportResponse: TransportResponse, request: SessionRequest): Either[Success, Failure] = {
+  private def result(transportResponse: TransportResponse, request: SessionRequest): Either[Failure, Success] = {
     def isNonEmptyStringToStringMap(map: Map[_,_]): Boolean = {
       map.head match {
         case (key: String, value: String) => true
@@ -56,19 +56,19 @@ object SessionResponseFactory {
 
     transportResponse.content match {
       case Some(content) => content match {
-        case contentMap: Map[_,_] if contentMap.isEmpty => Right(Failure(request, "Empty response content"))
-        case contentMap: Map[_,_] if !isNonEmptyStringToStringMap(contentMap) => Right(Failure(request, "Mistyped response content"))
+        case contentMap: Map[_,_] if contentMap.isEmpty => Left(Failure(request, "Empty response content"))
+        case contentMap: Map[_,_] if !isNonEmptyStringToStringMap(contentMap) => Left(Failure(request, "Mistyped response content"))
         case contentMap: Map[_,_] => {
           val contents = contentMap.asInstanceOf[Map[String,String]]
           contents.get(StatusKey) match {
-            case Some(SuccessStatus) => Left(Success(request, contents.get(ResultKey)))
-            case Some(FailureStatus) => Right(Failure(request, contents.get(ReasonKey).getOrElse("")))
-            case _ => Right(Failure(request, "Unkown response status"))
+            case Some(SuccessStatus) => Right(Success(request, contents.get(ResultKey)))
+            case Some(FailureStatus) => Left(Failure(request, contents.get(ReasonKey).getOrElse("")))
+            case _ => Left(Failure(request, "Unkown response status"))
           }
         }
-        case _ => Right(Failure(request, "Unrecognized response content"))
+        case _ => Left(Failure(request, "Unrecognized response content"))
       }
-    case _ => Right(Failure(request, "Response missing content"))
+    case _ => Left(Failure(request, "Response missing content"))
     }
   }
 }

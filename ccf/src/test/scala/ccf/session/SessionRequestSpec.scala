@@ -110,7 +110,7 @@ class SessionRequestSpec extends Specification with Mockito {
   }
 
   def commonRequestSpec(request: SessionRequest, expectedTransportRequest: TransportRequest,
-                        expectedResponseFactory: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
+                        expectedResponseFactory: (TransportResponse, Either[Failure, Success]) => SessionResponse) {
     "be constructible by session request factory" in {
       SessionRequest(expectedTransportRequest) must equalTo(request)
     }
@@ -121,21 +121,21 @@ class SessionRequestSpec extends Specification with Mockito {
 
     "return correct success response without result" in {
       val expectedTransportResponse = TransportResponse(expectedTransportRequest.headers, SessionResponseFactory.successContent(None))
-      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Left(Success(request, None)))
+      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Right(Success(request, None)))
 
       request.successResponse(None) mustEqual expectedResponse
     }
 
     "return correct success response with result" in {
       val expectedTransportResponse = TransportResponse(expectedTransportRequest.headers, SessionResponseFactory.successContent(responseResult))
-      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Left(Success(request, responseResult)))
+      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Right(Success(request, responseResult)))
 
       request.successResponse(responseResult) mustEqual expectedResponse
     }
 
     "return correct failure response" in {
       val expectedTransportResponse = TransportResponse(expectedTransportRequest.headers, SessionResponseFactory.failureContent(expectedReason))
-      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Right(Failure(request, expectedReason)))
+      val expectedResponse = expectedResponseFactory(expectedTransportResponse, Left(Failure(request, expectedReason)))
 
       request.failureResponse(expectedReason) mustEqual expectedResponse
     }

@@ -31,100 +31,100 @@ class SessionResponseSpec extends Specification with Mockito {
 
     "create successful join response from" in {
       successCreationSpec(mock[JoinRequest], SessionRequestFactory.JoinType,
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => JoinResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => JoinResponse(transportResponse, result))
     }
 
     "create failure join response from" in {
       failureCreationSpec(mock[JoinRequest], SessionRequestFactory.JoinType,
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => JoinResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => JoinResponse(transportResponse, result))
     }
 
     "create successful part response from" in {
       successCreationSpec(mock[PartRequest], SessionRequestFactory.PartType,
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => PartResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => PartResponse(transportResponse, result))
     }
 
     "create failure part response from" in {
       failureCreationSpec(mock[PartRequest], SessionRequestFactory.PartType,
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => PartResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => PartResponse(transportResponse, result))
     }
 
     "create successful in channel response from" in {
       successCreationSpec(mock[InChannelRequest], "testRequestType",
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => InChannelResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => InChannelResponse(transportResponse, result))
     }
 
     "create failure in channel response from" in {
       failureCreationSpec(mock[InChannelRequest], "testRequestType",
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => InChannelResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => InChannelResponse(transportResponse, result))
     }
 
     "create successful operation context response from" in {
       successCreationSpec(mock[OperationContextRequest], SessionRequestFactory.OperationContextType,
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => OperationContextResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => OperationContextResponse(transportResponse, result))
     }
 
     "create failure operation context response from" in {
       failureCreationSpec(mock[OperationContextRequest], SessionRequestFactory.OperationContextType,
-        (transportResponse: TransportResponse, result: Either[Success, Failure]) => OperationContextResponse(transportResponse, result))
+        (transportResponse: TransportResponse, result: Either[Failure, Success]) => OperationContextResponse(transportResponse, result))
     }
   }
 
   def successCreationSpec(request: SessionRequest, requestType: String,
-                                  expectedResponse: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
+                                  expectedResponse: (TransportResponse, Either[Failure, Success]) => SessionResponse) {
     val responseHeaders = Map(SessionRequestFactory.TypeKey -> requestType)
 
     "successful transport response without result" in {
       val transportResponse = TransportResponse(responseHeaders, SessionResponseFactory.successContent(None))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Success(request, None)))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Success(request, None)))
     }
 
     "successful transport response with result" in {
       val testResult = Some("test result")
       val transportResponse = TransportResponse(responseHeaders, SessionResponseFactory.successContent(testResult))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Success(request, testResult)))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Success(request, testResult)))
     }
   }
 
   def failureCreationSpec(request: SessionRequest, requestType: String,
-                                  expectedResponse: (TransportResponse, Either[Success, Failure]) => SessionResponse) {
+                                  expectedResponse: (TransportResponse, Either[Failure, Success]) => SessionResponse) {
     val responseHeaders = Map(SessionRequestFactory.TypeKey -> requestType)
 
     "failure transport response" in {
       val reason = "test reason"
       val transportResponse = TransportResponse(responseHeaders, SessionResponseFactory.failureContent(reason))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, reason)))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, reason)))
     }
 
     "transport response without content" in {
       val transportResponse = TransportResponse(responseHeaders, None)
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Response missing content")))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, "Response missing content")))
     }
 
     "transport response with mistyped content" in {
       class UnsupportedResponseContent
       val transportResponse = TransportResponse(responseHeaders, Some(new UnsupportedResponseContent))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Unrecognized response content")))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, "Unrecognized response content")))
     }
 
     "transport response with empty content" in {
       val transportResponse = TransportResponse(responseHeaders, Some(Map()))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Empty response content")))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, "Empty response content")))
     }
 
     "transport response with mistyped content map" in {
       val transportResponse = TransportResponse(responseHeaders, Some(Map[String,Int](SessionResponseFactory.StatusKey -> 42)))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Mistyped response content")))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, "Mistyped response content")))
     }
 
     "transport response with missing status" in {
       val transportResponse = TransportResponse(responseHeaders, Some(Map[String,String](SessionResponseFactory.ReasonKey -> "test reason")))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Unkown response status")))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, "Unkown response status")))
     }
 
     "transport response with unrecognized status" in {
       val transportResponse = TransportResponse(responseHeaders, Some(Map[String,String](SessionResponseFactory.StatusKey -> "TEST")))
-      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Right(Failure(request, "Unkown response status")))
+      SessionResponse(transportResponse, request) mustEqual expectedResponse(transportResponse, Left(Failure(request, "Unkown response status")))
     }
   }
 }

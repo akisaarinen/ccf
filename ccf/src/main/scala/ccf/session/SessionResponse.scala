@@ -20,7 +20,7 @@ import ccf.transport.TransportResponse
 
 sealed abstract class SessionResponse {
   val transportResponse: TransportResponse
-  val result: Either[Success, Failure]
+  val result: Either[Failure, Success]
 }
 
 object SessionResponse {
@@ -28,10 +28,10 @@ object SessionResponse {
     SessionResponseFactory.sessionResponse(transportResponse, request)
 }
 
-case class JoinResponse(transportResponse: TransportResponse, result: Either[Success, Failure]) extends SessionResponse
+case class JoinResponse(transportResponse: TransportResponse, result: Either[Failure, Success]) extends SessionResponse
 
-case class PartResponse(transportResponse: TransportResponse, result: Either[Success, Failure]) extends SessionResponse
+case class PartResponse(transportResponse: TransportResponse, result: Either[Failure, Success]) extends SessionResponse
 
-case class InChannelResponse(transportResponse: TransportResponse, result: Either[Success, Failure]) extends SessionResponse
+case class InChannelResponse(transportResponse: TransportResponse, result: Either[Failure, Success]) extends SessionResponse
 
-case class OperationContextResponse(transportResponse: TransportResponse, result: Either[Success, Failure]) extends SessionResponse
+case class OperationContextResponse(transportResponse: TransportResponse, result: Either[Failure, Success]) extends SessionResponse
