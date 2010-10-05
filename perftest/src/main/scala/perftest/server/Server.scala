@@ -21,21 +21,17 @@ import org.eclipse.jetty.server.{Server => Jetty7Server, Request => Jetty7Reques
 import org.eclipse.jetty.server.nio.SelectChannelConnector
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import javax.activation.MimeType
 import java.net.URL
-import ccf.transport.json.{JsonDecoder, JsonEncoder}
 import java.io.StringWriter
-import ccf.session.SessionRequest
-import ccf.OperationContext
-import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
-import ccf.transport.{TransportRequest, TransportResponse}
 import ccf.server.ServerEngine
+import ccf.transport.json.JsonCodec
 
 class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
   override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
-    var requestBody = readRequestBody(req)
-    val request = JsonDecoder.decodeRequest(requestBody)
-
-    writeResponse(engine.decodeRequest(request), httpResp)
+    val requestBody = readRequestBody(req)
+    val responseBody = engine.processRequest(requestBody)
+    writeResponse(responseBody, engine.encodingMimeType, httpResp)
     (httpReq.asInstanceOf[Jetty7Request]).setHandled(true)
   }
 
@@ -50,9 +46,8 @@ class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
     writer.toString
   }
   
-  private def writeResponse(response: TransportResponse, httpResp: HttpServletResponse) {
-    val body = JsonEncoder.encodeResponse(response)
-    httpResp.setContentType("application/json")
+  private def writeResponse(body: String, contentType: MimeType, httpResp: HttpServletResponse) {
+    httpResp.setContentType(contentType.getBaseType)
     httpResp.setStatus(HttpServletResponse.SC_OK);
     httpResp.setContentLength(body.length)
     httpResp.getWriter.write(body)
@@ -63,7 +58,8 @@ object Server {
   def run(url: URL)= { 
     val server = new Jetty7Server(url.getPort)
     val connector = new SelectChannelConnector()
-    val engine = new ServerEngine
+    val codec = JsonCodec
+    val engine = new ServerEngine(codec)
 
     connector.setPort(url.getPort)
     server.setConnectors(List[Connector](connector).toArray)
