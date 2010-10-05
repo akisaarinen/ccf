@@ -16,43 +16,25 @@
 
 package ccf.server
 
-import ccf.OperationContext
-import ccf.tree.operation.TreeOperationDecoder
-import ccf.session._
-import ccf.transport.{TransportResponse, TransportRequest}
+import ccf.transport.{Codec, TransportResponse, TransportRequest}
+import ccf.session.{SessionRequest, SessionResponse}
 
-class ServerEngine {
-  def decodeRequest(request: Option[TransportRequest]): TransportResponse = {
-    request match {
-      case Some(r: TransportRequest) => {
-        try {
-          handleRequest(SessionRequest(r)).transportResponse
-        } catch {
-          case ex: Exception => error(ex.getMessage)
-        }
-      }
-      case None => error("Unable to decode request")
-    }
+class ServerEngine(codec: Codec) {
+  val encodingMimeType = codec.mimeType
+
+  def processRequest(request: String): String = {
+    val transportRequest = codec.decodeRequest(request).getOrElse(error("Unable to decode request"))
+    val transportResponse = processRequest(transportRequest)
+    codec.encodeResponse(transportResponse)
   }
 
-  private def handleRequest(sessionRequest: SessionRequest): SessionResponse = {
-    sessionRequest match {
-      case JoinRequest(_) => sessionRequest.successResponse(None)
-      case PartRequest(_) => sessionRequest.successResponse(None)
-      case InChannelRequest(_) => sessionRequest.successResponse(None)
-      case OperationContextRequest(tr) => {
-        val encodedContext = tr.content.get.asInstanceOf[Map[String, Any]]
-        val op = newOperationDecoder.decode(encodedContext("op"))
-        val localMsgSeqNo = encodedContext("localMsgSeqNo").asInstanceOf[Int]
-        val remoteMsgSeqNo = encodedContext("remoteMsgSeqNo").asInstanceOf[Int]
-        val context = new OperationContext(op, localMsgSeqNo, remoteMsgSeqNo)
-        sessionRequest.successResponse(None)
-      }
-    }
+  protected def sessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
+
+  private def processRequest(transportRequest: TransportRequest): TransportResponse = {
+    processRequest(sessionRequest(transportRequest)).transportResponse
   }
 
-  protected def newOperationDecoder = new TreeOperationDecoder {
-    protected def parseModifier(encodedValue: Any) = null
-    protected def parseNode(encodedValue: Any) = null
+  private def processRequest(sessionRequest: SessionRequest): SessionResponse = {
+    sessionRequest.successResponse(None)
   }
 }
