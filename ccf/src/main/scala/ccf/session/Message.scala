@@ -44,10 +44,11 @@ object Message {
     def send(s: Session): (Session, Option[SessionResponse]) =
       if (s.channels(channelId)) send(s, InChannelRequest(s, requestType, channelId, content), s.channels) else (s, None)
   }
-}
 
-case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
-  def send(s: Session): (Session, Option[SessionResponse]) = {
-    if (s.channels(channelId)) send(s, OperationContextRequest(s, channelId, context), s.channels) else (s, None)
+  case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
+    def send(s: Session): (Session, Option[SessionResponse]) = {
+      if (s.channels(channelId)) send(s, OperationContextRequest(s, channelId, context), s.channels) else (s, None)
+    }
   }
 }
+

@@ -57,7 +57,7 @@ object Client {
     (0 to numberOfMsgsToSend).map { index =>
       val startTimestampMillis = currentTimeMillis
       val context = new OperationContext(createOperation(index), index, 0)
-      sa !? OperationContextMessage(channelId, context)
+      sa !? Message.OperationContextMessage(channelId, context)
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
