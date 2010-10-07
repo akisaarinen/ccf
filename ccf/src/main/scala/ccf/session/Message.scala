@@ -16,8 +16,6 @@
 
 package ccf.session
 
-import ccf.OperationContext
-
 case object Shutdown
 
 trait Message {
@@ -45,7 +43,7 @@ object Message {
       if (s.channels(channelId)) send(s, InChannelRequest(s, requestType, channelId, content), s.channels) else (s, None)
   }
 
-  case class OperationContextMessage(channelId: ChannelId, context: OperationContext) extends Message {
+  case class OperationContext(channelId: ChannelId, context: ccf.OperationContext) extends Message {
     def send(s: Session): (Session, Option[SessionResponse]) = {
       if (s.channels(channelId)) send(s, OperationContextRequest(s, channelId, context), s.channels) else (s, None)
     }

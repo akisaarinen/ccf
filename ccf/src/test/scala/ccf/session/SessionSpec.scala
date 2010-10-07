@@ -127,7 +127,7 @@ object SessionSpec extends Specification with Mockito {
   "Session#send with operation context message" should {
     val context = mock[OperationContext]
     val operationContextRequest = OperationContextRequest(session, existingChannelId, context)
-    val operationContextMessage = Message.OperationContextMessage(existingChannelId, context)
+    val operationContextMessage = Message.OperationContext(existingChannelId, context)
     val expectedSession = session.next(session.channels)
 
     sendMessageSpec(operationContextMessage, operationContextRequest, expectedSession)
