@@ -98,7 +98,7 @@ class SessionActorSpec extends Specification with Mockito {
     val session = newSession(1, Set(channelId))
     val content = Some(Map("a" -> "b", "c" -> Map("d" -> 3)))
     val requestType = "app/custom"
-    val inChannelMessage = InChannelMessage(requestType, channelId, content)
+    val inChannelMessage = Message.InChannelMessage(requestType, channelId, content)
     val inChannelRequest = InChannelRequest(session, requestType, channelId, content)
     val sa = new SessionActor(connection, clientId, version, session)
     "reply with Success(...) when server returns valid response to request" in {

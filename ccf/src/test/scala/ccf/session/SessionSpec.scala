@@ -118,7 +118,7 @@ object SessionSpec extends Specification with Mockito {
     val content = Some("test content")
     val requestType = "test/type"
     val inChannelRequest = InChannelRequest(session, requestType, existingChannelId, content)
-    val inChannelMessage = InChannelMessage(requestType, existingChannelId, content)
+    val inChannelMessage = Message.InChannelMessage(requestType, existingChannelId, content)
     val expectedSession = session.next(session.channels)
 
     sendMessageSpec(inChannelMessage, inChannelRequest, expectedSession)
