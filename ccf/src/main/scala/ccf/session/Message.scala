@@ -16,7 +16,6 @@
 
 package ccf.session
 
-import ccf.transport.TransportResponse
 import ccf.OperationContext
 
 case object Shutdown
