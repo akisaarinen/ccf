@@ -48,12 +48,12 @@ class SessionActorSpec extends Specification with Mockito {
     "reply with Failure(...) and keep session state when server returns failure response to request" in {
       connection.send(joinRequest.transportRequest) returns Some(joinRequest.failureResponse(testReason).transportResponse)
       sa !? joinMessage must equalTo(Left(Failure(joinMessage, testReason)))
-      val currentSession = (sa !? Shutdown).asInstanceOf[Session] must equalTo(session)
+      val currentSession = (sa !? Message.Shutdown).asInstanceOf[Session] must equalTo(session)
     }
     "update list of channels in session" in {
       connection.send(joinRequest.transportRequest) returns None
       sa !? joinMessage
-      val currentSession = (sa !? Shutdown).asInstanceOf[Session]
+      val currentSession = (sa !? Message.Shutdown).asInstanceOf[Session]
       currentSession.seqId must equalTo(1)
       currentSession.channels must contain(channelId)
     }
@@ -79,7 +79,7 @@ class SessionActorSpec extends Specification with Mockito {
     "update list of channels in session" in {
       connection.send(partRequest.transportRequest) returns None
       sa !? partMessage
-      val currentSession = (sa !? Shutdown).asInstanceOf[Session]
+      val currentSession = (sa !? Message.Shutdown).asInstanceOf[Session]
       currentSession.channels must notContain(channelId)
     }
   }

@@ -30,7 +30,7 @@ class SessionActor(connection: Connection, clientId: ClientId, version: Version,
       val nextSession = handleMessage(s, msg)
       loop(nextSession)
     }
-    case Shutdown => {
+    case Message.Shutdown => {
       sender ! s
       exit
     }

@@ -50,7 +50,7 @@ object Client {
     sa ! Message.Join(channelId)
     Logger.get("dispatch").setLevel(Level.OFF)
     report(roundTripTimes(sa))
-    sa ! Shutdown
+    sa ! Message.Shutdown
   }
   private def roundTripTimes(sa: SessionActor): List[Double] = {
     import System.currentTimeMillis
