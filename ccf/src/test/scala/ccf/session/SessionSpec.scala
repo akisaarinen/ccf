@@ -108,7 +108,7 @@ object SessionSpec extends Specification with Mockito {
 
   "Session#send with part message" should {
     val partRequest = PartRequest(session, existingChannelId)
-    val partMessage = Part(existingChannelId)
+    val partMessage = Message.Part(existingChannelId)
     val expectedSession = session.next(session.channels - existingChannelId)
 
     sendMessageSpec(partMessage, partRequest, expectedSession)
