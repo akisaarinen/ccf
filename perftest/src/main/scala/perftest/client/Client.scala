@@ -47,7 +47,7 @@ object Client {
   def run(url: URL) = {
     val conn = HttpConnection.create(url)
     val sa = new SessionActor(conn, clientId, version)
-    sa ! Join(channelId)
+    sa ! Message.Join(channelId)
     Logger.get("dispatch").setLevel(Level.OFF)
     report(roundTripTimes(sa))
     sa ! Shutdown

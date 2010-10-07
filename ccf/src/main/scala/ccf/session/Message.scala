@@ -29,10 +29,13 @@ trait Message {
   }
 }
 
-case class Join(channelId: ChannelId) extends Message {
-  def send(s: Session): (Session, Option[SessionResponse]) =
-    if (!s.channels(channelId)) send(s, JoinRequest(s, channelId), s.channels + channelId) else (s, None)
+object Message {
+  case class Join(channelId: ChannelId) extends Message {
+    def send(s: Session): (Session, Option[SessionResponse]) =
+      if (!s.channels(channelId)) send(s, JoinRequest(s, channelId), s.channels + channelId) else (s, None)
+  }
 }
+
 case class Part(channelId: ChannelId) extends Message {
   def send(s: Session): (Session, Option[SessionResponse]) =
     if (s.channels(channelId)) send(s, PartRequest(s, channelId), s.channels - channelId) else (s, None)

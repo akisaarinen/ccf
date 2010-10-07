@@ -100,7 +100,7 @@ object SessionSpec extends Specification with Mockito {
 
   "Session#send with join message" should {
     val joinRequest = JoinRequest(session, newChannelId)
-    val joinMessage = Join(newChannelId)
+    val joinMessage = Message.Join(newChannelId)
     val expectedSession = session.next(session.channels + newChannelId)
 
     sendMessageSpec(joinMessage, joinRequest, expectedSession)
