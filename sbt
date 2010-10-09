@@ -1,5 +1,5 @@
 #!/bin/bash
-LAUNCHER_VERSION=0.7.3
+LAUNCHER_VERSION=0.7.4
 export JAVA_OPTS="-client -XX:MaxPermSize=256m -Xmx512m"
 
 sbt_opts=
