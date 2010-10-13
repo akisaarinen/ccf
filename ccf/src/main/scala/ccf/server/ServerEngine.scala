@@ -17,8 +17,8 @@
 package ccf.server
 
 import ccf.transport.{Codec, TransportResponse, TransportRequest}
-import ccf.session.{ClientId, ChannelId, SessionRequest, SessionResponse}
 import ccf.tree.operation.TreeOperation
+import ccf.session._
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId) = ""
@@ -43,6 +43,13 @@ class ServerEngine(codec: Codec, interceptor: ServerOperationInterceptor = new D
   }
 
   private def processRequest(sessionRequest: SessionRequest): SessionResponse = {
-    sessionRequest.successResponse(None)
+    sessionRequest match {
+      case joinRequest: JoinRequest => onJoin(joinRequest)
+      case _ => sessionRequest.successResponse(None)
+    }
+  }
+
+  private def onJoin(joinRequest: JoinRequest): SessionResponse = {
+    joinRequest.successResponse(None)
   }
 }
