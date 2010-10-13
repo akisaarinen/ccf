@@ -16,9 +16,9 @@
 
 package ccf.server
 
-import ccf.transport.{Codec, TransportResponse, TransportRequest}
 import ccf.tree.operation.TreeOperation
 import ccf.session._
+import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, TransportRequest}
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId) = ""
@@ -50,6 +50,7 @@ class ServerEngine(codec: Codec, interceptor: ServerOperationInterceptor = new D
   }
 
   private def onJoin(joinRequest: JoinRequest): SessionResponse = {
-    joinRequest.successResponse(None)
+    val (clientId, channelId) = (joinRequest.clientId, joinRequest.channelId)
+    joinRequest.successResponse(Some(BASE64EncodingSerializer.serialize(interceptor.currentStateFor(channelId).asInstanceOf[AnyRef])))
   }
 }

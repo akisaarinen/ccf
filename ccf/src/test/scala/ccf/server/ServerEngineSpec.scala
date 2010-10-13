@@ -19,8 +19,9 @@ package ccf.server
 import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
 import javax.activation.MimeType
-import ccf.session.{SessionResponse, SessionRequest}
-import ccf.transport.{TransportRequest, TransportResponse, Codec}
+import ccf.session._
+import ccf.transport.json.JsonCodec
+import ccf.transport._
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -59,6 +60,24 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       codecMock.encodeResponse(transportResponseMock) returns testResponse
 
       engine.processRequest(testRequest) mustEqual testResponse
+    }
+  }
+
+  "ServerEngine with Interceptor" should {
+    val state = "this is the current state"
+    class TestInterceptor extends DefaultServerOperationInterceptor {
+      override def currentStateFor(channelId: ChannelId) = state
+    }
+    val engine = new ServerEngine(JsonCodec, new TestInterceptor)
+
+    "reply with response containing Base64 encoded result for join request" in {
+      val channelId = ChannelId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), ClientId.randomId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      val response = engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      val joinResponse: SessionResponse = SessionResponse(JsonCodec.decodeResponse(response).get, joinRequest)
+      val Right(Success(_, Some(encodedResult: String))) = joinResponse.result
+      state must equalTo(BASE64EncodingSerializer.deserialize(encodedResult))
     }
   }
 }
