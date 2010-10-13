@@ -17,9 +17,17 @@
 package ccf.server
 
 import ccf.transport.{Codec, TransportResponse, TransportRequest}
-import ccf.session.{SessionRequest, SessionResponse}
+import ccf.session.{ClientId, ChannelId, SessionRequest, SessionResponse}
+import ccf.tree.operation.TreeOperation
 
-class ServerEngine(codec: Codec) {
+class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
+  def currentStateFor(channelId: ChannelId) = ""
+  def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {}
+  def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
+  def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
+}
+
+class ServerEngine(codec: Codec, interceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor) {
   val encodingMimeType = codec.mimeType
 
   def processRequest(request: String): String = {
