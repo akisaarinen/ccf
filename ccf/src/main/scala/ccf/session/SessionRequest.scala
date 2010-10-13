@@ -23,6 +23,7 @@ sealed abstract class SessionRequest {
   val transportRequest: TransportRequest
   def successResponse(result: Option[String]): SessionResponse
   def failureResponse(reason: String): SessionResponse
+  def clientId: ClientId = ClientId(transportRequest.header("clientId").get).get
   protected def transportResponse(content: Option[Any]): TransportResponse = {
     TransportResponse(transportRequest.headers, content)
   }
