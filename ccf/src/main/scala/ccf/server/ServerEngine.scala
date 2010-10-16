@@ -27,7 +27,7 @@ class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
 }
 
-class ServerEngine(codec: Codec, interceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor) {
+class ServerEngine(codec: Codec, operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor) {
   val encodingMimeType = codec.mimeType
 
   def processRequest(request: String): String = {
@@ -51,6 +51,6 @@ class ServerEngine(codec: Codec, interceptor: ServerOperationInterceptor = new D
 
   private def onJoin(joinRequest: JoinRequest): SessionResponse = {
     val (clientId, channelId) = (joinRequest.clientId, joinRequest.channelId)
-    joinRequest.successResponse(Some(BASE64EncodingSerializer.serialize(interceptor.currentStateFor(channelId).asInstanceOf[AnyRef])))
+    joinRequest.successResponse(Some(BASE64EncodingSerializer.serialize(operationInterceptor.currentStateFor(channelId).asInstanceOf[AnyRef])))
   }
 }
