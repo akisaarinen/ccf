@@ -38,10 +38,10 @@ class ServerEngine(codec: Codec,
     codec.encodeResponse(transportResponse)
   }
 
-  protected def sessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
-
   private def processRequest(transportRequest: TransportRequest): TransportResponse = {
-    processRequest(sessionRequest(transportRequest)).transportResponse
+    val sessionRequest = createSessionRequest(transportRequest)
+    val sessionResponse = processRequest(sessionRequest)
+    sessionResponse.transportResponse
   }
 
   private def processRequest(sessionRequest: SessionRequest): SessionResponse = {
@@ -53,6 +53,10 @@ class ServerEngine(codec: Codec,
 
   private def onJoin(joinRequest: JoinRequest): SessionResponse = {
     val (clientId, channelId) = (joinRequest.clientId, joinRequest.channelId)
-    joinRequest.successResponse(Some(BASE64EncodingSerializer.serialize(operationInterceptor.currentStateFor(channelId).asInstanceOf[AnyRef])))
+    val currentState = operationInterceptor.currentStateFor(channelId).asInstanceOf[AnyRef]
+    val serializedState = BASE64EncodingSerializer.serialize(currentState)
+    joinRequest.successResponse(Some(serializedState))
   }
+
+  protected def createSessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
 }

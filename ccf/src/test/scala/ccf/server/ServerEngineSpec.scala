@@ -30,7 +30,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
     val sessionRequestMock = mock[SessionRequest]
 
     class TestServerEngine extends ServerEngine(codecMock) {
-      override def sessionRequest(transportRequest: TransportRequest) = {
+      override def createSessionRequest(transportRequest: TransportRequest) = {
         sessionRequestMock.transportRequest returns transportRequest
         sessionRequestMock
       }
