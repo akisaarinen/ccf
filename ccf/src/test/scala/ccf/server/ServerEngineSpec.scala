@@ -63,7 +63,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
     }
   }
 
-  "ServerEngine with Interceptor" should {
+  "ServerEngine with ServerOperationInterceptor" should {
     val state = "this is the current state"
     class TestInterceptor extends DefaultServerOperationInterceptor {
       override def currentStateFor(channelId: ChannelId) = state
@@ -78,6 +78,23 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val joinResponse: SessionResponse = SessionResponse(JsonCodec.decodeResponse(response).get, joinRequest)
       val Right(Success(_, Some(encodedResult: String))) = joinResponse.result
       state must equalTo(BASE64EncodingSerializer.deserialize(encodedResult))
+    }
+  }
+
+  "ServerEngine with request blocking TransportRequestInterceptor" should {
+    class BlockingInterceptor extends TransportRequestInterceptor {
+      def isPermitted(r: TransportRequest) = false
+    }
+    val engine = new ServerEngine(JsonCodec, transportInterceptor = new BlockingInterceptor)
+
+    "block a Join request" in {
+      val channelId = ChannelId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), ClientId.randomId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      val response = engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      val joinResponse: SessionResponse = SessionResponse(JsonCodec.decodeResponse(response).get, joinRequest)
+      val Left(Failure(_, reason)) = joinResponse.result
+      reason must equalTo("Request not permitted")
     }
   }
 }
