@@ -22,34 +22,59 @@ import org.specs.mock.Mockito
 import java.io.IOException
 import java.net.URL
 
-import ccf.transport.TransportRequest
-import ccf.transport.{ConnectionException, InvalidRequestException}
-import ccf.transport.{Encoder, Decoder}
+import ccf.transport.json.{JsonEncoder, JsonDecoder}
+import ccf.transport._
 
 object HttpConnectionSpec extends Specification with Mockito {
   "Invalid request" should {
     val url = new URL("http://www.url")
     "cause an InvalidRequestException" in {
       val client = mock[HttpClient]
-      val parser = mock[Decoder]
-      val formatter = mock[Encoder]
-      val conn = new HttpConnection(url, client, parser, formatter) 
+      val decoder = mock[Decoder]
+      val encoder = mock[Encoder]
+      val conn = new HttpConnection(url, client, decoder, encoder, None, None) 
       conn.send(new TransportRequest(Map[String, String](), None)) must throwA[InvalidRequestException]
     }
   }
   "IOException thrown from HttpClient#post" should {
     val requestData = "data"
-    val spec = "spec"
     val url = new URL("http://www.url")
     "cause a ConnectionException" in {
-      val request = mock[TransportRequest]
-      request.header("type") returns Some(spec)
-      val formatter = mock[Encoder]
-      formatter.encodeRequest(request) returns requestData
+      val request = basicRequest
+      val decoder = mock[Decoder]
+      val encoder = mock[Encoder]
+      encoder.encodeRequest(request) returns requestData
       val client = mock[HttpClient]
-      client.post(new URL(url, spec), requestData) throws new IOException
-      val conn = new HttpConnection(url, client, mock[Decoder], formatter)
+      client.post(any[URL], any[String]) throws new IOException
+      val conn = new HttpConnection(url, client, decoder, encoder, None, None)
       conn.send(request) must throwA[ConnectionException]
     }
+  }
+  "HttpConnection with header contributor" should {
+    val url = new URL("http://www.url")
+    "add contributed headers to request" in {
+      val originalHeaders = Map("type" -> "sometype")
+      val originalContent = Some("content")
+      val request = TransportRequest(originalHeaders, originalContent)
+
+      val contributedHeaders = Map("myHeader" -> "myValue")
+      val expectedRequest = TransportRequest(originalHeaders ++ contributedHeaders, originalContent)
+      val encodedExpectedRequest = JsonEncoder.encodeRequest(expectedRequest)
+
+      val contributor = new HttpTransportHeaderContributor {
+        def getHeaders = contributedHeaders
+      }
+
+      val response = JsonEncoder.encodeResponse(TransportResponse(Map(), None))
+      val client = mock[HttpClient]
+      client.post(any[URL], any[String]) returns response
+      val conn = new HttpConnection(url, client, JsonDecoder, JsonEncoder, None, Some(contributor))
+      conn.send(request) //must equalTo(None)
+      there was one(client).post(any[URL], org.mockito.Matchers.eq(encodedExpectedRequest))
+    }
+  }
+
+  private def basicRequest: TransportRequest = {
+    TransportRequest(Map("type" -> "spec"), None)
   }
 }
