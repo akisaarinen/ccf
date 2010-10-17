@@ -27,7 +27,9 @@ class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
 }
 
-class ServerEngine(codec: Codec, operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor) {
+class ServerEngine(codec: Codec,
+                   operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor,
+                   transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor) {
   val encodingMimeType = codec.mimeType
 
   def processRequest(request: String): String = {
