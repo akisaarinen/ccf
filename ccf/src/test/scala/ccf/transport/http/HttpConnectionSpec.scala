@@ -52,13 +52,19 @@ object HttpConnectionSpec extends Specification with Mockito {
   }
   "HttpConnection with header contributor" should {
     val url = new URL("http://www.url")
-    "add contributed headers to request" in {
-      val originalHeaders = Map("type" -> "sometype")
-      val originalContent = Some("content")
-      val request = TransportRequest(originalHeaders, originalContent)
+    val originalHeaders = Map("type" -> "sometype", "originalHeader" -> "originalValue")
+    val originalContent = Some("content")
+    val originalRequest = TransportRequest(originalHeaders, originalContent)
 
-      val contributedHeaders = Map("myHeader" -> "myValue")
-      val expectedRequest = TransportRequest(originalHeaders ++ contributedHeaders, originalContent)
+    "add and replace headers to request" in {
+      val contributedHeaders = Map(
+        "originalHeader" -> "contributedValue",
+        "newHeader" -> "newValue")
+      val expectedHeaders = Map(
+        "type" -> "sometype",
+        "originalHeader" -> "contributedValue",
+        "newHeader" -> "newValue")
+      val expectedRequest = TransportRequest(expectedHeaders, originalContent)
       val encodedExpectedRequest = JsonEncoder.encodeRequest(expectedRequest)
 
       val contributor = new HttpTransportHeaderContributor {
@@ -69,7 +75,7 @@ object HttpConnectionSpec extends Specification with Mockito {
       val client = mock[HttpClient]
       client.post(any[URL], any[String]) returns response
       val conn = new HttpConnection(url, client, JsonDecoder, JsonEncoder, None, Some(contributor))
-      conn.send(request)
+      conn.send(originalRequest)
       there was one(client).post(any[URL], org.mockito.Matchers.eq(encodedExpectedRequest))
     }
   }
