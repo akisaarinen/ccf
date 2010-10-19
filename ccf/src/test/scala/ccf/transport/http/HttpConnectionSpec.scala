@@ -69,7 +69,7 @@ object HttpConnectionSpec extends Specification with Mockito {
       val client = mock[HttpClient]
       client.post(any[URL], any[String]) returns response
       val conn = new HttpConnection(url, client, JsonDecoder, JsonEncoder, None, Some(contributor))
-      conn.send(request) //must equalTo(None)
+      conn.send(request)
       there was one(client).post(any[URL], org.mockito.Matchers.eq(encodedExpectedRequest))
     }
   }
