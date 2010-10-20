@@ -26,6 +26,7 @@ import org.specs.Specification
 import org.specs.mock.Mockito
 import org.mockito.Matchers._
 import ccf.session.{ChannelId, ClientId}
+import java.io.Serializable
 
 
 class ServerSpec extends Specification with Mockito {
@@ -46,7 +47,7 @@ class ServerSpec extends Specification with Mockito {
     "accept a client and return current state" in {
       val client = ClientId.randomId
       val channel = ChannelId.randomId
-      case class MyStateClass(i: Int)
+      case class MyStateClass(i: Int) extends Serializable
       val myState = MyStateClass(123)
       interceptor.currentStateFor(channel) returns myState
       server !? Event.Join(client, channel) must equalTo(Event.State(client, channel, myState))
@@ -85,7 +86,7 @@ class ServerSpec extends Specification with Mockito {
     }
 
     "return state for rejoin to already joined channel" in {
-      case class MyStateClass(i: Int)
+      case class MyStateClass(i: Int) extends Serializable
       val myState = MyStateClass(123)
       interceptor.currentStateFor(channel) returns myState
       server !? Event.Join(client1, channel) must equalTo(Event.State(client1, channel, myState))

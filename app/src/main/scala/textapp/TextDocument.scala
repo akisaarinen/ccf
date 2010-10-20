@@ -19,8 +19,9 @@ package textapp
 import ccf.tree.indexing.TreeIndex
 import java.security.MessageDigest
 import ccf.tree.operation.{NoOperation, TreeOperation, InsertOperation, DeleteOperation}
+import java.io.Serializable
 
-class TextDocument(initialText: String) {
+class TextDocument(initialText: String) extends Serializable {
   private val buffer = new StringBuffer(initialText)
   private val md = MessageDigest.getInstance("MD5")
   def applyOp(op: TreeOperation): Unit = op match {

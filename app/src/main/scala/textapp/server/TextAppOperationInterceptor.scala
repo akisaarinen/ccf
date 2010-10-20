@@ -20,9 +20,10 @@ import ccf.tree.operation.TreeOperation
 import ccf.server.{ServerOperationInterceptor, Server}
 import textapp.TextDocument
 import ccf.session.{ChannelId, ClientId}
+import java.io.Serializable
 
 class TextAppOperationInterceptor(document: TextDocument) extends ServerOperationInterceptor {
-  override def currentStateFor(channelId: ChannelId): Any = {
+  override def currentStateFor(channelId: ChannelId): Serializable = {
     document
   }
   override def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit = {
