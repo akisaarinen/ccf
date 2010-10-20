@@ -19,9 +19,10 @@ package ccf.server
 import ccf.tree.operation.TreeOperation
 import ccf.session._
 import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, TransportRequest}
+import java.io.Serializable
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
-  def currentStateFor(channelId: ChannelId) = ""
+  def currentStateFor(channelId: ChannelId): Serializable = ""
   def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {}
   def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()

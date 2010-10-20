@@ -17,7 +17,6 @@
 package ccf.server
 
 import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage, Message}
-import java.io.{StringWriter, PrintWriter}
 import scala.actors.Actor
 import scala.actors.Actor._
 import collection.mutable.HashMap
@@ -25,9 +24,10 @@ import ccf.OperationSynchronizerFactory
 import ccf.tree.operation.TreeOperation
 import ccf.transport.{TransportActor, Event}
 import ccf.session.{ChannelId, ClientId}
+import java.io.{Serializable, StringWriter, PrintWriter}
 
 trait ServerOperationInterceptor {
-  def currentStateFor(channelId: ChannelId): Any
+  def currentStateFor(channelId: ChannelId): Serializable
   def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit
   def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation]
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation]
