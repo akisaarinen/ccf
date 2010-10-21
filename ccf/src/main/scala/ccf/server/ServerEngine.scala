@@ -35,7 +35,8 @@ class ServerEngine(codec: Codec,
                    transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor,
                    operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)) {
   val encodingMimeType = codec.mimeType
-
+  val stateHandler = new StateHandler(operationSynchronizerFactory)
+  
   def processRequest(request: String): String = {
     val transportRequest = codec.decodeRequest(request).getOrElse(error("Unable to decode request"))
     val transportResponse = processRequest(transportRequest)
