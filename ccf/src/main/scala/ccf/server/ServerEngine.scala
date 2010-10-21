@@ -62,6 +62,7 @@ class ServerEngine(codec: Codec,
 
   private def onJoin(joinRequest: JoinRequest): SessionResponse = {
     val (clientId, channelId) = (joinRequest.clientId, joinRequest.channelId)
+    stateHandler.join(clientId, channelId)
     val currentState = operationInterceptor.currentStateFor(channelId).asInstanceOf[AnyRef]
     val serializedState = BASE64EncodingSerializer.serialize(currentState)
     joinRequest.successResponse(Some(serializedState))

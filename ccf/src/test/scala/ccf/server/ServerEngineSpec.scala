@@ -22,6 +22,8 @@ import javax.activation.MimeType
 import ccf.session._
 import ccf.transport.json.JsonCodec
 import ccf.transport._
+import ccf.{JupiterOperationSynchronizer, OperationSynchronizer}
+import ccf.tree.JupiterTreeTransformation
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -78,6 +80,15 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val joinResponse: SessionResponse = SessionResponse(JsonCodec.decodeResponse(response).get, joinRequest)
       val Right(Success(_, Some(encodedResult: String))) = joinResponse.result
       state must equalTo(BASE64EncodingSerializer.deserialize(encodedResult))
+    }
+
+    "have an intialized state after joining" in {
+      val channelId = ChannelId.randomId
+      val clientId = ClientId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      engine.stateHandler.clientState(clientId) must beSome[ClientState]
     }
   }
 
