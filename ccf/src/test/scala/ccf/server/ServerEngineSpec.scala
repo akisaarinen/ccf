@@ -82,6 +82,15 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       state must equalTo(BASE64EncodingSerializer.deserialize(encodedResult))
     }
 
+    "reply with response containing result for part request" in {
+      val channelId = ChannelId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), ClientId.randomId, 0, Set(channelId))
+      val partRequest = PartRequest(session, channelId)
+      val response = engine.processRequest(JsonCodec.encodeRequest(partRequest.transportRequest))
+      val partResponse: SessionResponse = SessionResponse(JsonCodec.decodeResponse(response).get, partRequest)
+      partResponse.result must equalTo(Right(Success(partRequest, None)))
+    }
+
     "have an intialized state after joining" in {
       val channelId = ChannelId.randomId
       val clientId = ClientId.randomId
@@ -89,6 +98,18 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val joinRequest = JoinRequest(session, channelId)
       engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
       engine.stateHandler.clientState(clientId) must beSome[ClientState]
+    }
+
+    "not have an initialized state after parting" in {
+      val channelId = ChannelId.randomId
+      val clientId = ClientId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      engine.stateHandler.clientState(clientId) must beSome[ClientState]
+      val partRequest = PartRequest(session, channelId)
+      engine.processRequest(JsonCodec.encodeRequest(partRequest.transportRequest))
+      engine.stateHandler.clientState(clientId) must beNone
     }
   }
 

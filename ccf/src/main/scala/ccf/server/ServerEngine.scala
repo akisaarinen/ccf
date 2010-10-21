@@ -56,6 +56,7 @@ class ServerEngine(codec: Codec,
   private def processRequest(sessionRequest: SessionRequest): SessionResponse = {
     sessionRequest match {
       case joinRequest: JoinRequest => onJoin(joinRequest)
+      case partRequest: PartRequest => onPart(partRequest)
       case _ => sessionRequest.successResponse(None)
     }
   }
