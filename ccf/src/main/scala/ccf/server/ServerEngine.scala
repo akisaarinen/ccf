@@ -20,6 +20,8 @@ import ccf.tree.operation.TreeOperation
 import ccf.session._
 import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, TransportRequest}
 import java.io.Serializable
+import ccf.{JupiterOperationSynchronizerFactory, OperationSynchronizerFactory}
+import ccf.tree.JupiterTreeTransformation
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
@@ -30,7 +32,8 @@ class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
 
 class ServerEngine(codec: Codec,
                    operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor,
-                   transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor) {
+                   transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor,
+                   operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)) {
   val encodingMimeType = codec.mimeType
 
   def processRequest(request: String): String = {
