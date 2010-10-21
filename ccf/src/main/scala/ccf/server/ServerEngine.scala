@@ -68,5 +68,11 @@ class ServerEngine(codec: Codec,
     joinRequest.successResponse(Some(serializedState))
   }
 
+  private def onPart(partRequest: PartRequest): SessionResponse = {
+    val (clientId, channelId) = (partRequest.clientId, partRequest.channelId)
+    stateHandler.part(clientId, channelId)
+    partRequest.successResponse(None)
+  }
+
   protected def createSessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
 }
