@@ -17,8 +17,11 @@
 package ccf.tree.operation
 
 import ccf.session.OperationEncoder
+import ccf.transport.BASE64EncodingSerializer
 
 class TreeOperationEncoder extends OperationEncoder {
+  def encodeOperation(op: TreeOperation) = BASE64EncodingSerializer.serialize(op)
+
   def encode(op: TreeOperation) = {
     val typeString = op.getClass.getSimpleName
     Map("type" -> typeString) ++ encodedContents(op)
