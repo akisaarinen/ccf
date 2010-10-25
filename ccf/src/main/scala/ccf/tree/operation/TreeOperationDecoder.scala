@@ -21,26 +21,6 @@ import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode
 import ccf.transport.BASE64EncodingSerializer
 
-abstract class TreeOperationDecoder extends OperationDecoder {
+class TreeOperationDecoder extends OperationDecoder {
   def decode(op: String): TreeOperation = BASE64EncodingSerializer.deserialize(op)
-
-  def decode(any: Any): TreeOperation = {
-    val map = any.asInstanceOf[Map[String, Any]]
-    map.get("type") match {
-      case Some("NoOperation") => NoOperation()
-      case Some("InsertOperation") => InsertOperation(parseIndex(map("index")), parseNode(map("node")))
-      case Some("DeleteOperation") => DeleteOperation(parseIndex(map("index")))
-      case Some("MoveOperation") => MoveOperation(parseIndex(map("src")), parseIndex(map("dst")))
-      case Some("UpdateAttributeOperation") => UpdateAttributeOperation(parseIndex(map("index")), map("attr").asInstanceOf[String], parseModifier(map("modifier")))
-      case Some(t) => error("TreeOperationDecoder#decode: Unknown operation type " + t)
-      case None => error("TreeOperationDecoder#decode: No type found for operation")
-    }
-  }
-
-  private def parseIndex(encodedValue: Any): TreeIndex = {
-    TreeIndex(encodedValue.asInstanceOf[List[Int]]: _*)
-  }
-
-  protected def parseNode(encodedValue: Any): TreeNode
-  protected def parseModifier(encodedValue: Any): Modifier
 }

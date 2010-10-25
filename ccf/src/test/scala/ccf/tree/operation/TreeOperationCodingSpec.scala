@@ -20,15 +20,7 @@ import org.specs.Specification
 import ccf.tree.indexing.TreeIndex
 object TreeOperationCodingSpec extends Specification {
   val encoder = new TreeOperationEncoder
-  val decoder = new TreeOperationDecoder {
-    protected def parseNode(encodedValue: Any) = {
-      TestNode(encodedValue.asInstanceOf[String])
-    }
-
-    protected def parseModifier(encodedValue: Any) = {
-      TestModifier(encodedValue.asInstanceOf[String])
-    }
-  }
+  val decoder = new TreeOperationDecoder
 
   "Encoder and decoder" should {
     val index = TreeIndex(1,2,3)
