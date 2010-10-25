@@ -19,8 +19,11 @@ package ccf.tree.operation
 import ccf.session.OperationDecoder
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode
+import ccf.transport.BASE64EncodingSerializer
 
 abstract class TreeOperationDecoder extends OperationDecoder {
+  def decode(op: String): TreeOperation = BASE64EncodingSerializer.deserialize(op)
+
   def decode(any: Any): TreeOperation = {
     val map = any.asInstanceOf[Map[String, Any]]
     map.get("type") match {
