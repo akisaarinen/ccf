@@ -34,6 +34,10 @@ class StateHandler(factory: OperationSynchronizerFactory) {
     clientStates -= clientId
   }
 
+  def clientState(clientId: ClientId): ClientState = {
+    clientStates(clientId)
+  }
+
   def clientStateOption(clientId: ClientId): Option[ClientState] = {
     clientStates.get(clientId)
   }
@@ -48,7 +52,6 @@ class StateHandler(factory: OperationSynchronizerFactory) {
       case None => List()
     }
   }
-
 
   def addMsg(clientId: ClientId, channelId: ChannelId, msg: Message) {
     pendingMsgs.add(clientId, channelId, msg)
