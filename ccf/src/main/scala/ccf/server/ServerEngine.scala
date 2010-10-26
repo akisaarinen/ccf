@@ -76,5 +76,45 @@ class ServerEngine(codec: Codec,
     partRequest.successResponse(None)
   }
 
+  private def onOperation(operationRequest: OperationContextRequest) = {
+    val (clientId: ClientId, channelId: ChannelId) = (operationRequest.clientId, operationRequest.channelId)
+    try {
+      val content = operationRequest.transportRequest.content.getOrElse(throw new RuntimeException("OperationContextRequest missing"))
+      val operationContext = OperationContext(content.asInstanceOf[Map[String, String]])
+      val state = stateHandler.clientState(clientId)
+      val op = state.receive(operationContext)
+      //TODO: server is null in this patch...it is used to set server in serverOperationPersistor which uses it for channel shutdown only
+      operationInterceptor.applyOperation(null, channelId, op)
+
+      val others = stateHandler.otherClientsFor(clientId)
+      others.foreach { otherClientId =>
+        val msgForOther = stateHandler.clientState(otherClientId).send(op)
+        stateHandler.addMsg(otherClientId, channelId, msgForOther)
+      }
+
+      val opsForCreator = operationInterceptor.operationsForCreatingClient(clientId, channelId, op)
+      opsForCreator.foreach { opForCreator =>
+        val msgForCreator = stateHandler.clientState(clientId).send(opForCreator)
+        stateHandler.addMsg(clientId, channelId, msgForCreator)
+      }
+
+      val opsForAll = operationInterceptor.operationsForAllClients(channelId, op)
+      opsForAll.foreach { opForAll =>
+        //TODO: server is null in this patch...it is used to set server in serverOperationPersistor which uses it for channel shutdown only
+        operationInterceptor.applyOperation(null, channelId, opForAll)
+        stateHandler.clientsForChannel(channelId).foreach { clientInChannel =>
+          val msgForClient = stateHandler.clientState(clientInChannel).send(opForAll)
+          stateHandler.addMsg(clientInChannel, channelId, msgForClient)
+        }
+      }
+      operationRequest.successResponse(None)
+      //TODO add notifierInterceptor call
+    } catch {
+      case e =>
+        println("operation request handling error", e)
+        operationRequest.failureResponse(e.toString)
+    }
+  }
+
   protected def createSessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
 }
