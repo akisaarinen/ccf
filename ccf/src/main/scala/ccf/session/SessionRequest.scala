@@ -16,8 +16,8 @@
 
 package ccf.session
 
-import ccf.OperationContext
 import ccf.transport.{TransportResponse, TransportRequest}
+import ccf.messaging.OperationContext
 
 sealed abstract class SessionRequest {
   val transportRequest: TransportRequest

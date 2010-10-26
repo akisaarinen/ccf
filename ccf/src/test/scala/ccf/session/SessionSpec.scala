@@ -19,7 +19,7 @@ package ccf.session
 import org.specs.Specification
 import org.specs.mock.Mockito
 import ccf.transport.{Connection, ConnectionException}
-import ccf.OperationContext
+import ccf.messaging.OperationContext
 
 object SessionSpec extends Specification with Mockito {
   val connection = mock[Connection]

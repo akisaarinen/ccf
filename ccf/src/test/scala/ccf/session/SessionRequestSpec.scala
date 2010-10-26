@@ -19,7 +19,7 @@ package ccf.session
 import org.specs.Specification
 import org.specs.mock.Mockito
 import java.util.UUID
-import ccf.OperationContext
+import ccf.messaging.OperationContext
 import ccf.tree.operation.NoOperation
 import ccf.transport.{TransportResponse, TransportRequest}
 

@@ -20,7 +20,7 @@ import org.specs.Specification
 import org.specs.mock.Mockito
 import ccf.transport.json.{JsonDecoder, JsonEncoder}
 import java.util.UUID
-import ccf.OperationContext
+import ccf.messaging.OperationContext
 import ccf.tree.operation.NoOperation
 
 class RequestResponseIntegrationSpec extends Specification with Mockito {

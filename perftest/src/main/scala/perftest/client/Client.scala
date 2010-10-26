@@ -22,7 +22,7 @@ import java.net.URL
 
 import net.lag.logging.Logger
 import java.util.logging.Level
-import ccf.OperationContext
+import ccf.messaging.OperationContext
 import ccf.session._
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode

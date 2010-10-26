@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ccf
+package ccf.messaging
 
-import tree.operation.TreeOperation
+import ccf.tree.operation.TreeOperation
 
 case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) {
   def encode: Any = Map("op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
