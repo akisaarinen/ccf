@@ -101,11 +101,11 @@ class SessionRequestSpec extends Specification with Mockito {
 
   "OperationContextRequest" should {
     "not construct without type" in {
-      OperationContextRequest(emptyTransportRequest) must throwAn[IllegalArgumentException]
+      OperationContextRequest(emptyTransportRequest, mock[ChannelId]) must throwAn[IllegalArgumentException]
     }
 
     "not construct with unknown type" in {
-      OperationContextRequest(transportRequestWithUnknownType) must throwAn[IllegalArgumentException]
+      OperationContextRequest(transportRequestWithUnknownType,  mock[ChannelId]) must throwAn[IllegalArgumentException]
     }
 
     val context = OperationContext(NoOperation(), 1, 2)
