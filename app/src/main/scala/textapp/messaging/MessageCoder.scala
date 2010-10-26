@@ -26,7 +26,7 @@ class MessageCoder {
   def encode(msg: Message): String = msg match {
     case msg : ConcurrentOperationMessage =>
       val encodedOp = operationCoder.encode(msg.op)
-      "%s,%d,%d".format(encodedOp, msg.localMessage, msg.expectedRemoteMessage)
+      "%s,%d,%d".format(encodedOp, msg.localMsgSeqNo, msg.remoteMsgSeqNo)
     case _ =>
       error("Unknown message type, unable to encode")
   }

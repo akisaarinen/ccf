@@ -30,15 +30,15 @@ class JupiterOperationSynchronizerSpec extends Specification with Mockito {
   "Any JupiterOperationSynchronizer" should {
     "start indexing operations from zero" in {
       val msg = synchronizer.createLocalOperation(NoOperation())
-      msg.localMessage must equalTo(0)
-      msg.expectedRemoteMessage must equalTo(0)
+      msg.localMsgSeqNo must equalTo(0)
+      msg.remoteMsgSeqNo must equalTo(0)
     }
 
     "increment the local operation index on each created operation" in {
-      synchronizer.createLocalOperation(NoOperation()).localMessage must equalTo(0)
-      synchronizer.createLocalOperation(NoOperation()).localMessage must equalTo(1)
-      synchronizer.createLocalOperation(NoOperation()).localMessage must equalTo(2)
-      synchronizer.createLocalOperation(NoOperation()).localMessage must equalTo(3)
+      synchronizer.createLocalOperation(NoOperation()).localMsgSeqNo must equalTo(0)
+      synchronizer.createLocalOperation(NoOperation()).localMsgSeqNo must equalTo(1)
+      synchronizer.createLocalOperation(NoOperation()).localMsgSeqNo must equalTo(2)
+      synchronizer.createLocalOperation(NoOperation()).localMsgSeqNo must equalTo(3)
     }
 
     "increment the expected remote operation index on each received operation" in {

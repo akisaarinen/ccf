@@ -38,28 +38,28 @@ class JupiterOperationSynchronizer(val isPrimary: Boolean, transformer: JupiterT
   }
 
   def receiveRemoteOperation(remoteMessage: ConcurrentOperationMessage): TreeOperation = {
-    if (remoteMessage.localMessage < expectedRemoteMessage)
+    if (remoteMessage.localMsgSeqNo < expectedRemoteMessage)
       return transformer.createNoOp
-    discardAcknowledgedMessages(remoteMessage.expectedRemoteMessage)
+    discardAcknowledgedMessages(remoteMessage.remoteMsgSeqNo)
 
-    if (remoteMessage.localMessage != expectedRemoteMessage)
+    if (remoteMessage.localMsgSeqNo != expectedRemoteMessage)
       throw new RuntimeException("Missing message from the sequence, receiver expected #" + 
-        expectedRemoteMessage + ", sender sent #" + remoteMessage.localMessage)
+        expectedRemoteMessage + ", sender sent #" + remoteMessage.localMsgSeqNo)
 
     var transformedRemoteOp = remoteMessage.op
 
     unacknowledgedMessages = unacknowledgedMessages.map { localMsg : ConcurrentOperationMessage =>
       val transformedLocalOp = transformLocal(localMsg.op, transformedRemoteOp)
       transformedRemoteOp = transformRemote(localMsg.op, transformedRemoteOp)
-      ConcurrentOperationMessage(transformedLocalOp, localMsg.localMessage, localMsg.expectedRemoteMessage)
+      ConcurrentOperationMessage(transformedLocalOp, localMsg.localMsgSeqNo, localMsg.remoteMsgSeqNo)
     }
 
-    expectedRemoteMessage = remoteMessage.localMessage + 1
+    expectedRemoteMessage = remoteMessage.localMsgSeqNo + 1
     transformedRemoteOp
   }
 
   private def discardAcknowledgedMessages(acknowledgedMessageIndex: Int) {
-    unacknowledgedMessages = unacknowledgedMessages.filter { m  => (m.localMessage >= acknowledgedMessageIndex) }
+    unacknowledgedMessages = unacknowledgedMessages.filter { m  => (m.localMsgSeqNo >= acknowledgedMessageIndex) }
   }
 
   private def transformRemote(localOp: TreeOperation, remoteOp: TreeOperation) = {
