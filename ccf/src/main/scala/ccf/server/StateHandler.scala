@@ -22,6 +22,7 @@ import collection.mutable.HashMap
 
 class StateHandler(factory: OperationSynchronizerFactory) {
   private val clientStates = new HashMap[ClientId, ClientState]
+  private val pendingMsgs = new PendingMessageBuffer
 
   def join(clientId: ClientId, channelId: ChannelId) = {
     val synchronizer = factory.createSynchronizer
