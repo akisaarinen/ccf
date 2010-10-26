@@ -16,7 +16,7 @@
 
 package ccf.server
 
-import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage}
+import ccf.messaging.{ChannelShutdown, OperationContext}
 import ccf.transport.Event
 import ccf.transport.TransportActor
 import ccf.OperationSynchronizer
@@ -104,7 +104,7 @@ class ServerSpec extends Specification with Mockito {
     val client2 = ClientId.randomId
     val otherChannel = ChannelId.randomId
     val clientInOtherChannel = ClientId.randomId
-    val msg = mock[ConcurrentOperationMessage]
+    val msg = mock[OperationContext]
     val op = mock[TreeOperation]
     synchronizer.receiveRemoteOperation(msg) returns op
     synchronizer.createLocalOperation(op) returns msg
@@ -128,7 +128,7 @@ class ServerSpec extends Specification with Mockito {
 
     "propagate operations for creating client" in {
       val creationOp = mock[TreeOperation]
-      val creationMsg = mock[ConcurrentOperationMessage]
+      val creationMsg = mock[OperationContext]
       synchronizer.receiveRemoteOperation(creationMsg) returns creationOp
       synchronizer.createLocalOperation(creationOp) returns creationMsg
       interceptor.operationsForCreatingClient(client1, channel, op) returns List(creationOp, creationOp)
@@ -140,7 +140,7 @@ class ServerSpec extends Specification with Mockito {
 
     "propagate operations for all clients" in {
       val forAllOp = mock[TreeOperation]
-      val forAllMsg = mock[ConcurrentOperationMessage]
+      val forAllMsg = mock[OperationContext]
       synchronizer.receiveRemoteOperation(forAllMsg) returns forAllOp
       synchronizer.createLocalOperation(forAllOp) returns forAllMsg
       interceptor.operationsForAllClients(client1, channel, op) returns List(forAllOp, forAllOp)

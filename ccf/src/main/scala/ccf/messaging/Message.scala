@@ -19,6 +19,8 @@ package ccf.messaging
 import ccf.tree.operation.TreeOperation
 
 sealed abstract class Message
-case class ConcurrentOperationMessage(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) extends Message
+case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) extends Message {
+  def encode: Any = Map("op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
+}
 case class ErrorMessage(val reason: String) extends Message
 case class ChannelShutdown(val reason: String) extends Message

@@ -16,17 +16,17 @@
 
 package ccf.server
 
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.OperationContext
 import collection.mutable.ArrayBuffer
 import ccf.OperationSynchronizer
 import ccf.tree.operation.TreeOperation
 import ccf.session.ChannelId
 
 class ClientState(val channel: ChannelId, synchronizer: OperationSynchronizer) {
-  def receive(msg: ConcurrentOperationMessage): TreeOperation = {
+  def receive(msg: OperationContext): TreeOperation = {
     synchronizer.receiveRemoteOperation(msg)
   }
-  def send(op: TreeOperation): ConcurrentOperationMessage = {
+  def send(op: TreeOperation): OperationContext = {
     synchronizer.createLocalOperation(op)
   }
 }

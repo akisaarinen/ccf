@@ -16,7 +16,7 @@
 
 package ccf
 
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.OperationContext
 import org.specs.Specification
 import org.specs.mock.Mockito
 import tree.indexing.UndefinedIndex
@@ -42,9 +42,9 @@ class JupiterOperationSynchronizerSpec extends Specification with Mockito {
     }
 
     "increment the expected remote operation index on each received operation" in {
-      val msg1 = ConcurrentOperationMessage(NoOperation(), 0, 0)
-      val msg2 = ConcurrentOperationMessage(NoOperation(), 1, 0)
-      val msg3 = ConcurrentOperationMessage(NoOperation(), 2, 0)
+      val msg1 = OperationContext(NoOperation(), 0, 0)
+      val msg2 = OperationContext(NoOperation(), 1, 0)
+      val msg3 = OperationContext(NoOperation(), 2, 0)
       synchronizer.receiveRemoteOperation(msg1)
       synchronizer.expectedRemoteMessage must equalTo(1)
       synchronizer.receiveRemoteOperation(msg2)
@@ -55,20 +55,20 @@ class JupiterOperationSynchronizerSpec extends Specification with Mockito {
   }
 
   "Jupiter operation synchronizer after two messages have been received" should {
-    val msg1 = ConcurrentOperationMessage(NoOperation(), 0, 0)
-    val msg2 = ConcurrentOperationMessage(DeleteOperation(UndefinedIndex()), 1, 0)
+    val msg1 = OperationContext(NoOperation(), 0, 0)
+    val msg2 = OperationContext(DeleteOperation(UndefinedIndex()), 1, 0)
 
     synchronizer.receiveRemoteOperation(msg1)
     synchronizer.receiveRemoteOperation(msg2)
 
     "accept the subsequent message" in {
       val op = DeleteOperation(UndefinedIndex())
-      val msg = ConcurrentOperationMessage(op, 2, 0)
+      val msg = OperationContext(op, 2, 0)
       synchronizer.receiveRemoteOperation(msg) must equalTo(op)
     }
 
     "reject message if messages are missing from the sequence" in {
-      val msg = ConcurrentOperationMessage(DeleteOperation(UndefinedIndex()), 3, 0)
+      val msg = OperationContext(DeleteOperation(UndefinedIndex()), 3, 0)
       synchronizer.receiveRemoteOperation(msg) must throwA[RuntimeException]
     }
 

@@ -23,7 +23,7 @@ import ccf.tree.operation.TreeOperation
 import java.util.{Timer, TimerTask}
 import textapp.messaging.MessageCoder
 import textapp.TextDocument
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.OperationContext
 import javax.swing.JFrame
 
 class ClientApp(hostname: String, port: Int) {
@@ -46,7 +46,7 @@ class ClientApp(hostname: String, port: Int) {
       httpClient.get match {
         case (hash, msgs) => {
           msgs.foreach { _ match {
-            case msg: ConcurrentOperationMessage =>
+            case msg: OperationContext =>
               val op = clientSync.receiveRemoteOperation(msg)
               applyOperationLocally(op)
             case msg =>

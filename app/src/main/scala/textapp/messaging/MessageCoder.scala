@@ -24,7 +24,7 @@ import scala.util.matching.Regex
 class MessageCoder {
   protected val operationCoder = new OperationCoder
   def encode(msg: Message): String = msg match {
-    case msg : ConcurrentOperationMessage =>
+    case msg : OperationContext =>
       val encodedOp = operationCoder.encode(msg.op)
       "%s,%d,%d".format(encodedOp, msg.localMsgSeqNo, msg.remoteMsgSeqNo)
     case _ =>
@@ -36,7 +36,7 @@ class MessageCoder {
     s match {
       case MsgExpr(encodedOp, localMessage, expectedRemoteMessage) => {
         val op = operationCoder.decode(encodedOp)
-        ConcurrentOperationMessage(op, localMessage.toInt, expectedRemoteMessage.toInt)
+        OperationContext(op, localMessage.toInt, expectedRemoteMessage.toInt)
       }
       case _ => error("no decoding for message string '%s' available".format(s))
     }

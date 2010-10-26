@@ -18,7 +18,7 @@ package textapp.messaging
 
 import org.specs.Specification
 import org.specs.mock.Mockito
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.OperationContext
 import ccf.tree.operation.TreeOperation
 
 object MessageCoderSpec extends Specification with Mockito {
@@ -33,7 +33,7 @@ object MessageCoderSpec extends Specification with Mockito {
 
   "MessageCoder" should {
     "encode and decode ConcurrentOperationMessage" in {
-      val originalMsg = new ConcurrentOperationMessage(mockedOp, 123, 234)
+      val originalMsg = new OperationContext(mockedOp, 123, 234)
       val encodedMsg = messageCoder.encode(originalMsg)
       val decodedMsg = messageCoder.decode(encodedMsg)
       originalMsg must equalTo(decodedMsg)

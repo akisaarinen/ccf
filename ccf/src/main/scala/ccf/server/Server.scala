@@ -16,7 +16,7 @@
 
 package ccf.server
 
-import ccf.messaging.{ChannelShutdown, ConcurrentOperationMessage, Message}
+import ccf.messaging.{ChannelShutdown, OperationContext, Message}
 import scala.actors.Actor
 import scala.actors.Actor._
 import collection.mutable.HashMap
@@ -82,7 +82,7 @@ class Server(factory: OperationSynchronizerFactory,
 
   private def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message, state: ClientState): Any = {
     try {
-      val op = state.receive(msg.asInstanceOf[ConcurrentOperationMessage])
+      val op = state.receive(msg.asInstanceOf[OperationContext])
       interceptor.applyOperation(this, clientId, channelId, op)
 
       val others = otherClientsFor(clientId)

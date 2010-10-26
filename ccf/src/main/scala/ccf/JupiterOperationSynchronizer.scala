@@ -16,13 +16,13 @@
 
 package ccf
 
-import ccf.messaging.ConcurrentOperationMessage
+import ccf.messaging.OperationContext
 import tree.operation.TreeOperation
 
 class JupiterOperationSynchronizer(val isPrimary: Boolean, transformer: JupiterTransformer) extends OperationSynchronizer {
   var lastLocallyCreatedMessage = 0
   var expectedRemoteMessage = 0
-  private var unacknowledgedMessages = List[ConcurrentOperationMessage]()
+  private var unacknowledgedMessages = List[OperationContext]()
 
   def resetToInitialState {
     lastLocallyCreatedMessage = 0
@@ -31,13 +31,13 @@ class JupiterOperationSynchronizer(val isPrimary: Boolean, transformer: JupiterT
   }
 
   def createLocalOperation(operation: TreeOperation) = {
-    val messageToSend = ConcurrentOperationMessage(operation, lastLocallyCreatedMessage, expectedRemoteMessage)
+    val messageToSend = OperationContext(operation, lastLocallyCreatedMessage, expectedRemoteMessage)
     unacknowledgedMessages = unacknowledgedMessages ::: List(messageToSend)
     lastLocallyCreatedMessage = lastLocallyCreatedMessage + 1
     messageToSend
   }
 
-  def receiveRemoteOperation(remoteMessage: ConcurrentOperationMessage): TreeOperation = {
+  def receiveRemoteOperation(remoteMessage: OperationContext): TreeOperation = {
     if (remoteMessage.localMsgSeqNo < expectedRemoteMessage)
       return transformer.createNoOp
     discardAcknowledgedMessages(remoteMessage.remoteMsgSeqNo)
@@ -48,10 +48,10 @@ class JupiterOperationSynchronizer(val isPrimary: Boolean, transformer: JupiterT
 
     var transformedRemoteOp = remoteMessage.op
 
-    unacknowledgedMessages = unacknowledgedMessages.map { localMsg : ConcurrentOperationMessage =>
+    unacknowledgedMessages = unacknowledgedMessages.map { localMsg : OperationContext =>
       val transformedLocalOp = transformLocal(localMsg.op, transformedRemoteOp)
       transformedRemoteOp = transformRemote(localMsg.op, transformedRemoteOp)
-      ConcurrentOperationMessage(transformedLocalOp, localMsg.localMsgSeqNo, localMsg.remoteMsgSeqNo)
+      OperationContext(transformedLocalOp, localMsg.localMsgSeqNo, localMsg.remoteMsgSeqNo)
     }
 
     expectedRemoteMessage = remoteMessage.localMsgSeqNo + 1
