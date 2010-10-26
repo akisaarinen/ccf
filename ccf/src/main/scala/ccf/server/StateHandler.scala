@@ -38,6 +38,18 @@ class StateHandler(factory: OperationSynchronizerFactory) {
     clientStates.get(clientId)
   }
 
+  def clientsForChannel(channelId: ChannelId): List[ClientId] = {
+    clientStates filter { case (id, state) => state.channel == channelId } map { case (id, _) => id } toList
+  }
+
+  def otherClientsFor(clientId: ClientId): List[ClientId] = {
+    clientStates.get(clientId) match {
+      case Some(state) => clientsForChannel(state.channel).filter(_ != clientId)
+      case None => List()
+    }
+  }
+
+
   def addMsg(clientId: ClientId, channelId: ChannelId, msg: Message) {
     pendingMsgs.add(clientId, channelId, msg)
   }

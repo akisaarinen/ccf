@@ -22,6 +22,7 @@ import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, Transp
 import java.io.Serializable
 import ccf.{JupiterOperationSynchronizerFactory, OperationSynchronizerFactory}
 import ccf.tree.JupiterTreeTransformation
+import ccf.messaging.OperationContext
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
