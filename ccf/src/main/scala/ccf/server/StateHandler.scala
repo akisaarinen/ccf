@@ -34,7 +34,7 @@ class StateHandler(factory: OperationSynchronizerFactory) {
     clientStates -= clientId
   }
 
-  def clientState(clientId: ClientId): Option[ClientState] = {
+  def clientStateOption(clientId: ClientId): Option[ClientState] = {
     clientStates.get(clientId)
   }
 

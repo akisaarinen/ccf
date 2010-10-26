@@ -97,7 +97,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
       val joinRequest = JoinRequest(session, channelId)
       engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
-      engine.stateHandler.clientState(clientId) must beSome[ClientState]
+      engine.stateHandler.clientStateOption(clientId) must beSome[ClientState]
     }
 
     "not have an initialized state after parting" in {
@@ -106,10 +106,10 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
       val joinRequest = JoinRequest(session, channelId)
       engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
-      engine.stateHandler.clientState(clientId) must beSome[ClientState]
+      engine.stateHandler.clientStateOption(clientId) must beSome[ClientState]
       val partRequest = PartRequest(session, channelId)
       engine.processRequest(JsonCodec.encodeRequest(partRequest.transportRequest))
-      engine.stateHandler.clientState(clientId) must beNone
+      engine.stateHandler.clientStateOption(clientId) must beNone
     }
   }
 
