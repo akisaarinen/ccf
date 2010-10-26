@@ -19,6 +19,7 @@ package ccf.server
 import ccf.session.{ClientId, ChannelId}
 import ccf.OperationSynchronizerFactory
 import collection.mutable.HashMap
+import ccf.messaging.Message
 
 class StateHandler(factory: OperationSynchronizerFactory) {
   private val clientStates = new HashMap[ClientId, ClientState]
@@ -35,5 +36,9 @@ class StateHandler(factory: OperationSynchronizerFactory) {
 
   def clientState(clientId: ClientId): Option[ClientState] = {
     clientStates.get(clientId)
+  }
+
+  def addMsg(clientId: ClientId, channelId: ChannelId, msg: Message) {
+    pendingMsgs.add(clientId, channelId, msg)
   }
 }
