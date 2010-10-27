@@ -58,6 +58,7 @@ class ServerEngine(codec: Codec,
     sessionRequest match {
       case joinRequest: JoinRequest => onJoin(joinRequest)
       case partRequest: PartRequest => onPart(partRequest)
+      case operationRequest: OperationContextRequest => onOperation(operationRequest)
       case _ => sessionRequest.successResponse(None)
     }
   }

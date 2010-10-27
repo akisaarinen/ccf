@@ -24,6 +24,8 @@ import ccf.transport.json.JsonCodec
 import ccf.transport._
 import ccf.{JupiterOperationSynchronizer, OperationSynchronizer}
 import ccf.tree.JupiterTreeTransformation
+import ccf.tree.operation.NoOperation
+import ccf.messaging.OperationContext
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -110,6 +112,18 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val partRequest = PartRequest(session, channelId)
       engine.processRequest(JsonCodec.encodeRequest(partRequest.transportRequest))
       engine.stateHandler.clientStateOption(clientId) must beNone
+    }
+
+    "reply with success result to operation request" in {
+      val channelId = ChannelId.randomId
+      val clientId = ClientId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      val operationRequest = OperationContextRequest(session, channelId, new OperationContext(NoOperation(), 0, 0))
+      val response = engine.processRequest(JsonCodec.encodeRequest(operationRequest.transportRequest))
+      val operationResponse = SessionResponse(JsonCodec.decodeResponse(response).get, operationRequest)
+      operationResponse.result must equalTo(Right(Success(operationRequest, None)))
     }
   }
 
