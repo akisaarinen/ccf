@@ -17,10 +17,19 @@
 package ccf.messaging
 
 import ccf.tree.operation.TreeOperation
+import ccf.tree.operation.TreeOperationDecoder
 
 sealed abstract class Message
 case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) extends Message {
   def encode: Any = Map("op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
+}
+object OperationContext {
+  def apply(map: Map[String, String]): OperationContext = {
+    val op = TreeOperationDecoder.decode(map("op"))
+    val localMsg = map("localMsgSeqNo").asInstanceOf[Int]
+    val remoteMsg = map("remoteMsgSeqNo").asInstanceOf[Int]
+    OperationContext(op, localMsg, remoteMsg)
+  }
 }
 case class ErrorMessage(val reason: String) extends Message
 case class ChannelShutdown(val reason: String) extends Message
