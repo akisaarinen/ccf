@@ -24,3 +24,5 @@ import ccf.transport.BASE64EncodingSerializer
 class TreeOperationDecoder extends OperationDecoder {
   def decode(op: String): TreeOperation = BASE64EncodingSerializer.deserialize(op)
 }
+
+object TreeOperationDecoder extends TreeOperationDecoder
