@@ -19,9 +19,11 @@ package ccf.messaging
 import ccf.tree.operation.TreeOperation
 import ccf.tree.operation.TreeOperationDecoder
 
-sealed abstract class Message
+sealed abstract class Message {
+  def encode: Any
+}
 case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) extends Message {
-  def encode: Any = Map("op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
+  def encode: Any = Map("type" -> "operation", "op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
 }
 object OperationContext {
   def apply(map: Map[String, String]): OperationContext = {
@@ -31,5 +33,9 @@ object OperationContext {
     OperationContext(op, localMsg, remoteMsg)
   }
 }
-case class ErrorMessage(val reason: String) extends Message
-case class ChannelShutdown(val reason: String) extends Message
+case class ErrorMessage(val reason: String) extends Message {
+  def encode = Map("type" -> "error", "reason" -> reason)
+}
+case class ChannelShutdown(val reason: String) extends Message {
+  def encode = Map("type" -> "shutdown", "reason" -> reason)
+}
