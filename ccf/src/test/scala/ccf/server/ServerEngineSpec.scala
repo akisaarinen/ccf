@@ -24,8 +24,9 @@ import ccf.transport.json.JsonCodec
 import ccf.transport._
 import ccf.{JupiterOperationSynchronizer, OperationSynchronizer}
 import ccf.tree.JupiterTreeTransformation
-import ccf.tree.operation.NoOperation
 import ccf.messaging.OperationContext
+import ccf.tree.indexing.TreeIndex
+import ccf.tree.operation.{DeleteOperation, MoveOperation, InsertOperation, NoOperation}
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -124,6 +125,22 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val response = engine.processRequest(JsonCodec.encodeRequest(operationRequest.transportRequest))
       val operationResponse = SessionResponse(JsonCodec.decodeResponse(response).get, operationRequest)
       operationResponse.result must equalTo(Right(Success(operationRequest, None)))
+    }
+
+    "reply with success result containing list of encoded msgs to inchannel request" in {
+      val channelId = ChannelId.randomId
+      val clientId = ClientId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      val msg1 = OperationContext(DeleteOperation(TreeIndex(0)), 0, 0)
+      val msg2 = OperationContext(MoveOperation(TreeIndex(0), TreeIndex(1)), 1, 0)
+      engine.stateHandler.addMsg(clientId, channelId, msg1)
+      engine.stateHandler.addMsg(clientId, channelId, msg2)
+      val inChannelRequest = InChannelRequest(session, "getMsgs", channelId, None)
+      val response = engine.processRequest(JsonCodec.encodeRequest(inChannelRequest.transportRequest))
+      val Right(Success(_, Some(encodedMsgList: String))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
+      List(msg1.encode, msg2.encode) must equalTo(BASE64EncodingSerializer.deserialize(encodedMsgList))
     }
   }
 
