@@ -117,5 +117,11 @@ class ServerEngine(codec: Codec,
     }
   }
 
+  private def onGetMsgs(inChannelRequest: InChannelRequest): SessionResponse = {
+    val (clientId, channelId) = (inChannelRequest.clientId, inChannelRequest.channelId)
+    val encodedMsgs = stateHandler.getMsgs(clientId, channelId).map(_.encode)
+    inChannelRequest.successResponse(Some(BASE64EncodingSerializer.serialize(encodedMsgs)))
+  }
+
   protected def createSessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
 }
