@@ -29,8 +29,10 @@ import java.io.{Serializable, StringWriter, PrintWriter}
 trait ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable
   def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit
+  def applyOperation(server: Server, channelId: ChannelId, op: TreeOperation) = {}
   def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation]
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation]
+  def operationsForAllClients(channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
 }
 
 class Server(factory: OperationSynchronizerFactory,
