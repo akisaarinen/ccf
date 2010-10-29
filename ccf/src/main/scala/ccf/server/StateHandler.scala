@@ -56,4 +56,8 @@ class StateHandler(factory: OperationSynchronizerFactory) {
   def addMsg(clientId: ClientId, channelId: ChannelId, msg: Message) {
     pendingMsgs.add(clientId, channelId, msg)
   }
+
+  def getMsgs(clientId: ClientId, channelId: ChannelId) = {
+    pendingMsgs.get(clientId, channelId)
+  }
 }
