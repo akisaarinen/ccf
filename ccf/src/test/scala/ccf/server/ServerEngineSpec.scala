@@ -68,12 +68,13 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
     }
   }
 
-  "ServerEngine with ServerOperationInterceptor" should {
+  "ServerEngine with interceptors" should {
     val state = "this is the current state"
+    val notifier = mock[NotifyingInterceptor]
     class TestInterceptor extends DefaultServerOperationInterceptor {
       override def currentStateFor(channelId: ChannelId) = state
     }
-    val engine = new ServerEngine(JsonCodec, new TestInterceptor)
+    val engine = new ServerEngine(JsonCodec, operationInterceptor = new TestInterceptor, notifyingInterceptor = Some(notifier))
 
     "reply with response containing Base64 encoded result for join request" in {
       val channelId = ChannelId.randomId
@@ -115,7 +116,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       engine.stateHandler.clientStateOption(clientId) must beNone
     }
 
-    "reply with success result to operation request" in {
+    "reply with success result to operation request and notify other clients" in {
       val channelId = ChannelId.randomId
       val clientId = ClientId.randomId
       val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
@@ -125,6 +126,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val response = engine.processRequest(JsonCodec.encodeRequest(operationRequest.transportRequest))
       val operationResponse = SessionResponse(JsonCodec.decodeResponse(response).get, operationRequest)
       operationResponse.result must equalTo(Right(Success(operationRequest, None)))
+      there was one(notifier).notify(clientId, channelId)
     }
 
     "reply with success result containing list of encoded msgs to inchannel request" in {

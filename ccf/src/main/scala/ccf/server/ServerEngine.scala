@@ -34,7 +34,8 @@ class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
 class ServerEngine(codec: Codec,
                    operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor,
                    transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor,
-                   operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation)) {
+                   operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation),
+                   notifyingInterceptor: Option[NotifyingInterceptor] = None) {
   val encodingMimeType = codec.mimeType
   val stateHandler = new StateHandler(operationSynchronizerFactory)
   
@@ -109,8 +110,8 @@ class ServerEngine(codec: Codec,
           stateHandler.addMsg(clientInChannel, channelId, msgForClient)
         }
       }
+      notifyingInterceptor.foreach(_.notify(clientId, channelId))
       operationRequest.successResponse(None)
-      //TODO add notifierInterceptor call
     } catch {
       case e =>
         println("operation request handling error", e)
