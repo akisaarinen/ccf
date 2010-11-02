@@ -15,7 +15,7 @@ class MessageSpec extends Specification {
    "Error message" should {
      "be encodable" in {
        val errorMessage = ErrorMessage("some kind of error")
-       errorMessage.encode must equalTo(Map("type" -> "error", "reason" -> "some kind of error"))
+       ErrorMessage(errorMessage.encode) must equalTo(errorMessage)
      }
    }
    "Shutdown message" should {
