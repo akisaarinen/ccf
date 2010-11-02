@@ -20,8 +20,8 @@ class MessageSpec extends Specification {
    }
    "Shutdown message" should {
     "be encodable" in {
-       val shutdownMessage = ChannelShutdown("shut it down")
-       shutdownMessage.encode must equalTo(Map("type" -> "shutdown", "reason" -> "shut it down"))
+      val shutdownMessage = ChannelShutdown("shut it down")
+      ChannelShutdown(shutdownMessage.encode) must equalTo(shutdownMessage)
     }
   }
 }

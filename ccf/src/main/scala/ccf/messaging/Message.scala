@@ -48,3 +48,10 @@ object ErrorMessage {
 case class ChannelShutdown(val reason: String) extends Message {
   def encode = Map("type" -> "shutdown", "reason" -> reason)
 }
+
+object ChannelShutdown {
+  def apply(map: Map[String, String]): ChannelShutdown = {
+    val reason = map("reason")
+    ChannelShutdown(reason)
+  }
+}
