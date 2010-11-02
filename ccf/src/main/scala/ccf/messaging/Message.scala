@@ -23,6 +23,18 @@ sealed abstract class Message {
   def encode: Any
 }
 
+object Message {
+  def apply(map: Map[String, String]): Message = {
+    val messageType = map("type")
+    messageType match {
+      case "operation" => OperationContext(map)
+      case "error" => ErrorMessage(map)
+      case "shutdown" => ChannelShutdown(map)
+      case _ => throw new IllegalArgumentException("Unrecognized message type")
+    }
+  }
+}
+
 case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val remoteMsgSeqNo: Int) extends Message {
   def encode: Any = Map("type" -> "operation", "op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
 }
