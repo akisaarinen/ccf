@@ -144,6 +144,24 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val Right(Success(_, Some(encodedMsgList: String))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
       List(msg1.encode, msg2.encode) must equalTo(BASE64EncodingSerializer.deserialize(encodedMsgList))
     }
+
+    "reply with success result containing list of unread encoded msgs to inchannel request" in {
+      val channelId = ChannelId.randomId
+      val clientId = ClientId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+      val joinRequest = JoinRequest(session, channelId)
+      engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+      val msg1 = OperationContext(DeleteOperation(TreeIndex(0)), 0, 0)
+      val msg2 = OperationContext(MoveOperation(TreeIndex(0), TreeIndex(1)), 1, 0)
+      val msg3 = OperationContext(MoveOperation(TreeIndex(0), TreeIndex(1)), 2, 0)
+      engine.stateHandler.addMsg(clientId, channelId, msg1)
+      engine.stateHandler.addMsg(clientId, channelId, msg2)
+      engine.stateHandler.addMsg(clientId, channelId, msg3)
+      val inChannelRequest = InChannelRequest(session, "getMsgs", channelId, Some(1))
+      val response = engine.processRequest(JsonCodec.encodeRequest(inChannelRequest.transportRequest))
+      val Right(Success(_, Some(encodedMsgList: String))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
+      List(msg2.encode, msg3.encode) must equalTo(BASE64EncodingSerializer.deserialize(encodedMsgList))
+    }
   }
 
   "ServerEngine with request blocking TransportRequestInterceptor" should {

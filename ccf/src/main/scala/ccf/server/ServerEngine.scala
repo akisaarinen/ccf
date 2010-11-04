@@ -120,8 +120,9 @@ class ServerEngine(codec: Codec,
   }
 
   private def onGetMsgs(inChannelRequest: InChannelRequest): SessionResponse = {
+    val lastMsg = inChannelRequest.content.getOrElse(0).asInstanceOf[Int]
     val (clientId, channelId) = (inChannelRequest.clientId, inChannelRequest.channelId)
-    val encodedMsgs = stateHandler.getMsgs(clientId, channelId).map(_.encode)
+    val encodedMsgs = stateHandler.getMsgs(clientId, channelId, lastMsg).map(_.encode)
     inChannelRequest.successResponse(Some(BASE64EncodingSerializer.serialize(encodedMsgs)))
   }
 
