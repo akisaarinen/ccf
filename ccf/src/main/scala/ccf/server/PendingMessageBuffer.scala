@@ -31,6 +31,11 @@ class PendingMessageBuffer {
     msgsForClient.map(_.msg)
   }
 
+  def get(clientId: ClientId, channelId: ChannelId, lastReceived: Int): List[Message] = {
+    removeReceivedMessages(clientId, channelId, lastReceived)
+    get(clientId, channelId)
+  }
+
   def remove(clientId: ClientId, channelId: ChannelId) {
     msgs = msgs.filter {m => m.clientId != clientId || m.channelId != channelId}
   }

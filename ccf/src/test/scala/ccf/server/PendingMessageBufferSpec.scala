@@ -53,5 +53,11 @@ class PendingMessageBufferSpec extends Specification {
       buffer.removeReceivedMessages(clientA, channelA, 1)
       buffer.get(clientA, channelA) must equalTo(List(msgB, msgC))
     }
+    "get all messages and remove old" in {
+      buffer.add(clientA, channelA, msgA)
+      buffer.add(clientA, channelA, msgB)
+      buffer.add(clientA, channelA, msgC)
+      buffer.get(clientA, channelA, 1) must equalTo(List(msgB, msgC))
+    }
   }
 }
