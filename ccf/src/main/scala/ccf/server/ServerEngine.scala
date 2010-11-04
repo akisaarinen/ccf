@@ -115,7 +115,7 @@ class ServerEngine(codec: Codec,
     } catch {
       case e =>
         println("operation request handling error", e)
-        operationRequest.failureResponse(e.toString)
+        operationRequest.failureResponse("operation request handling error: " + stackTraceToString(e))
     }
   }
 
