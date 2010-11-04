@@ -19,10 +19,10 @@ package ccf.server
 import ccf.tree.operation.TreeOperation
 import ccf.session._
 import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, TransportRequest}
-import java.io.Serializable
 import ccf.{JupiterOperationSynchronizerFactory, OperationSynchronizerFactory}
 import ccf.tree.JupiterTreeTransformation
 import ccf.messaging.OperationContext
+import java.io.{StringWriter, PrintWriter, Serializable}
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
@@ -126,4 +126,11 @@ class ServerEngine(codec: Codec,
   }
 
   protected def createSessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
+
+  private def stackTraceToString(e: Throwable): String = {
+    val result = new StringWriter
+    val writer = new PrintWriter(result)
+    e.printStackTrace(writer)
+    result.toString
+  }
 }
