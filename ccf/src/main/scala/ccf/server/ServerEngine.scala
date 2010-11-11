@@ -47,7 +47,8 @@ class ServerEngine(codec: Codec,
 
   private def processRequest(transportRequest: TransportRequest): TransportResponse = {
     val sessionRequest = createSessionRequest(transportRequest)
-    if (transportInterceptor.isPermitted(transportRequest)) {
+    val (permitted, reason) = transportInterceptor.isPermitted(transportRequest)
+    if (permitted) {
       val sessionResponse = processRequest(sessionRequest)
       sessionResponse.transportResponse
     } else {
