@@ -52,7 +52,7 @@ class ServerEngine(codec: Codec,
       val sessionResponse = processRequest(sessionRequest)
       sessionResponse.transportResponse
     } else {
-      sessionRequest.failureResponse("Request not permitted").transportResponse
+      sessionRequest.failureResponse(reason).transportResponse
     }
   }
 

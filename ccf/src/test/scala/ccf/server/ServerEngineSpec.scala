@@ -166,7 +166,7 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
 
   "ServerEngine with request blocking TransportRequestInterceptor" should {
     class BlockingInterceptor extends TransportRequestInterceptor {
-      def isPermitted(r: TransportRequest) = (false, "because")
+      def isPermitted(r: TransportRequest) = (false, "Request not permitted")
     }
     val engine = new ServerEngine(JsonCodec, transportInterceptor = new BlockingInterceptor)
 
