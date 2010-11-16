@@ -32,6 +32,7 @@ object HttpConnection {
 }
 
 class HttpConnection(url: URL, client: HttpClient, decoder: Decoder, encoder: Encoder, scheme: Option[Scheme], headerContributor: Option[HttpTransportHeaderContributor]) extends Connection {
+  @throws(classOf[ConnectionException])
   def send(originalRequest: TransportRequest): Option[TransportResponse] = try {
     val headers = originalRequest.headers ++ headerContributor.map(_.getHeaders).getOrElse(Map())
     val content = originalRequest.content
