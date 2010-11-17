@@ -17,7 +17,8 @@
 package perftest
 
 import ccf.tree.TreeNode
+import java.io.Serializable
 
-class PerfTestTreeNode(name: String) extends TreeNode {
+class PerfTestTreeNode(name: String) extends TreeNode with Serializable {
   def encode = name
 }
