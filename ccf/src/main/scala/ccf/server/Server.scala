@@ -51,7 +51,7 @@ class Server(factory: OperationSynchronizerFactory,
     case Event.Part(clientId, channelId) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined, unable to quit"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Not in that channel"))
-      case Some(state) => reply(onQuit(clientId, channelId))
+      case Some(state) => reply(onPart(clientId, channelId))
     }
     case Event.ShutdownChannel(channelId, reason) => reply(onShutdown(channelId, reason))
     case Event.Msg(clientId, channelId, msg) => clients.get(clientId) match {
@@ -77,7 +77,7 @@ class Server(factory: OperationSynchronizerFactory,
   }
 
 
-  private def onQuit(clientId: ClientId, channelId: ChannelId): Any = {
+  private def onPart(clientId: ClientId, channelId: ChannelId): Any = {
     clients -= clientId
     Event.Ok()
   }

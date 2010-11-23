@@ -72,16 +72,16 @@ class ServerSpec extends Specification with Mockito {
       server !? Event.Join(client3, channel)
     }
     
-    "quit a joined client" in {
+    "part a joined client" in {
       server !? Event.Part(client1, channel) must equalTo(Event.Ok())
       server.clients.contains(client1) must equalTo(false)
     }
 
-    "not quit an unknown client" in {
+    "not part an unknown client" in {
       server !? Event.Part(ClientId.randomId, channel) must haveClass[Event.Error]
     }
 
-    "not allow a client to join another channel before quitting" in {
+    "not allow a client to join another channel before parting" in {
       server !? Event.Join(client1, ChannelId.randomId) must haveClass[Event.Error]
     }
 

@@ -43,9 +43,9 @@ object ExampleTransportSpec extends Specification with Mockito {
       t !? Event.Join(clientId, channelId) must equalTo(Event.State(clientId, channelId, 123))
     }
 
-    "quit" in {
+    "part" in {
       t !? Event.Part(clientId, channelId) must equalTo(Event.Ok())
-      there was one(listener).onQuit(clientId, channelId)
+      there was one(listener).onPart(clientId, channelId)
     }
 
     "request sync" in {

@@ -23,7 +23,7 @@ import ccf.session.{ChannelId, ClientId}
 trait ExampleTransportListener {
   def onInitialize(server: Server): Unit
   def onJoin(clientId: ClientId, channelId: ChannelId): Any
-  def onQuit(clientId: ClientId, channelId: ChannelId): Unit
+  def onPart(clientId: ClientId, channelId: ChannelId): Unit
   def onSync(clientId: ClientId, channelId: ChannelId): Unit
   def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message): Unit
 }
@@ -36,7 +36,7 @@ class ExampleTransport(listener: ExampleTransportListener) extends TransportActo
       reply(Event.State(client, channel, state))
     }
     case Event.Part(client, channel) => {
-      listener.onQuit(client, channel)
+      listener.onPart(client, channel)
       reply(Event.Ok())
     }
     case Event.Sync(client, channel) => {
