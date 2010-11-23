@@ -48,7 +48,7 @@ class Server(factory: OperationSynchronizerFactory,
       case Some(state) => println("already joined to this channel"); reply(getCurrentState(clientId, channelId))
       case None => reply(onJoin(clientId, channelId))
     }
-    case Event.Quit(clientId, channelId) => clients.get(clientId) match {
+    case Event.Part(clientId, channelId) => clients.get(clientId) match {
       case None => reply(Event.Error("Not joined, unable to quit"))
       case Some(state) if (state.channel != channelId) => reply(Event.Error("Not in that channel"))
       case Some(state) => reply(onQuit(clientId, channelId))

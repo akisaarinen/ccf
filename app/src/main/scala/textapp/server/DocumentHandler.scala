@@ -46,7 +46,7 @@ class DocumentHandler {
   }
 
   def onQuit(clientId: ClientId, channelId: ChannelId) {
-    server !? Event.Quit(clientId, channelId)
+    server !? Event.Part(clientId, channelId)
   }
   
   def onMsg(clientId: ClientId, channelId: ChannelId, msg: Message) {

@@ -35,7 +35,7 @@ class ExampleTransport(listener: ExampleTransportListener) extends TransportActo
       val state = listener.onJoin(client, channel)
       reply(Event.State(client, channel, state))
     }
-    case Event.Quit(client, channel) => {
+    case Event.Part(client, channel) => {
       listener.onQuit(client, channel)
       reply(Event.Ok())
     }

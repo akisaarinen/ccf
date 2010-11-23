@@ -44,7 +44,7 @@ object ExampleTransportSpec extends Specification with Mockito {
     }
 
     "quit" in {
-      t !? Event.Quit(clientId, channelId) must equalTo(Event.Ok())
+      t !? Event.Part(clientId, channelId) must equalTo(Event.Ok())
       there was one(listener).onQuit(clientId, channelId)
     }
 
