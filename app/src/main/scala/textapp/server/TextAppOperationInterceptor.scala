@@ -17,16 +17,16 @@
 package textapp.server
 
 import ccf.tree.operation.TreeOperation
-import ccf.server.{ServerOperationInterceptor, Server}
 import textapp.TextDocument
 import ccf.session.{ChannelId, ClientId}
 import java.io.Serializable
+import ccf.server.{ShutdownListener, ServerOperationInterceptor, Server}
 
 class TextAppOperationInterceptor(document: TextDocument) extends ServerOperationInterceptor {
   override def currentStateFor(channelId: ChannelId): Serializable = {
     document
   }
-  override def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit = {
+  override def applyOperation(shutdownListener: ShutdownListener, clientId: ClientId, channelId: ChannelId, op: TreeOperation): Unit = {
     document.applyOp(op)
   }
   override def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()

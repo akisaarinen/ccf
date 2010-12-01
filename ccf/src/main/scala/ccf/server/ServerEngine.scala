@@ -26,7 +26,7 @@ import java.io.{StringWriter, PrintWriter, Serializable}
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
-  def applyOperation(server: Server, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {}
+  def applyOperation(shutdownListener: ShutdownListener, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {}
   def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
   def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
 }
