@@ -35,7 +35,7 @@ class ServerEngine(codec: Codec,
                    operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor,
                    transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor,
                    operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation),
-                   notifyingInterceptor: Option[NotifyingInterceptor] = None) {
+                   notifyingInterceptor: Option[NotifyingInterceptor] = None) extends ShutdownListener {
   val encodingMimeType = codec.mimeType
   val stateHandler = new StateHandler(operationSynchronizerFactory)
   

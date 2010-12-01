@@ -37,7 +37,7 @@ trait ServerOperationInterceptor {
 
 class Server(factory: OperationSynchronizerFactory,
                              interceptor: ServerOperationInterceptor,
-                             transport: TransportActor) extends Actor {
+                             transport: TransportActor) extends Actor with ShutdownListener {
   val clients = new HashMap[ClientId, ClientState]
   transport.initialize(this)
   start
