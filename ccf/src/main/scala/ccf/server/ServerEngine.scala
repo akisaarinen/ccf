@@ -21,8 +21,8 @@ import ccf.session._
 import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, TransportRequest}
 import ccf.{JupiterOperationSynchronizerFactory, OperationSynchronizerFactory}
 import ccf.tree.JupiterTreeTransformation
-import ccf.messaging.OperationContext
 import java.io.{StringWriter, PrintWriter, Serializable}
+import ccf.messaging.{ChannelShutdown, OperationContext}
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
@@ -135,4 +135,15 @@ class ServerEngine(codec: Codec,
     e.printStackTrace(writer)
     result.toString
   }
+
+  override def shutdown(channel: ChannelId, reason: String) {
+    val shutdownMsg = ChannelShutdown(reason)
+    stateHandler.clientsForChannel(channel).foreach { clientId =>
+      stateHandler.clientStateOption(clientId).foreach { state =>
+        stateHandler.addMsg(clientId, channel, shutdownMsg)
+      }
+      stateHandler.part(clientId, channel)
+    }
+  }
+
 }

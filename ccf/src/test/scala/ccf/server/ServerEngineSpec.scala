@@ -24,9 +24,9 @@ import ccf.transport.json.JsonCodec
 import ccf.transport._
 import ccf.{JupiterOperationSynchronizer, OperationSynchronizer}
 import ccf.tree.JupiterTreeTransformation
-import ccf.messaging.OperationContext
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation.{DeleteOperation, MoveOperation, InsertOperation, NoOperation}
+import ccf.messaging.{ChannelShutdown, OperationContext}
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -178,6 +178,32 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val joinResponse: SessionResponse = SessionResponse(JsonCodec.decodeResponse(response).get, joinRequest)
       val Left(Failure(_, reason)) = joinResponse.result
       reason must equalTo("Request not permitted")
+    }
+  }
+
+  "ServerEngine on shutdown" should {
+    val channel = ChannelId.randomId
+    val client1 = ClientId.randomId
+    val client2 = ClientId.randomId
+    val otherChannel = ChannelId.randomId
+    val clientInOtherChannel = ClientId.randomId
+    val serverEngine = new ServerEngine(JsonCodec)
+    doBefore {
+      serverEngine.stateHandler.join(client1, channel)
+      serverEngine.stateHandler.join(client2, channel)
+      serverEngine.stateHandler.join(clientInOtherChannel, otherChannel)
+    }
+
+    "remove clients from channel" in {
+      serverEngine.shutdown(channel, "any reason")
+      serverEngine.stateHandler.clientsForChannel(channel) must equalTo(List())
+      serverEngine.stateHandler.clientsForChannel(otherChannel) must equalTo(List(clientInOtherChannel))
+    }
+    "inform clients on channel of shutdown" in {
+      serverEngine.shutdown(channel, "any reason")
+      serverEngine.stateHandler.getMsgs(client1, channel) must equalTo(List(ChannelShutdown("any reason")))
+      serverEngine.stateHandler.getMsgs(client2, channel) must equalTo(List(ChannelShutdown("any reason")))
+      serverEngine.stateHandler.getMsgs(clientInOtherChannel, otherChannel) must equalTo(List())
     }
   }
 }
