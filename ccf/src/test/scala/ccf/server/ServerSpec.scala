@@ -173,14 +173,14 @@ class ServerSpec extends Specification with Mockito {
     }
 
     "quit all clients from specified channel" in {
-      server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())
+      server.shutdown(channel, "any reason")
       server.clients.contains(client1) must equalTo(false)
       server.clients.contains(client2) must equalTo(false)
       server.clients.contains(clientInOtherChannel) must equalTo(true)
     }
 
     "inform all clients in channel when channel has been shutdown" in {
-      server !? Event.ShutdownChannel(channel, "any reason") must equalTo(Event.Ok())
+      server.shutdown(channel, "any reason")
       there was one(transport) !! Event.Msg(client1, channel, ChannelShutdown("any reason"))
       there was one(transport) !! Event.Msg(client2, channel, ChannelShutdown("any reason"))
       there was no(transport) !! Event.Msg(clientInOtherChannel, channel, ChannelShutdown("any reason"))
