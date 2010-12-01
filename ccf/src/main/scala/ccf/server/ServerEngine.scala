@@ -87,8 +87,7 @@ class ServerEngine(codec: Codec,
       val operationContext = OperationContext(content.asInstanceOf[Map[String, String]])
       val state = stateHandler.clientState(clientId)
       val op = state.receive(operationContext)
-      //TODO: server is null in this patch...it is used to set server in serverOperationPersistor which uses it for channel shutdown only
-      operationInterceptor.applyOperation(null, channelId, op)
+      operationInterceptor.applyOperation(this, channelId, op)
 
       val others = stateHandler.otherClientsFor(clientId)
       others.foreach { otherClientId =>
@@ -104,8 +103,7 @@ class ServerEngine(codec: Codec,
 
       val opsForAll = operationInterceptor.operationsForAllClients(channelId, op)
       opsForAll.foreach { opForAll =>
-        //TODO: server is null in this patch...it is used to set server in serverOperationPersistor which uses it for channel shutdown only
-        operationInterceptor.applyOperation(null, channelId, opForAll)
+        operationInterceptor.applyOperation(this, channelId, opForAll)
         stateHandler.clientsForChannel(channelId).foreach { clientInChannel =>
           val msgForClient = stateHandler.clientState(clientInChannel).send(opForAll)
           stateHandler.addMsg(clientInChannel, channelId, msgForClient)

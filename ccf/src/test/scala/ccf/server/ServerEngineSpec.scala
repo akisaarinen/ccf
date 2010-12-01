@@ -22,11 +22,9 @@ import javax.activation.MimeType
 import ccf.session._
 import ccf.transport.json.JsonCodec
 import ccf.transport._
-import ccf.{JupiterOperationSynchronizer, OperationSynchronizer}
-import ccf.tree.JupiterTreeTransformation
 import ccf.tree.indexing.TreeIndex
-import ccf.tree.operation.{DeleteOperation, MoveOperation, InsertOperation, NoOperation}
 import ccf.messaging.{ChannelShutdown, OperationContext}
+import ccf.tree.operation._
 
 class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  {
   "ServerEngine" should {
@@ -162,6 +160,29 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val Right(Success(_, Some(encodedMsgList: String))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
       List(msg2.encode, msg3.encode) must equalTo(BASE64EncodingSerializer.deserialize(encodedMsgList))
     }
+  }
+
+  "ServerEngine with mocked OperationPersistor" should {
+   "pass serverEngine to operationPersistor#applyOperation when processing operation" in {
+    val operationInterceptorMock = mock[ServerOperationInterceptor]
+    val interceptor = new DefaultServerOperationInterceptor {
+      override def applyOperation(shutdownListener: ShutdownListener, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {
+        operationInterceptorMock.applyOperation(shutdownListener, clientId, channelId, op)
+      }
+      override def applyOperation(shutdownListener: ShutdownListener, channelId: ChannelId, op: TreeOperation) {
+        operationInterceptorMock.applyOperation(shutdownListener, channelId, op)
+      }
+    }
+    val engine = new ServerEngine(JsonCodec, interceptor)
+    val channelId = ChannelId.randomId
+    val clientId = ClientId.randomId
+    val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+    val joinRequest = JoinRequest(session, channelId)
+    engine.processRequest(JsonCodec.encodeRequest(joinRequest.transportRequest))
+    val operationRequest = OperationContextRequest(session, channelId, new OperationContext(NoOperation(), 0, 0))
+    engine.processRequest(JsonCodec.encodeRequest(operationRequest.transportRequest))
+    there was one(operationInterceptorMock).applyOperation(engine, channelId, NoOperation())
+   }
   }
 
   "ServerEngine with request blocking TransportRequestInterceptor" should {
