@@ -35,7 +35,8 @@ class ServerEngine(codec: Codec,
                    operationInterceptor: ServerOperationInterceptor = new DefaultServerOperationInterceptor,
                    transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor,
                    operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation),
-                   notifyingInterceptor: Option[NotifyingInterceptor] = None) extends ShutdownListener {
+                   notifyingInterceptor: Option[NotifyingInterceptor] = None,
+                   stateSerializer: StateSerializer = BASE64EncodingSerializer) extends ShutdownListener {
   val encodingMimeType = codec.mimeType
   val stateHandler = new StateHandler(operationSynchronizerFactory)
   
@@ -70,7 +71,7 @@ class ServerEngine(codec: Codec,
     val (clientId, channelId) = (joinRequest.clientId, joinRequest.channelId)
     stateHandler.join(clientId, channelId)
     val currentState = operationInterceptor.currentStateFor(channelId).asInstanceOf[AnyRef]
-    val serializedState = BASE64EncodingSerializer.serialize(currentState)
+    val serializedState = stateSerializer.serialize(currentState)
     joinRequest.successResponse(Some(serializedState))
   }
 
