@@ -18,13 +18,14 @@ package ccf.transport
 
 import sun.misc.{BASE64Encoder, BASE64Decoder}
 import java.io._
+import ccf.server.StateSerializer
 
-object BASE64EncodingSerializer {
+object BASE64EncodingSerializer extends StateSerializer {
   def serialize(op: AnyRef) = {
     encode(JavaSerializer.serialize(op))
   }
 
-  def deserialize[A](in: String): A = {
+  def deserialize[A](in: String)(implicit mf: scala.reflect.Manifest[A]): A = {
     JavaSerializer.deserialize[A](decode(in))
   }
 
