@@ -26,6 +26,7 @@ class StateHandler(factory: OperationSynchronizerFactory) {
   private val pendingMsgs = new PendingMessageBuffer
 
   def join(clientId: ClientId, channelId: ChannelId) = {
+    pendingMsgs.remove(clientId, channelId)
     val synchronizer = factory.createSynchronizer
     clientStates(clientId) = new ClientState(channelId, synchronizer)
   }

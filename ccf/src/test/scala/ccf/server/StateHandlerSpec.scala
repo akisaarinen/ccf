@@ -20,6 +20,7 @@ import org.specs.Specification
 import org.specs.mock.Mockito
 import ccf.{OperationSynchronizer, OperationSynchronizerFactory}
 import ccf.session.{ChannelId, ClientId}
+import ccf.messaging.Message
 
 class StateHandlerSpec extends Specification with Mockito {
   val stateHandler = new StateHandler(new OperationSynchronizerFactory {
@@ -46,6 +47,12 @@ class StateHandlerSpec extends Specification with Mockito {
     "list no clients as other clients if only client on channel" in {
       stateHandler.join(clientA, channel)
       stateHandler.otherClientsFor(clientA) must equalTo(List())
+    }
+    "remove client's messages before joining channel" in {
+      stateHandler.addMsg(clientA, channel, mock[Message])
+      stateHandler.addMsg(clientA, channel, mock[Message])
+      stateHandler.join(clientA, channel)
+      stateHandler.getMsgs(clientA, channel) must equalTo(List())
     }
   }
 }
