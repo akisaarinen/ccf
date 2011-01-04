@@ -1,24 +1,25 @@
 package ccf.messaging
 
 import org.specs.Specification
-import ccf.tree.operation.{NoOperation}
+import ccf.tree.operation.{TreeOperationDecoder, NoOperation}
 
 class MessageSpec extends Specification {
-  "Message factory method" should {
+  val operationDecoder = TreeOperationDecoder
+  "Message factory method with default decoder" should {
     "create operation context from map" in {
       val operationContext =  OperationContext(new NoOperation, 1, 2)
-      Message(operationContext.encode.asInstanceOf[Map[String, String]]) must equalTo(operationContext)
+      Message(operationContext.encode.asInstanceOf[Map[String, String]], operationDecoder) must equalTo(operationContext)
     }
     "create error messsage from map" in {
       val errorMessage = ErrorMessage("not so critical error")
-      Message(errorMessage.encode.asInstanceOf[Map[String, String]]) must equalTo(errorMessage)
+      Message(errorMessage.encode.asInstanceOf[Map[String, String]], operationDecoder) must equalTo(errorMessage)
     }
     "create channel shutdown from map" in {
       val channelShutdown = ChannelShutdown("critical error")
-      Message(channelShutdown.encode.asInstanceOf[Map[String, String]]) must equalTo(channelShutdown)
+      Message(channelShutdown.encode.asInstanceOf[Map[String, String]], operationDecoder) must equalTo(channelShutdown)
     }
     "throw exception for unknown type" in {
-      Message(Map("abc" -> "123")) must throwAn[Exception]
+      Message(Map("abc" -> "123"), operationDecoder) must throwAn[Exception]
     }
   }
 

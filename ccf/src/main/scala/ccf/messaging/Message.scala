@@ -18,13 +18,14 @@ package ccf.messaging
 
 import ccf.tree.operation.TreeOperation
 import ccf.tree.operation.TreeOperationDecoder
+import ccf.session.OperationDecoder
 
 sealed abstract class Message {
   def encode: Any
 }
 
 object Message {
-  def apply(map: Map[String, String]): Message = {
+  def apply(map: Map[String, String], operationDecoder: OperationDecoder): Message = {
     val messageType = map("type")
     messageType match {
       case "operation" => OperationContext(map)
