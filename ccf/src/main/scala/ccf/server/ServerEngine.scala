@@ -16,13 +16,13 @@
 
 package ccf.server
 
-import ccf.tree.operation.TreeOperation
 import ccf.session._
 import ccf.{JupiterOperationSynchronizerFactory, OperationSynchronizerFactory}
 import ccf.tree.JupiterTreeTransformation
 import java.io.{StringWriter, PrintWriter, Serializable}
 import ccf.messaging.{ChannelShutdown, OperationContext}
 import ccf.transport._
+import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
@@ -36,7 +36,8 @@ class ServerEngine(codec: Codec,
                    transportInterceptor: TransportRequestInterceptor = new DefaultTransportRequestInterceptor,
                    operationSynchronizerFactory: OperationSynchronizerFactory = new JupiterOperationSynchronizerFactory(true, JupiterTreeTransformation),
                    notifyingInterceptor: Option[NotifyingInterceptor] = None,
-                   stateSerializer: StateSerializer = BASE64EncodingSerializer) extends ShutdownListener {
+                   stateSerializer: StateSerializer = BASE64EncodingSerializer,
+                   operationDecoder: OperationDecoder = TreeOperationDecoder) extends ShutdownListener {
   val encodingMimeType = codec.mimeType
   val stateHandler = new StateHandler(operationSynchronizerFactory)
   private val remoteCallLock = new Object
