@@ -28,7 +28,7 @@ object Message {
   def apply(map: Map[String, String], operationDecoder: OperationDecoder): Message = {
     val messageType = map("type")
     messageType match {
-      case "operation" => OperationContext(map)
+      case "operation" => OperationContext(map, operationDecoder)
       case "error" => ErrorMessage(map)
       case "shutdown" => ChannelShutdown(map)
       case _ => throw new IllegalArgumentException("Unrecognized message type")
@@ -40,8 +40,8 @@ case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val r
   def encode: Any = Map("type" -> "operation", "op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
 }
 object OperationContext {
-  def apply(map: Map[String, String]): OperationContext = {
-    val op = TreeOperationDecoder.decode(map("op"))
+  def apply(map: Map[String, String], operationDecoder: OperationDecoder): OperationContext = {
+    val op = operationDecoder.decode(map("op"))
     val localMsg = map("localMsgSeqNo").asInstanceOf[Int]
     val remoteMsg = map("remoteMsgSeqNo").asInstanceOf[Int]
     OperationContext(op, localMsg, remoteMsg)

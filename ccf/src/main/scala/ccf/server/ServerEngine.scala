@@ -87,7 +87,7 @@ class ServerEngine(codec: Codec,
     val (clientId: ClientId, channelId: ChannelId) = (operationRequest.clientId, operationRequest.channelId)
     try {
       val content = operationRequest.transportRequest.content.getOrElse(throw new RuntimeException("OperationContextRequest missing"))
-      val operationContext = OperationContext(content.asInstanceOf[Map[String, String]])
+      val operationContext = OperationContext(content.asInstanceOf[Map[String, String]], operationDecoder)
       val state = stateHandler.clientState(clientId)
       val op = state.receive(operationContext)
       operationInterceptor.applyOperation(this, channelId, op)

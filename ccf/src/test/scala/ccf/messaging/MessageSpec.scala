@@ -24,11 +24,11 @@ class MessageSpec extends Specification {
   }
 
   "OperationContext" should {
-    "be encoded to and from map of strings" in {
+    "be encoded to and from map of strings using default decoder" in {
       val operation = new NoOperation()
       val operationContext = OperationContext(operation, 1, 2)
       val encodedOperation: Map[String, String] = operationContext.encode.asInstanceOf[Map[String, String]]
-      OperationContext(encodedOperation) must equalTo(operationContext)
+      OperationContext(encodedOperation, operationDecoder) must equalTo(operationContext)
     }
   }
    "Error message" should {
