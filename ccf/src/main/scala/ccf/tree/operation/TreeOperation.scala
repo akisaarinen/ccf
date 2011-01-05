@@ -22,10 +22,12 @@ import ccf.transport.BASE64EncodingSerializer
 
 @serializable
 abstract sealed class TreeOperation(val index: Indexable) {
-  def encode = BASE64EncodingSerializer.serialize(this)
+  def encode: Any = BASE64EncodingSerializer.serialize(this)
 }
 
-case class NoOperation() extends TreeOperation(UndefinedIndex())
+case class NoOperation() extends TreeOperation(UndefinedIndex()) {
+  override def encode = Map("type" -> "NoOperation")
+}
 case class InsertOperation(override val index: Indexable, val node: TreeNode) extends TreeOperation(index)
 case class DeleteOperation(override val index: Indexable) extends TreeOperation(index)
 case class MoveOperation(val sourceIndex: Indexable, val targetIndex: Indexable) extends TreeOperation(sourceIndex)

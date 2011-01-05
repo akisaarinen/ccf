@@ -19,12 +19,15 @@ package ccf.tree.operation
 import org.specs.Specification
 import ccf.tree.indexing.TreeIndex
 object TreeOperationCodingSpec extends Specification {
-  val encoder = new TreeOperationEncoder
   val decoder = new TreeOperationDecoder
 
   "Encoder and decoder" should {
     val index = TreeIndex(1,2,3)
     val node = TestNode("lol")
+    "encode and decode no operation" in {
+      val original = NoOperation()
+      encodeAndDecode(original) must equalTo(original)
+    }
     "encode and decode insert" in {
       val original = InsertOperation(index, node)
       encodeAndDecode(original) must equalTo(original)
@@ -46,7 +49,7 @@ object TreeOperationCodingSpec extends Specification {
   }
 
   private def encodeAndDecode(op: TreeOperation): TreeOperation = {
-    val encoded = encoder.encode(op)
+    val encoded = op.encode
     decoder.decode(encoded)
   }
 }
