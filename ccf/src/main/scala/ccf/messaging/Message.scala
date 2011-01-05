@@ -25,7 +25,7 @@ sealed abstract class Message {
 }
 
 object Message {
-  def apply(map: Map[String, String], operationDecoder: OperationDecoder): Message = {
+  def apply(map: Map[String, Any], operationDecoder: OperationDecoder): Message = {
     val messageType = map("type")
     messageType match {
       case "operation" => OperationContext(map, operationDecoder)
@@ -40,7 +40,7 @@ case class OperationContext(val op: TreeOperation, val localMsgSeqNo: Int, val r
   def encode: Any = Map("type" -> "operation", "op" -> op.encode, "localMsgSeqNo" -> localMsgSeqNo, "remoteMsgSeqNo" -> remoteMsgSeqNo)
 }
 object OperationContext {
-  def apply(map: Map[String, String], operationDecoder: OperationDecoder): OperationContext = {
+  def apply(map: Map[String, Any], operationDecoder: OperationDecoder): OperationContext = {
     val op = operationDecoder.decode(map("op"))
     val localMsg = map("localMsgSeqNo").asInstanceOf[Int]
     val remoteMsg = map("remoteMsgSeqNo").asInstanceOf[Int]
@@ -52,8 +52,8 @@ case class ErrorMessage(val reason: String) extends Message {
 }
 
 object ErrorMessage {
-  def apply(map: Map[String, String]): ErrorMessage = {
-    val reason = map("reason")
+  def apply(map: Map[String, Any]): ErrorMessage = {
+    val reason: String = map("reason").asInstanceOf[String]
     ErrorMessage(reason)
   }
 }
@@ -63,8 +63,8 @@ case class ChannelShutdown(val reason: String) extends Message {
 }
 
 object ChannelShutdown {
-  def apply(map: Map[String, String]): ChannelShutdown = {
-    val reason = map("reason")
+  def apply(map: Map[String, Any]): ChannelShutdown = {
+    val reason: String = map("reason").asInstanceOf[String]
     ChannelShutdown(reason)
   }
 }
