@@ -20,4 +20,5 @@ import ccf.tree.operation.TreeOperation
 
 trait OperationDecoder {
   def decode(op: String): TreeOperation
+  def decode(opMap: Map[String, String]): TreeOperation
 }
