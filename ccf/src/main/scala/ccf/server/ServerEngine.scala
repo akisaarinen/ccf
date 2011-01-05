@@ -81,7 +81,7 @@ class ServerEngine(codec: Codec,
     partRequest.successResponse(None)
   }
 
-  private def onOperation(operationRequest: OperationContextRequest) = {
+  private def onOperation(operationRequest: OperationContextRequest) = synchronized {
     val (clientId: ClientId, channelId: ChannelId) = (operationRequest.clientId, operationRequest.channelId)
     try {
       val content = operationRequest.transportRequest.content.getOrElse(throw new RuntimeException("OperationContextRequest missing"))
