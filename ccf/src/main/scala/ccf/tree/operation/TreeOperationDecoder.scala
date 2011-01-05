@@ -22,6 +22,12 @@ import ccf.tree.TreeNode
 import ccf.transport.BASE64EncodingSerializer
 
 class TreeOperationDecoder extends OperationDecoder {
+  def decode(op: Any): TreeOperation = {
+    op match {
+      case string: String => decode(string)
+      case stringMap: Map[String, String] => decode(stringMap)
+    }
+  }
   def decode(op: String): TreeOperation = BASE64EncodingSerializer.deserialize(op)
   def decode(opMap: Map[String, String]): TreeOperation = NoOperation()
 }
