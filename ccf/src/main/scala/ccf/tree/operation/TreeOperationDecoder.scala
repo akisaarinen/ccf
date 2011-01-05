@@ -29,7 +29,18 @@ class TreeOperationDecoder extends OperationDecoder {
     }
   }
   def decode(op: String): TreeOperation = BASE64EncodingSerializer.deserialize(op)
-  def decode(opMap: Map[String, String]): TreeOperation = NoOperation()
+  def decode(opMap: Map[String, String]): TreeOperation = {
+    opMap.get("type") match {
+      case Some("NoOperation") => NoOperation()
+      case Some("DeleteOperation") => DeleteOperation(parseIndex(opMap("index")))
+      case Some(t) => error("TreeOperationDecoder#decode: Unknown operation type " + t)
+      case None => error("TreeOperationDecoder#decode: No type found for operation")
+    }
+  }
+
+  private def parseIndex(encodedValue: Any): TreeIndex = {
+    TreeIndex(encodedValue.asInstanceOf[List[Int]]: _*)
+  }
 }
 
 object TreeOperationDecoder extends TreeOperationDecoder

@@ -29,6 +29,8 @@ case class NoOperation() extends TreeOperation(UndefinedIndex()) {
   override def encode = Map("type" -> "NoOperation")
 }
 case class InsertOperation(override val index: Indexable, val node: TreeNode) extends TreeOperation(index)
-case class DeleteOperation(override val index: Indexable) extends TreeOperation(index)
+case class DeleteOperation(override val index: Indexable) extends TreeOperation(index) {
+  override def encode = Map("type" -> "DeleteOperation", "index" -> index.encode)
+}
 case class MoveOperation(val sourceIndex: Indexable, val targetIndex: Indexable) extends TreeOperation(sourceIndex)
 case class UpdateAttributeOperation(override val index: Indexable, val attribute: String, val modifier: Modifier) extends TreeOperation(index)
