@@ -33,6 +33,7 @@ class TreeOperationDecoder extends OperationDecoder {
     opMap.get("type") match {
       case Some("NoOperation") => NoOperation()
       case Some("DeleteOperation") => DeleteOperation(parseIndex(opMap("index")))
+      case Some("MoveOperation") => MoveOperation(parseIndex(opMap("sourceIndex")), parseIndex(opMap("targetIndex")))
       case Some(t) => error("TreeOperationDecoder#decode: Unknown operation type " + t)
       case None => error("TreeOperationDecoder#decode: No type found for operation")
     }
