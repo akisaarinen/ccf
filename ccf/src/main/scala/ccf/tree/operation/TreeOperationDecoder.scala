@@ -21,7 +21,7 @@ import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode
 import ccf.transport.BASE64EncodingSerializer
 
-class TreeOperationDecoder extends OperationDecoder {
+abstract class TreeOperationDecoder extends OperationDecoder {
   def decode(op: Any): TreeOperation = {
     op match {
       case string: String => decode(string)
@@ -42,6 +42,17 @@ class TreeOperationDecoder extends OperationDecoder {
   private def parseIndex(encodedValue: Any): TreeIndex = {
     TreeIndex(encodedValue.asInstanceOf[List[Int]]: _*)
   }
+  protected def parseNode(encodedValue: Any): TreeNode
 }
 
-object TreeOperationDecoder extends TreeOperationDecoder
+class DefaultTreeOperationDecoder extends TreeOperationDecoder {
+  protected def parseNode(encodedValue: Any): TreeNode = {
+    DefaultNode(encodedValue.asInstanceOf[String])
+  }
+}
+
+case class DefaultNode(value: String) extends TreeNode {
+  override def encode = value
+}
+
+object TreeOperationDecoder extends DefaultTreeOperationDecoder
