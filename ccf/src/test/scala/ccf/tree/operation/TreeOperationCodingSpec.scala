@@ -17,13 +17,22 @@
 package ccf.tree.operation
 
 import org.specs.Specification
-import ccf.tree.indexing.TreeIndex
 import ccf.tree.TreeNode
+import ccf.tree.indexing.{Indexable, TreeIndex}
 
 object TreeOperationCodingSpec extends Specification {
+  class TestOperation(override val index: Indexable) extends UpdateAttributeOperation(index, "test", NopModifier()) {
+    override def encode = Map("type" -> "TestOperation", "index" -> index.encode)
+  }
   val decoder = new TreeOperationDecoder {
     protected def parseNode(encodedValue: Any): TreeNode = {
       TestNode(encodedValue.asInstanceOf[String])
+    }
+    protected def parseApplicationOperations(operation: String, opMap: Map[String, String]): TreeOperation = {
+      operation match {
+        case "TestOperation" => new TestOperation(parseIndex(opMap("index")))
+        case _ => error("TreeOperationDecoder#decode: Unknown operation type " + operation)
+      }
     }
   }
 
@@ -50,6 +59,10 @@ object TreeOperationCodingSpec extends Specification {
     }
     "encode and decode update" in {
       val original = UpdateAttributeOperation(index, "someAttr", new TestModifier("foo"))
+      encodeAndDecode(original) must equalTo(original)
+    }
+    "encode and decode application specific update operation" in {
+      val original = new TestOperation(index)
       encodeAndDecode(original) must equalTo(original)
     }
   }

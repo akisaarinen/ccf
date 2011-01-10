@@ -35,20 +35,25 @@ abstract class TreeOperationDecoder extends OperationDecoder {
       case Some("InsertOperation") => InsertOperation(parseIndex(opMap("index")), parseNode(opMap("node")))
       case Some("DeleteOperation") => DeleteOperation(parseIndex(opMap("index")))
       case Some("MoveOperation") => MoveOperation(parseIndex(opMap("sourceIndex")), parseIndex(opMap("targetIndex")))
-      case Some(t) => error("TreeOperationDecoder#decode: Unknown operation type " + t)
+      case Some(t) => parseApplicationOperations(t, opMap)
       case None => error("TreeOperationDecoder#decode: No type found for operation")
     }
   }
 
-  private def parseIndex(encodedValue: Any): TreeIndex = {
+  protected def parseApplicationOperations(operation: String, opMap: Map[String, String]): TreeOperation
+
+  protected def parseIndex(encodedValue: Any): TreeIndex = {
     TreeIndex(encodedValue.asInstanceOf[List[Int]]: _*)
-  }
+  } 
   protected def parseNode(encodedValue: Any): TreeNode
 }
 
 class DefaultTreeOperationDecoder extends TreeOperationDecoder {
   protected def parseNode(encodedValue: Any): TreeNode = {
     DefaultNode(encodedValue.asInstanceOf[String])
+  }
+  protected def parseApplicationOperations(operation: String, opMap: Map[String, String]): TreeOperation = {
+    error("TreeOperationDecoder#decode: Unknown operation type " + operation)
   }
 }
 
