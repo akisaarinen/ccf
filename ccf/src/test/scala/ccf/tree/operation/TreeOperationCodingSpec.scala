@@ -18,8 +18,14 @@ package ccf.tree.operation
 
 import org.specs.Specification
 import ccf.tree.indexing.TreeIndex
+import ccf.tree.TreeNode
+
 object TreeOperationCodingSpec extends Specification {
-  val decoder = new TreeOperationDecoder
+  val decoder = new TreeOperationDecoder {
+    protected def parseNode(encodedValue: Any): TreeNode = {
+      TestNode(encodedValue.asInstanceOf[String])
+    }
+  }
 
   "Encoder and decoder" should {
     val index = TreeIndex(1,2,3)

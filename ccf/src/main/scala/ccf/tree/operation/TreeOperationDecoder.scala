@@ -32,6 +32,7 @@ abstract class TreeOperationDecoder extends OperationDecoder {
   def decode(opMap: Map[String, String]): TreeOperation = {
     opMap.get("type") match {
       case Some("NoOperation") => NoOperation()
+      case Some("InsertOperation") => InsertOperation(parseIndex(opMap("index")), parseNode(opMap("node")))
       case Some("DeleteOperation") => DeleteOperation(parseIndex(opMap("index")))
       case Some("MoveOperation") => MoveOperation(parseIndex(opMap("sourceIndex")), parseIndex(opMap("targetIndex")))
       case Some(t) => error("TreeOperationDecoder#decode: Unknown operation type " + t)
