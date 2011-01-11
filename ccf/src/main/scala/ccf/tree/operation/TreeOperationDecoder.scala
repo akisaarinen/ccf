@@ -46,12 +46,20 @@ abstract class TreeOperationDecoder extends OperationDecoder {
     TreeIndex(encodedValue.asInstanceOf[List[Int]]: _*)
   } 
   protected def parseNode(encodedValue: Any): TreeNode
+  protected def parseModifier(encodedValue: Any): Modifier
 }
 
 class DefaultTreeOperationDecoder extends TreeOperationDecoder {
   protected def parseNode(encodedValue: Any): TreeNode = {
     DefaultNode(encodedValue.asInstanceOf[String])
   }
+  protected def parseModifier(modifier: Any): Modifier = {
+    modifier match {
+      case "nop" => NopModifier()
+      case _ => error("TreeOperationDecoder#parseModifier: Unkown modifier type "+modifier)
+    }
+  }
+
   protected def parseApplicationOperations(operation: String, opMap: Map[String, String]): TreeOperation = {
     error("TreeOperationDecoder#decode: Unknown operation type " + operation)
   }
