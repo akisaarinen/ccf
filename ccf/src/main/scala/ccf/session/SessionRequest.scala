@@ -21,7 +21,7 @@ import ccf.messaging.OperationContext
 
 sealed abstract class SessionRequest {
   val transportRequest: TransportRequest
-  def successResponse(result: Option[String]): SessionResponse
+  def successResponse(result: Option[Any]): SessionResponse
   def failureResponse(reason: String): SessionResponse
   def clientId: ClientId = ClientId(transportRequest.header("clientId").get).get
   protected def transportResponse(content: Option[Any]): TransportResponse = {
@@ -30,7 +30,7 @@ sealed abstract class SessionRequest {
 }
 
 trait DefaultSessionResponse extends SessionRequest {
-  def successResponse(result: Option[String]): SessionResponse = {
+  def successResponse(result: Option[Any]): SessionResponse = {
     sessionResponse(this, transportResponse(SessionResponseFactory.successContent(result)), Right(Success(this, result)))
   }
 

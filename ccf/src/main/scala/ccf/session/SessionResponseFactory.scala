@@ -25,7 +25,7 @@ object SessionResponseFactory {
   val ResultKey = "result"
   val ReasonKey = "reason"
 
-  def successContent(result: Option[String]) = {
+  def successContent(result: Option[Any]) = {
     val content = Map(StatusKey -> SuccessStatus)
     result match {
       case Some(str) => Some(content + (ResultKey -> str))
