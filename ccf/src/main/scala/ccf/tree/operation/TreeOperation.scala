@@ -22,7 +22,7 @@ import ccf.transport.BASE64EncodingSerializer
 
 @serializable
 abstract sealed class TreeOperation(val index: Indexable) {
-  def encode: Any = BASE64EncodingSerializer.serialize(this)
+  def encode: Any
 }
 
 case class NoOperation() extends TreeOperation(UndefinedIndex()) {
