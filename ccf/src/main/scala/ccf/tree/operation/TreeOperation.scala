@@ -37,4 +37,6 @@ case class DeleteOperation(override val index: Indexable) extends TreeOperation(
 case class MoveOperation(val sourceIndex: Indexable, val targetIndex: Indexable) extends TreeOperation(sourceIndex) {
   override def encode = Map("type" -> "MoveOperation", "sourceIndex" -> sourceIndex.encode, "targetIndex" -> targetIndex.encode)
 }
-case class UpdateAttributeOperation(override val index: Indexable, val attribute: String, val modifier: Modifier) extends TreeOperation(index)
+case class UpdateAttributeOperation(override val index: Indexable, val attribute: String, val modifier: Modifier) extends TreeOperation(index) {
+  override def encode = Map("type" -> "UpdateAttributeOperation", "index" -> index.encode, "attribute" -> attribute, "modifier" -> modifier.encode)
+}

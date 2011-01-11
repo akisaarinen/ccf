@@ -28,6 +28,12 @@ object TreeOperationCodingSpec extends Specification {
     protected def parseNode(encodedValue: Any): TreeNode = {
       TestNode(encodedValue.asInstanceOf[String])
     }
+    protected def parseModifier(encodedValue: Any): Modifier = {
+      encodedValue match {
+        case "nop" => NopModifier()
+        case _ => error("Modifier can't be parsed")
+      }
+    }
     protected def parseApplicationOperations(operation: String, opMap: Map[String, String]): TreeOperation = {
       operation match {
         case "TestOperation" => new TestOperation(parseIndex(opMap("index")))
@@ -58,7 +64,7 @@ object TreeOperationCodingSpec extends Specification {
       encodeAndDecode(original) must equalTo(original)
     }
     "encode and decode update" in {
-      val original = UpdateAttributeOperation(index, "someAttr", new TestModifier("foo"))
+      val original = UpdateAttributeOperation(index, "someAttr", new NopModifier())
       encodeAndDecode(original) must equalTo(original)
     }
     "encode and decode application specific update operation" in {

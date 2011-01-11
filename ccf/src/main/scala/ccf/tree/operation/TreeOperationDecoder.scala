@@ -35,6 +35,7 @@ abstract class TreeOperationDecoder extends OperationDecoder {
       case Some("InsertOperation") => InsertOperation(parseIndex(opMap("index")), parseNode(opMap("node")))
       case Some("DeleteOperation") => DeleteOperation(parseIndex(opMap("index")))
       case Some("MoveOperation") => MoveOperation(parseIndex(opMap("sourceIndex")), parseIndex(opMap("targetIndex")))
+      case Some("UpdateAttributeOperation") => UpdateAttributeOperation(parseIndex(opMap("index")), opMap("attribute"), parseModifier(opMap("modifier")))
       case Some(t) => parseApplicationOperations(t, opMap)
       case None => error("TreeOperationDecoder#decode: No type found for operation")
     }
