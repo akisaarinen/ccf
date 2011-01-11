@@ -24,11 +24,10 @@ import ccf.transport.BASE64EncodingSerializer
 abstract class TreeOperationDecoder extends OperationDecoder {
   def decode(op: Any): TreeOperation = {
     op match {
-      case string: String => decode(string)
       case stringMap: Map[String, String] => decode(stringMap)
+      case _ => error("TreeOperationDecoder#decode: Unable to decode " +op)
     }
   }
-  def decode(op: String): TreeOperation = BASE64EncodingSerializer.deserialize(op)
   def decode(opMap: Map[String, String]): TreeOperation = {
     opMap.get("type") match {
       case Some("NoOperation") => NoOperation()
