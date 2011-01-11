@@ -139,8 +139,8 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       engine.stateHandler.addMsg(clientId, channelId, msg2)
       val inChannelRequest = InChannelRequest(session, "getMsgs", channelId, None)
       val response = engine.processRequest(JsonCodec.encodeRequest(inChannelRequest.transportRequest))
-      val Right(Success(_, Some(encodedMsgList: String))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
-      List(msg1.encode, msg2.encode) must equalTo(BASE64EncodingSerializer.deserialize(encodedMsgList))
+      val Right(Success(_, Some(encodedMsgList: List[_]))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
+      List(msg1.encode, msg2.encode) must equalTo(encodedMsgList)
     }
 
     "reply with success result containing list of unread encoded msgs to inchannel request" in {
@@ -157,8 +157,8 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       engine.stateHandler.addMsg(clientId, channelId, msg3)
       val inChannelRequest = InChannelRequest(session, "getMsgs", channelId, Some(1))
       val response = engine.processRequest(JsonCodec.encodeRequest(inChannelRequest.transportRequest))
-      val Right(Success(_, Some(encodedMsgList: String))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
-      List(msg2.encode, msg3.encode) must equalTo(BASE64EncodingSerializer.deserialize(encodedMsgList))
+      val Right(Success(_, Some(encodedMsgList: List[_]))) = SessionResponse(JsonCodec.decodeResponse(response).get, inChannelRequest).result
+      List(msg2.encode, msg3.encode) must equalTo(encodedMsgList)
     }
   }
 

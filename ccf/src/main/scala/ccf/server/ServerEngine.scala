@@ -23,6 +23,7 @@ import java.io.{StringWriter, PrintWriter, Serializable}
 import ccf.messaging.{ChannelShutdown, OperationContext}
 import ccf.transport._
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
+import com.twitter.json.Json
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
@@ -125,7 +126,7 @@ class ServerEngine(codec: Codec,
     val lastMsg = inChannelRequest.content.getOrElse(0).asInstanceOf[Int]
     val (clientId, channelId) = (inChannelRequest.clientId, inChannelRequest.channelId)
     val encodedMsgs = stateHandler.getMsgs(clientId, channelId, lastMsg).map(_.encode)
-    inChannelRequest.successResponse(Some(BASE64EncodingSerializer.serialize(encodedMsgs)))
+    inChannelRequest.successResponse(Some(encodedMsgs))
   }
 
   protected def createSessionRequest(transportRequest: TransportRequest) = SessionRequest(transportRequest)
