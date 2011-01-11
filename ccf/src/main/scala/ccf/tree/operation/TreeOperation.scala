@@ -18,7 +18,6 @@ package ccf.tree.operation
 
 import ccf.tree.indexing.{Indexable, UndefinedIndex}
 import ccf.tree.TreeNode
-import ccf.transport.BASE64EncodingSerializer
 
 @serializable
 abstract sealed class TreeOperation(val index: Indexable) {
