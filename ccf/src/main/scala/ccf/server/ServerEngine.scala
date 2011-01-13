@@ -68,7 +68,7 @@ class ServerEngine(codec: Codec,
     }
   }
 
-  private def onJoin(joinRequest: JoinRequest): SessionResponse = {
+  private def onJoin(joinRequest: JoinRequest): SessionResponse = remoteCallLock.synchronized {
     val (clientId, channelId) = (joinRequest.clientId, joinRequest.channelId)
     stateHandler.join(clientId, channelId)
     val currentState = operationInterceptor.currentStateFor(channelId).asInstanceOf[AnyRef]
@@ -76,13 +76,13 @@ class ServerEngine(codec: Codec,
     joinRequest.successResponse(Some(serializedState))
   }
 
-  private def onPart(partRequest: PartRequest): SessionResponse = {
+  private def onPart(partRequest: PartRequest): SessionResponse = remoteCallLock.synchronized {
     val (clientId, channelId) = (partRequest.clientId, partRequest.channelId)
     stateHandler.part(clientId, channelId)
     partRequest.successResponse(None)
   }
 
-  private def onOperation(operationRequest: OperationContextRequest) = synchronized {
+  private def onOperation(operationRequest: OperationContextRequest) = remoteCallLock.synchronized {
     val (clientId: ClientId, channelId: ChannelId) = (operationRequest.clientId, operationRequest.channelId)
     try {
       val content = operationRequest.transportRequest.content.getOrElse(throw new RuntimeException("OperationContextRequest missing"))
@@ -120,7 +120,7 @@ class ServerEngine(codec: Codec,
     }
   }
 
-  private def onGetMsgs(inChannelRequest: InChannelRequest): SessionResponse = {
+  private def onGetMsgs(inChannelRequest: InChannelRequest): SessionResponse = remoteCallLock.synchronized {
     val lastMsg = inChannelRequest.content.getOrElse(0).asInstanceOf[Int]
     val (clientId, channelId) = (inChannelRequest.clientId, inChannelRequest.channelId)
     val encodedMsgs = stateHandler.getMsgs(clientId, channelId, lastMsg).map(_.encode)
