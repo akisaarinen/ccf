@@ -39,7 +39,8 @@ class ServerEngine(codec: Codec,
                    stateSerializer: StateSerializer = BASE64EncodingSerializer) extends ShutdownListener {
   val encodingMimeType = codec.mimeType
   val stateHandler = new StateHandler(operationSynchronizerFactory)
-  
+  private val remoteCallLock = new Object
+
   def processRequest(request: String): String = {
     val transportRequest = codec.decodeRequest(request).getOrElse(error("Unable to decode request"))
     val transportResponse = processRequest(transportRequest)
