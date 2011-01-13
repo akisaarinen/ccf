@@ -1,6 +1,4 @@
-package ccf.server
-
-import ccf.transport.TransportRequest
+package ccf.transport
 
 trait TransportRequestInterceptor {
   def isPermitted(r: TransportRequest): (Boolean, String)

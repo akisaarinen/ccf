@@ -18,11 +18,11 @@ package ccf.server
 
 import ccf.tree.operation.TreeOperation
 import ccf.session._
-import ccf.transport.{BASE64EncodingSerializer, Codec, TransportResponse, TransportRequest}
 import ccf.{JupiterOperationSynchronizerFactory, OperationSynchronizerFactory}
 import ccf.tree.JupiterTreeTransformation
 import java.io.{StringWriter, PrintWriter, Serializable}
 import ccf.messaging.{ChannelShutdown, OperationContext}
+import ccf.transport._
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
