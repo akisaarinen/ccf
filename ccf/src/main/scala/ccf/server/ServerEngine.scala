@@ -86,7 +86,7 @@ class ServerEngine(codec: Codec,
     try {
       val content = operationRequest.transportRequest.content.getOrElse(throw new RuntimeException("OperationContextRequest missing"))
       val operationContext = OperationContext(content.asInstanceOf[Map[String, String]], operationDecoder)
-      val state = stateHandler.clientState(clientId)
+      val state = stateHandler.clientStateOption(clientId).getOrElse(throw new Exception("Server has no client state initialized for client, possibly due to reboot"))
       val op = state.receive(operationContext)
       operationInterceptor.applyOperation(this, channelId, op)
 
@@ -113,9 +113,10 @@ class ServerEngine(codec: Codec,
       notifyingInterceptor.foreach(_.notify(clientId, channelId))
       operationRequest.successResponse(None)
     } catch {
-      case e =>
+      case e => {
         println("operation request handling error", e)
-        operationRequest.failureResponse("operation request handling error: " + stackTraceToString(e))
+        operationRequest.failureResponse("operation request handling error: "+stackTraceToString(e))
+      }
     }
   }
 

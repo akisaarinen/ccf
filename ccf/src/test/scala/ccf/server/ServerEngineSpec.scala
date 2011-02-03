@@ -18,6 +18,7 @@ package ccf.server
 
 import org.specs.Specification
 import org.specs.mock.{Mockito, MockitoMatchers}
+import org.mockito.Matchers.anyString
 import javax.activation.MimeType
 import ccf.session._
 import ccf.transport.json.JsonCodec
@@ -125,6 +126,17 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
       val operationResponse = SessionResponse(JsonCodec.decodeResponse(response).get, operationRequest)
       operationResponse.result must equalTo(Right(Success(operationRequest, None)))
       there was one(notifier).notify(clientId, channelId)
+    }
+
+    "reply with failure result (client state not initialized) on operation and no clientState initialized on server (after reboot)" in {
+      val channelId = ChannelId.randomId
+      val clientId = ClientId.randomId
+      val session = new Session(mock[Connection], ccf.session.Version(1, 2), clientId, 0, Set())
+      val operationRequest = OperationContextRequest(session, channelId, new OperationContext(NoOperation(), 0, 0))
+      val response = engine.processRequest(JsonCodec.encodeRequest(operationRequest.transportRequest))
+      val Left(Failure(_, errorMessage)) = SessionResponse(JsonCodec.decodeResponse(response).get, operationRequest).result
+      val expectedErrorMessage = "operation request handling error: java.lang.Exception: Server has no client state initialized for client, possibly due to reboot"
+      errorMessage must startWith(expectedErrorMessage)
     }
 
     "reply with success result containing list of encoded msgs to inchannel request" in {
