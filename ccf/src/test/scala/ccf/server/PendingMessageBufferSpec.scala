@@ -2,7 +2,6 @@ package ccf.server
 
 import org.specs.Specification
 import ccf.session.{ClientId, ChannelId}
-import ccf.transport.Event.Msg
 import ccf.messaging.OperationContext
 import ccf.tree.operation.NoOperation
 
