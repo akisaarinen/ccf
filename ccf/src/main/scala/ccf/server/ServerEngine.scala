@@ -25,10 +25,8 @@ import ccf.transport._
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
-  def currentStateFor(channelId: ChannelId): Serializable = ""
-  def applyOperation(shutdownListener: ShutdownListener, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {}
-  def operationsForCreatingClient(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
-  def operationsForAllClients(clientId: ClientId, channelId: ChannelId, op: TreeOperation): List[TreeOperation] = List()
+  override def currentStateFor(channelId: ChannelId): Serializable = ""
+  override def applyOperation(shutdownListener: ShutdownListener, channelId: ChannelId, op: TreeOperation) {}
 }
 
 class ServerEngine(codec: Codec,

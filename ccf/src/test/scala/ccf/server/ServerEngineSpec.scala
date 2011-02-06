@@ -166,9 +166,6 @@ class ServerEngineSpec extends Specification with Mockito with MockitoMatchers  
    "pass serverEngine to operationPersistor#applyOperation when processing operation" in {
     val operationInterceptorMock = mock[ServerOperationInterceptor]
     val interceptor = new DefaultServerOperationInterceptor {
-      override def applyOperation(shutdownListener: ShutdownListener, clientId: ClientId, channelId: ChannelId, op: TreeOperation) {
-        operationInterceptorMock.applyOperation(shutdownListener, clientId, channelId, op)
-      }
       override def applyOperation(shutdownListener: ShutdownListener, channelId: ChannelId, op: TreeOperation) {
         operationInterceptorMock.applyOperation(shutdownListener, channelId, op)
       }
