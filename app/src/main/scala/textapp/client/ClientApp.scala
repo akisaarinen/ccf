@@ -18,43 +18,58 @@ package textapp.client
 
 import ccf.JupiterOperationSynchronizer
 import ccf.tree.JupiterTreeTransformation
-import ccf.session.ClientId
-import ccf.tree.operation.TreeOperation
-import java.util.{Timer, TimerTask}
-import textapp.messaging.MessageCoder
-import textapp.TextDocument
 import ccf.messaging.OperationContext
 import javax.swing.JFrame
+import ccf.transport.http.HttpConnection
+import ccf.session._
+import java.util.{UUID, Timer, TimerTask}
+import ccf.tree.operation.TreeOperation
+import java.net.URL
+import ccf.transport.BASE64EncodingSerializer
+import textapp.{TextAppOperationDecoder, TextDocument}
 
 class ClientApp(hostname: String, port: Int) {
+  private val connection = HttpConnection.create(new URL("http://" + hostname + ":" + port + "/textapp/"))
+  private val clientId = ClientId.randomId
+  private val channelId = new ChannelId(new UUID(1,1))
+  private val version = Version(1,0)
+  private val sa = new SessionActor(connection, clientId, version)
+
+  private val serializer = BASE64EncodingSerializer
+  private val decoder = new TextAppOperationDecoder
+
+  val document = join
   private val clientSync = new JupiterOperationSynchronizer(false, JupiterTreeTransformation)
-  private val messageCoder = new MessageCoder
-  
-  val httpClient = new HttpClient(hostname, port, ClientId.randomId)
-  val initialText = httpClient.join
-  val document = new TextDocument(initialText)
+
   val frame = new MainFrame(hostname, port, document, sendToServer)
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
   frame.pack()
   frame.setVisible(true)
-  
+
+  private def join: TextDocument = {
+    sa !? Message.Join(channelId) match {
+      case Right(Success(_, Some(data))) => serializer.deserialize[TextDocument](data.toString)
+      case m => error("Error in join: " + m)
+    }
+  }
+
   val timer = new Timer
   timer.scheduleAtFixedRate(syncTask, 0, 500)
 
   private def syncTask = new TimerTask {
-    def run = Utils.invokeAndWait { () => 
-      httpClient.get match {
-        case (hash, msgs) => {
-          msgs.foreach { _ match {
-            case msg: OperationContext =>
-              val op = clientSync.receiveRemoteOperation(msg)
-              applyOperationLocally(op)
-            case msg =>
-              error("Received unknown message type (%s)".format(msg.toString))
-          }}
-          if (document.hash != hash) error("Hash differs after sync :(")
-        }
-      }
+    def run = Utils.invokeAndWait { () =>
+       (sa !? Message.InChannel("channel/getMsgs", channelId, Some(0))) match {
+         case Right(Success(_, Some(encodedMessages: List[_]))) => {
+           val messageMaps:List[Map[String, String]] = encodedMessages.asInstanceOf[List[Map[String, String]]]
+           val messages = messageMaps.map(ccf.messaging.Message(_, decoder))
+           messages.foreach { msg =>
+             val op = clientSync.receiveRemoteOperation(msg.asInstanceOf[OperationContext])
+             applyOperationLocally(op)
+           }
+         }
+         case Right(Success(_, None)) =>
+         case Left(Failure(_, reason)) => println(reason); throw new RuntimeException(reason)
+       }
     }
   }
 
@@ -65,7 +80,8 @@ class ClientApp(hostname: String, port: Int) {
   
   private def sendToServer(op: TreeOperation) {
     document.applyOp(op)
-    val msg = clientSync.createLocalOperation(op)
-    httpClient.add(messageCoder.encode(msg))
+    val context = clientSync.createLocalOperation(op)
+    // TODO: handle errors
+    sa !? Message.OperationContext(channelId, context)
   }
 }

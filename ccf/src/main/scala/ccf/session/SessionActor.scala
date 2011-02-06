@@ -34,6 +34,9 @@ class SessionActor(connection: Connection, clientId: ClientId, version: Version,
       sender ! s
       exit
     }
+    case m => {
+      error("Unhandled message " + m)
+    }
   }}
   private def handleMessage(session: Session, msg: Message): Session = {
     val (nextSession, result) = session.send(msg)

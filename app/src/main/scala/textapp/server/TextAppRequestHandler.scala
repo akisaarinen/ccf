@@ -17,12 +17,11 @@
 package textapp.server
 
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
-import java.net.URI
-import java.util.UUID
-import scala.collection.immutable.Map
-import scala.util.matching.Regex
-import textapp.messaging.MessageCoder
-import ccf.session.{ChannelId, ClientId}
+import ccf.session.ChannelId
+import ccf.server.ServerEngine
+import ccf.transport.json.JsonCodec
+import io.Source
+import textapp.{TextAppOperationDecoder, TextDocument}
 
 class TextAppRequestHandler extends HttpHandler {
   private val page404 = 
@@ -41,26 +40,21 @@ class TextAppRequestHandler extends HttpHandler {
       </body>
     </html>
 
-  private val documentHandler = new DocumentHandler
+  private val document = new TextDocument("")
+  private val interceptor = new TextAppOperationInterceptor(document)
+  private val serverEngine = new ServerEngine(codec = JsonCodec, operationInterceptor = interceptor, operationDecoder = new TextAppOperationDecoder)
   private val defaultChannel = ChannelId.randomId
-  private val messageCoder = new MessageCoder
 
   def handle(exchange: HttpExchange) {
     try {
       val uri = exchange.getRequestURI
       println("Serving '%s' using %s %s".format(uri, exchange.getProtocol, exchange.getRequestMethod))
 
-      val params = new FormDecoder(exchange.getRequestBody).params
-      findResource(uri, params) match {
-        case Some(resource) => {
-          exchange.sendResponseHeaders(200, resource.length)
-          exchange.getResponseBody.write(resource.getBytes)
-        }
-        case None => {
-          exchange.sendResponseHeaders(404, 0)
-          exchange.getResponseBody.write(page404.toString.getBytes)
-        }
-      }
+
+      val request = Source.fromInputStream(exchange.getRequestBody).getLines.toList.foldLeft("\n")(_+_)
+      val reply = serverEngine.processRequest(request)
+      exchange.sendResponseHeaders(200, reply.length)
+      exchange.getResponseBody.write(reply.getBytes)
     } catch {
       case e => 
         println("=== Exception while handling request ===")
@@ -70,42 +64,5 @@ class TextAppRequestHandler extends HttpHandler {
     } finally {
       exchange.getResponseBody.close
     }
-  }
-
-  private def findResource(uri: URI, params: Map[String, String]): Option[String] = {
-    val JoinExpr = new Regex("""/textapp/join""")
-    val QuitExpr = new Regex("""/textapp/quit""")
-    val AddExpr = new Regex("""/textapp/msg/add""")
-    val GetExpr = new Regex("""/textapp/msg/get""")
-        
-    val id = ClientId(java.util.UUID.fromString(params("id")))
-  
-    import net.liftweb.json.JsonAST
-    import net.liftweb.json.JsonDSL._
-
-    val json: JsonAST.JValue = uri.toString match {
-      case JoinExpr() =>
-        val document = documentHandler.onJoin(id, defaultChannel)
-        ("status" -> "ok") ~
-        ("document" -> document.text)
-      case QuitExpr() =>
-        documentHandler.onQuit(id, defaultChannel)
-        ("status" -> "ok")
-      case AddExpr() => 
-        val encodedMsg = params("msg")
-        val msg = messageCoder.decode(encodedMsg)
-        documentHandler.onMsg(id, defaultChannel, msg)
-        ("status" -> "ok")
-      case GetExpr() => 
-        val (msgs, document) = documentHandler.getMessages(id)
-        val encodedMsgs = msgs.map(messageCoder.encode(_))
-        ("status" -> "ok") ~
-        ("msgs" -> encodedMsgs) ~
-        ("hash" -> document.hash)
-      case _ => 
-        ("status" -> "error") ~
-        ("error" -> "unknown uri")
-    }
-    Some(compact(JsonAST.render(json)))
   }
 }

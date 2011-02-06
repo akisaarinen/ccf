@@ -23,7 +23,6 @@ import java.io.Serializable
 
 class TextDocument(initialText: String) extends Serializable {
   private val buffer = new StringBuffer(initialText)
-  private val md = MessageDigest.getInstance("MD5")
   def applyOp(op: TreeOperation): Unit = op match {
     case InsertOperation(TreeIndex(i), Elem(c)) => buffer.insert(i, c)
     case DeleteOperation(TreeIndex(i)) => buffer.deleteCharAt(i)
@@ -36,5 +35,8 @@ class TextDocument(initialText: String) extends Serializable {
     md.update(text.getBytes)
     md.digest.map(0xFF & _).map { "%02x".format(_) }.foldLeft(""){_ + _}
   }
+
+
+  private def md = MessageDigest.getInstance("MD5")
 }
 
