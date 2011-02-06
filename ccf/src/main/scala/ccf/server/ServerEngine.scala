@@ -23,7 +23,6 @@ import java.io.{StringWriter, PrintWriter, Serializable}
 import ccf.messaging.{ChannelShutdown, OperationContext}
 import ccf.transport._
 import ccf.tree.operation.{TreeOperationDecoder, TreeOperation}
-import com.twitter.json.Json
 
 class DefaultServerOperationInterceptor extends ServerOperationInterceptor {
   def currentStateFor(channelId: ChannelId): Serializable = ""
