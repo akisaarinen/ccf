@@ -17,7 +17,6 @@
 package ccf.messaging
 
 import ccf.tree.operation.TreeOperation
-import ccf.tree.operation.TreeOperationDecoder
 import ccf.session.OperationDecoder
 
 sealed abstract class Message {
