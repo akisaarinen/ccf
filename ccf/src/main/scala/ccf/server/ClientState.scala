@@ -17,7 +17,6 @@
 package ccf.server
 
 import ccf.messaging.OperationContext
-import collection.mutable.ArrayBuffer
 import ccf.OperationSynchronizer
 import ccf.tree.operation.TreeOperation
 import ccf.session.ChannelId
