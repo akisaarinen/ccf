@@ -20,7 +20,7 @@ import ccf.tree.operation.TreeOperation
 import textapp.TextDocument
 import ccf.session.{ChannelId, ClientId}
 import java.io.Serializable
-import ccf.server.{ShutdownListener, ServerOperationInterceptor, Server}
+import ccf.server.{ShutdownListener, ServerOperationInterceptor}
 
 class TextAppOperationInterceptor(document: TextDocument) extends ServerOperationInterceptor {
   override def currentStateFor(channelId: ChannelId): Serializable = {
