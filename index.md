@@ -19,9 +19,9 @@ clients over HTTP/1.1 protocol. CCF is distributed under the
 Download
 --------
 
-The latest version of CCF is 0.2.1 and it was released on the 23rd of
-September, 2010. You can download the 
-[sources](http://github.com/akisaarinen/ccf/tarball/v0.2.1) or
+The latest version of CCF is 0.2.14 and it was released on the 20th of
+January, 2010. You can download the 
+[sources](http://github.com/akisaarinen/ccf/tarball/v0.2.14) or
 clone the Git [repository](http://github.com/akisaarinen/ccf) by running:
 
     $ git clone http://github.com/akisaarinen/ccf.git
