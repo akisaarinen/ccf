@@ -25,7 +25,7 @@ object BASE64EncodingSerializer extends StateSerializer {
     encode(JavaSerializer.serialize(op))
   }
 
-  def deserialize[A](in: String)(implicit mf: scala.reflect.Manifest[A]): A = {
+  def deserialize[A](in: String): A = {
     JavaSerializer.deserialize[A](decode(in))
   }
 
