@@ -24,8 +24,11 @@ import javax.servlet.http.HttpServletResponse
 import javax.activation.MimeType
 import java.net.URL
 import java.io.StringWriter
-import ccf.server.ServerEngine
 import ccf.transport.json.JsonCodec
+import ccf.session.ChannelId
+import ccf.server.{ShutdownListener, ServerOperationInterceptor, ServerEngine}
+import ccf.tree.operation.TreeOperation
+import perftest.document.PerfTestDocument
 
 class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
   override def handle(target: String, req: Jetty7Request, httpReq: HttpServletRequest, httpResp: HttpServletResponse) {
@@ -57,13 +60,17 @@ class HttpRequestHandler(engine: ServerEngine) extends AbstractHandler {
 object Server {
   def run(url: URL)= { 
     val server = new Jetty7Server(url.getPort)
-    val connector = new SelectChannelConnector()
-    val codec = JsonCodec
-    val engine = new ServerEngine(codec)
+    val connector = new SelectChannelConnector
+    val engine = new ServerEngine(JsonCodec, new Interceptor)
 
     connector.setPort(url.getPort)
     server.setConnectors(List[Connector](connector).toArray)
     server.setHandler(new HttpRequestHandler(engine))
     server.start
+  }
+
+  class Interceptor extends ServerOperationInterceptor {
+    def applyOperation(shutdownListener: ShutdownListener, channelId: ChannelId, op: TreeOperation) {}
+    def currentStateFor(channelId: ChannelId) = new PerfTestDocument(0)
   }
 }

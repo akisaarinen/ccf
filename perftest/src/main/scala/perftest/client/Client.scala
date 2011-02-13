@@ -22,12 +22,10 @@ import java.net.URL
 
 import net.lag.logging.Logger
 import java.util.logging.Level
-import ccf.messaging.OperationContext
 import ccf.session._
 import ccf.tree.indexing.TreeIndex
-import ccf.tree.TreeNode
-import perftest.PerfTestTreeNode
 import ccf.tree.operation._
+import perftest.document.PerfTestDocument
 
 object Statistics {
   import scala.math._
@@ -43,28 +41,29 @@ object Client {
   private val numberOfMsgsToSend = 10000
   private val clientId = ClientId.randomId
   private val channelId = ChannelId.randomId
+
   private val version = Version(1, 2)
   def run(url: URL) = {
     val conn = HttpConnection.create(url)
-    val sa = new SessionActor(conn, clientId, version)
-    sa ! Message.Join(channelId)
+    val client = new ccf.client.Client[PerfTestDocument](url, version, TreeOperationDecoder)
+    val document = client.join(channelId)
     Logger.get("dispatch").setLevel(Level.OFF)
-    report(roundTripTimes(sa))
-    sa ! Message.Shutdown
+    report(roundTripTimes(client))
+    client.shutdown
   }
-  private def roundTripTimes(sa: SessionActor): List[Double] = {
+  private def roundTripTimes(client: ccf.client.Client[PerfTestDocument]): List[Double] = {
     import System.currentTimeMillis
     (0 to numberOfMsgsToSend).map { index =>
       val startTimestampMillis = currentTimeMillis
-      val context = new OperationContext(createOperation(index), index, 0)
-      sa !? Message.OperationContext(channelId, context)
+      val op = createOperation(index)
+      client.sendOperation(channelId, op)
       (currentTimeMillis - startTimestampMillis).asInstanceOf[Double]
     }.toList
   }
   private def createOperation(i: Int): TreeOperation = {
     (i % 5) match {
       case 0 => NoOperation()
-      case 1 => InsertOperation(TreeIndex(1,2,3), new PerfTestTreeNode("foo"))
+      case 1 => InsertOperation(TreeIndex(1,2,3), new DefaultNode("foo"))
       case 2 => DeleteOperation(TreeIndex(3,2,1))
       case 3 => MoveOperation(TreeIndex(3), TreeIndex(4))
       case 4 => UpdateAttributeOperation(TreeIndex(8), "someAttr", new NopModifier)
@@ -74,4 +73,5 @@ object Client {
     import Statistics._
     println("mean=%f,sd=%f,min=%f,max=%f".format(mean(xs), stddev(xs), min(xs), max(xs)))
   }
+
 }
