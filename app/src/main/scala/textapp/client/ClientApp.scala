@@ -22,6 +22,7 @@ import ccf.messaging.OperationContext
 import javax.swing.JFrame
 import ccf.transport.http.HttpConnection
 import ccf.session._
+import ccf.client.Client
 import java.util.{UUID, Timer, TimerTask}
 import ccf.tree.operation.TreeOperation
 import java.net.URL
@@ -29,47 +30,23 @@ import ccf.transport.BASE64EncodingSerializer
 import textapp.{TextAppOperationDecoder, TextDocument}
 
 class ClientApp(hostname: String, port: Int) {
-  private val connection = HttpConnection.create(new URL("http://" + hostname + ":" + port + "/textapp/"))
-  private val clientId = ClientId.randomId
-  private val channelId = new ChannelId(new UUID(1,1))
+  private val url = new URL("http://" + hostname + ":" + port + "/textapp/")
   private val version = Version(1,0)
-  private val sa = new SessionActor(connection, clientId, version)
+  private val client = new Client[TextDocument](url, version, new TextAppOperationDecoder)
 
-  private val serializer = BASE64EncodingSerializer
-  private val decoder = new TextAppOperationDecoder
+  private val channel = new ChannelId(new UUID(1,1))
 
-  val document = join
-  private val clientSync = new JupiterOperationSynchronizer(false, JupiterTreeTransformation)
-
+  val document = client.join(channel)
   val frame = new MainFrame(hostname, port, document, sendToServer)
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
   frame.pack()
   frame.setVisible(true)
-
-  private def join: TextDocument = {
-    sa !? Message.Join(channelId) match {
-      case Right(Success(_, Some(data))) => serializer.deserialize[TextDocument](data.toString)
-      case m => error("Error in join: " + m)
-    }
-  }
-
   val timer = new Timer
   timer.scheduleAtFixedRate(syncTask, 0, 500)
 
   private def syncTask = new TimerTask {
     def run = Utils.invokeAndWait { () =>
-       (sa !? Message.InChannel("channel/getMsgs", channelId, Some(0))) match {
-         case Right(Success(_, Some(encodedMessages: List[_]))) => {
-           val messageMaps:List[Map[String, String]] = encodedMessages.asInstanceOf[List[Map[String, String]]]
-           val messages = messageMaps.map(ccf.messaging.Message(_, decoder))
-           messages.foreach { msg =>
-             val op = clientSync.receiveRemoteOperation(msg.asInstanceOf[OperationContext])
-             applyOperationLocally(op)
-           }
-         }
-         case Right(Success(_, None)) =>
-         case Left(Failure(_, reason)) => println(reason); throw new RuntimeException(reason)
-       }
+      client.getOperations(channel).foreach(applyOperationLocally(_))
     }
   }
 
@@ -80,8 +57,6 @@ class ClientApp(hostname: String, port: Int) {
   
   private def sendToServer(op: TreeOperation) {
     document.applyOp(op)
-    val context = clientSync.createLocalOperation(op)
-    // TODO: handle errors
-    sa !? Message.OperationContext(channelId, context)
+    client.sendOperation(channel, op)
   }
 }
