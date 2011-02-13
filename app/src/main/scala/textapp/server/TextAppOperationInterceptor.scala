@@ -17,7 +17,7 @@
 package textapp.server
 
 import ccf.tree.operation.TreeOperation
-import textapp.TextDocument
+import textapp.document.TextDocument
 import ccf.session.ChannelId
 import java.io.Serializable
 import ccf.server.{ShutdownListener, ServerOperationInterceptor}

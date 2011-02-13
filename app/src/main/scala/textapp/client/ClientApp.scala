@@ -27,7 +27,7 @@ import java.util.{UUID, Timer, TimerTask}
 import ccf.tree.operation.TreeOperation
 import java.net.URL
 import ccf.transport.BASE64EncodingSerializer
-import textapp.{TextAppOperationDecoder, TextDocument}
+import textapp.document.{TextAppOperationDecoder, TextDocument}
 
 class ClientApp(hostname: String, port: Int) {
   private val url = new URL("http://" + hostname + ":" + port + "/textapp/")

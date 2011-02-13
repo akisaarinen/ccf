@@ -21,7 +21,7 @@ import ccf.session.ChannelId
 import ccf.server.ServerEngine
 import ccf.transport.json.JsonCodec
 import io.Source
-import textapp.{TextAppOperationDecoder, TextDocument}
+import textapp.document.{TextAppOperationDecoder, TextDocument}
 
 class TextAppRequestHandler extends HttpHandler {
   private val page404 = 

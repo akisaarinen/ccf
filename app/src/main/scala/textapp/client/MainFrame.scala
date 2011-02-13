@@ -19,7 +19,7 @@ package textapp.client
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import textapp.client.jgoodies.FormsPanel
-import textapp.{TextDocument, Elem}
+import textapp.document.{TextDocument, Elem}
 import javax.swing.{JLabel, JFrame}
 import java.awt.Color
 

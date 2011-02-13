@@ -1,4 +1,4 @@
-package textapp
+package textapp.document
 
 import ccf.tree.TreeNode
 import ccf.tree.operation.{TreeOperation, Modifier, TreeOperationDecoder}

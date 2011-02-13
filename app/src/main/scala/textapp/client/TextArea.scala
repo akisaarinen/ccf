@@ -17,7 +17,7 @@
 package textapp.client
 
 import ccf.tree.indexing.TreeIndex
-import textapp.Elem
+import textapp.document.Elem
 import java.awt.{Color, Dimension}
 import javax.swing.JTextPane
 import javax.swing.text.{StyleConstants, SimpleAttributeSet, StyleContext}
