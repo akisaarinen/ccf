@@ -18,6 +18,6 @@ package textapp.document
 
 import ccf.tree.TreeNode
 
-case class Elem(c: Char) extends TreeNode {
+case class CharacterNode(c: Char) extends TreeNode {
   def encode: Any = c
 }

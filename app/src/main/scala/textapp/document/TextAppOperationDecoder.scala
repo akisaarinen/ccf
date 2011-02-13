@@ -5,7 +5,7 @@ import ccf.tree.operation.{TreeOperation, Modifier, TreeOperationDecoder}
 
 class TextAppOperationDecoder extends TreeOperationDecoder {
   protected def parseNode(encodedValue: Any): TreeNode = {
-    new Elem(encodedValue.asInstanceOf[String].charAt(0))
+    new CharacterNode(encodedValue.asInstanceOf[String].charAt(0))
   }
 
   protected def parseModifier(modifier: Any): Modifier = {

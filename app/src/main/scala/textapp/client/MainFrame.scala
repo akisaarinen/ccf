@@ -19,7 +19,7 @@ package textapp.client
 import ccf.tree.indexing.TreeIndex
 import ccf.tree.operation.{TreeOperation, InsertOperation, DeleteOperation}
 import textapp.client.jgoodies.FormsPanel
-import textapp.document.{TextDocument, Elem}
+import textapp.document.{TextDocument, CharacterNode}
 import javax.swing.{JLabel, JFrame}
 import java.awt.Color
 
@@ -34,7 +34,7 @@ class MainFrame(hostname: String, port: Int, document: TextDocument, sendToServe
 
   private def onInsert(items: List[(Int, Char)]) {
     items.foreach { case (i, c) => 
-      sendToServer(InsertOperation(TreeIndex(i), Elem(c)))
+      sendToServer(InsertOperation(TreeIndex(i), CharacterNode(c)))
     }
   }
 

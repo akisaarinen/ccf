@@ -17,7 +17,7 @@
 package textapp.client
 
 import ccf.tree.indexing.TreeIndex
-import textapp.document.Elem
+import textapp.document.CharacterNode
 import java.awt.{Color, Dimension}
 import javax.swing.JTextPane
 import javax.swing.text.{StyleConstants, SimpleAttributeSet, StyleContext}
@@ -46,7 +46,7 @@ class TextArea(initialText: String,
   def applyOp(op: TreeOperation) {
     getDocument.removeDocumentListener(listener)
     op match {
-      case InsertOperation(TreeIndex(i), Elem(c)) =>         
+      case InsertOperation(TreeIndex(i), CharacterNode(c)) =>
         getDocument.insertString(i, c.toString, remoteEditAttributes)
       case DeleteOperation(TreeIndex(i)) =>
         getDocument.remove(i, 1)

@@ -24,7 +24,7 @@ import java.io.Serializable
 class TextDocument(initialText: String) extends Serializable {
   private val buffer = new StringBuffer(initialText)
   def applyOp(op: TreeOperation): Unit = op match {
-    case InsertOperation(TreeIndex(i), Elem(c)) => buffer.insert(i, c)
+    case InsertOperation(TreeIndex(i), CharacterNode(c)) => buffer.insert(i, c)
     case DeleteOperation(TreeIndex(i)) => buffer.deleteCharAt(i)
     case NoOperation() =>
     case _ => error("Unknown operation " + op)

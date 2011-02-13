@@ -38,10 +38,10 @@ object TextDocumentSpec extends Specification {
   "TextDocument with operations applied" should {
     val doc = new TextDocument("")
     doBefore {
-      doc.applyOp(new InsertOperation(TreeIndex(0), Elem('a')))
-      doc.applyOp(new InsertOperation(TreeIndex(1), Elem('b')))
-      doc.applyOp(new InsertOperation(TreeIndex(2), Elem('c')))
-      doc.applyOp(new InsertOperation(TreeIndex(3), Elem('d')))
+      doc.applyOp(new InsertOperation(TreeIndex(0), CharacterNode('a')))
+      doc.applyOp(new InsertOperation(TreeIndex(1), CharacterNode('b')))
+      doc.applyOp(new InsertOperation(TreeIndex(2), CharacterNode('c')))
+      doc.applyOp(new InsertOperation(TreeIndex(3), CharacterNode('d')))
       doc.applyOp(new DeleteOperation(TreeIndex(0)))
     }
     
