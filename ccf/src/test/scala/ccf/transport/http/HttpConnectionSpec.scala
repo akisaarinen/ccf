@@ -78,6 +78,19 @@ object HttpConnectionSpec extends Specification with Mockito {
       conn.send(originalRequest)
       there was one(client).post(any[URL], org.mockito.Matchers.eq(encodedExpectedRequest))
     }
+
+  "HttpConnection create" should {
+    "create a HttpConnection having http client with configured timeouts" in {
+      val connection = HttpConnection.create(mock[URL], timeoutMillis = 5000)
+      val client = connection.client.asInstanceOf[DispatchHttpClient]
+      client.timeoutMillis must equalTo(5000)
+    }
+    "create a HttpConnection having http client with default timeouts" in {
+      val connection = HttpConnection.create(mock[URL])
+      val client = connection.client.asInstanceOf[DispatchHttpClient]
+      client.timeoutMillis must equalTo(3000)
+    }
+   }
   }
 
   private def basicRequest: TransportRequest = {

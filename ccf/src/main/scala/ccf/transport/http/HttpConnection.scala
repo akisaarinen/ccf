@@ -24,14 +24,13 @@ import org.apache.http.conn.scheme.Scheme
 import ccf.transport._
 
 object HttpConnection {
-  private val timeoutMillis = 1000
-  def create(url: URL, scheme: Option[Scheme] = None, headerContributor: Option[HttpTransportHeaderContributor] = None) = {
+  def create(url: URL, scheme: Option[Scheme] = None, headerContributor: Option[HttpTransportHeaderContributor] = None, timeoutMillis: Int = 3000) = {
     val httpClient = new DispatchHttpClient(timeoutMillis, scheme)
     new HttpConnection(url, httpClient, JsonDecoder, JsonEncoder, scheme, headerContributor)
   }
 }
 
-class HttpConnection(url: URL, client: HttpClient, decoder: Decoder, encoder: Encoder, scheme: Option[Scheme], headerContributor: Option[HttpTransportHeaderContributor]) extends Connection {
+class HttpConnection(url: URL, val client: HttpClient, decoder: Decoder, encoder: Encoder, scheme: Option[Scheme], headerContributor: Option[HttpTransportHeaderContributor]) extends Connection {
   @throws(classOf[ConnectionException])
   def send(originalRequest: TransportRequest): Option[TransportResponse] = try {
     val headers = originalRequest.headers ++ headerContributor.map(_.getHeaders).getOrElse(Map())

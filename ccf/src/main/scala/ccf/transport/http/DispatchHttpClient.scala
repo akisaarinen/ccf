@@ -24,7 +24,7 @@ import java.net.URL
 import dispatch.{Http => DispatchHttp}
 import org.apache.http.conn.scheme.Scheme
 
-class DispatchHttpClient(timeoutMillis: Int, scheme: Option[Scheme]) extends HttpClient {
+class DispatchHttpClient(val timeoutMillis: Int, scheme: Option[Scheme]) extends HttpClient {
   def this(timeoutMillis: Int) = this(timeoutMillis, None)
   private val http = new DispatchHttp
   init
