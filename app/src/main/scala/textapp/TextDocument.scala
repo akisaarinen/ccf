@@ -31,12 +31,13 @@ class TextDocument(initialText: String) extends Serializable {
   }
   def text = buffer.toString
   def hash: String = {
+    val md = createMd
     md.reset
     md.update(text.getBytes)
     md.digest.map(0xFF & _).map { "%02x".format(_) }.foldLeft(""){_ + _}
   }
 
 
-  private def md = MessageDigest.getInstance("MD5")
+  private def createMd = MessageDigest.getInstance("MD5")
 }
 
