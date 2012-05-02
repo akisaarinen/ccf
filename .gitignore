@@ -18,3 +18,6 @@ target/
 **/*.iml
 **/*.ipr
 **/*.iws
+**/.classpath
+**/.project
+**/.scala_dependencies
