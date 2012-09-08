@@ -1,6 +1,8 @@
 Concurrency Control Framework (CCF)
 ===================================
 
+Note: CCF is *no longer actively developed*.
+
 What is CCF?
 ------------
 
